@@ -1,15 +1,9 @@
-# StreamHub V23
+# StreamHub V23 FINAL
 
-V23 keeps the public page and navigation working even when Supabase configuration is missing.
-Backend features use the Supabase Publishable key from the Vercel environment variable:
+1. Put these files in the GitHub/Vercel project root.
+2. Open `config.js`.
+3. Paste your Supabase **Publishable key** (`sb_publishable_...`) into `SUPABASE_PUBLISHABLE_KEY`.
+4. Never put an `sb_secret_...` key in the frontend.
+5. `supabase/v23.sql` is a compatibility SQL for the existing `profiles`, `streamer_applications` and `streamers` tables.
 
-SUPABASE_PUBLISHABLE_KEY
-
-Do not put a `sb_secret_...` key in frontend files.
-
-Required Vercel environment variable:
-- SUPABASE_PUBLISHABLE_KEY = your `sb_publishable_...` key
-
-After saving the variable, redeploy the project.
-
-The existing STEP 1 and STEP 2 SQL remains the database foundation.
+V23 intentionally does not show a scary connection error on page load. If Supabase is not configured, navigation and modals still work; submitting/login will tell you that the key is missing.
