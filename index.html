@@ -1,73 +1,30 @@
 <!doctype html>
 <html lang="et">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>StreamHub EE</title>
-  <link rel="stylesheet" href="./styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StreamHub EE</title>
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./styles.css">
 </head>
 <body>
 <header class="topbar">
   <a class="brand" href="#"><span>S</span><b>STREAMHUB</b><small>EE</small></a>
-  <nav>
-    <a href="#live">LIVE</a>
-    <a href="#streamers">STRIIMERID</a>
-    <a href="#info">INFO</a>
-  </nav>
+  <nav><a href="#live">LIVE</a><a href="#streamers">STRIIMERID</a><a href="#info">INFO</a></nav>
   <div class="actions">
-    <button id="joinBtn" class="btn secondary">+ LIITU</button>
-    <button id="userBtn" class="btn secondary">KASUTAJA</button>
-    <button id="adminBtn" class="btn secondary">ADMIN</button>
+    <button type="button" id="joinBtn" class="btn secondary">+ LIITU</button>
+    <button type="button" id="userBtn" class="btn secondary">KASUTAJA</button>
+    <button type="button" id="adminBtn" class="btn secondary">ADMIN</button>
   </div>
 </header>
-
 <main>
-  <section class="hero">
-    <div>
-      <div class="eyebrow">ESTONIA • LIVE DIRECTORY</div>
-      <h1>Leia oma lemmik<br><em>striimer.</em></h1>
-      <p>Üks koht Twitchi, YouTube'i, Kicki ja TikToki striimeritele.</p>
-      <div class="hero-actions">
-        <a href="#live" class="btn primary">🔴 Vaata LIVE striime</a>
-        <button id="heroJoin" class="btn secondary">Liitu StreamHubiga →</button>
-      </div>
-    </div>
-  </section>
-
-  <section id="live" class="section">
-    <div class="section-head">
-      <div>
-        <div class="eyebrow">NOW PLAYING</div>
-        <h2>LIVE <em>praegu</em></h2>
-      </div>
-      <div id="platformFilters" class="filters"></div>
-    </div>
-    <div id="liveGrid" class="live-grid empty-state">Hetkel pole ühtegi kinnitatud LIVE striimerit.</div>
-  </section>
-
-  <section id="streamers" class="section">
-    <div class="section-head">
-      <div>
-        <div class="eyebrow">DISCOVER</div>
-        <h2>Kõik <em>striimerid</em></h2>
-      </div>
-      <input id="search" class="search" placeholder="Otsi striimerit...">
-    </div>
-    <div id="streamerGrid" class="streamer-grid"></div>
-  </section>
-
-  <section id="info" class="section info">
-    <div class="eyebrow">STREAMHUB</div>
-    <h2>Kas oled ise <em>striimer?</em></h2>
-    <p>Saada taotlus. Admin vaatab selle üle ning kinnitatud striimerile luuakse automaatselt eraldi konto.</p>
-    <button id="infoJoin" class="btn primary">Saada liitumistaotlus →</button>
-  </section>
+<section class="hero"><div><div class="eyebrow">ESTONIA • LIVE DIRECTORY</div><h1>Leia oma lemmik<br><em>striimer.</em></h1><p>Üks koht Twitchi, YouTube'i, Kicki ja TikToki striimeritele.</p><div class="hero-actions"><a href="#live" class="btn primary">🔴 Vaata LIVE striime</a><button type="button" id="heroJoin" class="btn secondary">Liitu StreamHubiga →</button></div></div></section>
+<section id="live" class="section"><div class="section-head"><div><div class="eyebrow">NOW PLAYING</div><h2>LIVE <em>praegu</em></h2></div><div id="platformFilters" class="filters"></div></div><div id="liveGrid" class="live-grid"><div class="empty-state">Laen...</div></div></section>
+<section id="streamers" class="section"><div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Kõik <em>striimerid</em></h2></div><input id="search" class="search" placeholder="Otsi striimerit..."></div><div id="streamerGrid" class="streamer-grid"></div></section>
+<section id="info" class="section info"><div class="eyebrow">STREAMHUB</div><h2>Kas oled ise <em>striimer?</em></h2><p>Saada taotlus. Admin vaatab selle üle ning kinnitatud striimerile luuakse automaatselt eraldi konto.</p><button type="button" id="infoJoin" class="btn primary">Saada liitumistaotlus →</button></section>
 </main>
-
-<div id="modalRoot"></div>
-<div id="toast"></div>
-
+<div id="modalRoot"></div><div id="toast" aria-live="polite"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./config.js"></script>
 <script src="./app.js"></script>
-</body>
-</html>
+</body></html>
