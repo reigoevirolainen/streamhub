@@ -1,0 +1,14 @@
+<!doctype html><meta charset="utf-8"><title>StreamHub config</title>
+<style>body{font-family:system-ui;background:#08080d;color:#fff;padding:40px}code{background:#171722;padding:4px 8px;border-radius:6px}.ok{color:#53e0a4}.bad{color:#ff6b8a}</style>
+<script src="./config.js"></script>
+<h1>StreamHub V25 config</h1>
+<div id="x"></div>
+<script>
+const c=window.STREAMHUB_CONFIG||{};
+const goodUrl=!!c.SUPABASE_URL;
+const goodKey=typeof c.SUPABASE_PUBLISHABLE_KEY==="string"&&c.SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_");
+const secret=typeof c.SUPABASE_PUBLISHABLE_KEY==="string"&&c.SUPABASE_PUBLISHABLE_KEY.startsWith("sb_secret_");
+x.innerHTML=`<p class="${goodUrl?'ok':'bad'}">Supabase URL: ${goodUrl?'OK':'MISSING'}</p>
+<p class="${goodKey&&!secret?'ok':'bad'}">Publishable key: ${goodKey&&!secret?'OK':'MISSING / WRONG TYPE'}</p>
+${secret?'<p class="bad">SECRET KEY DETECTED — remove it immediately.</p>':''}`;
+</script>

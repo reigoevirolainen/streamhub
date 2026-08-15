@@ -8,7 +8,13 @@
   let filter = "Kõik";
 
   const $ = s => document.querySelector(s);
-  const toast = (msg, bad=false) => { const t=$("#toast"); t.textContent=msg; t.className="toast show "+(bad?"bad":"good"); setTimeout(()=>t.className="toast",3500); };
+  const toast = (msg, bad=false) => {
+    const t=$("#toast");
+    t.textContent=msg;
+    t.className="toast show "+(bad?"bad":"good");
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer=setTimeout(()=>t.className="toast",3500);
+  };
   const esc = s => String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 
   function openModal(html){
@@ -33,7 +39,7 @@
     $(".cancel").onclick=closeModal;
     $("#joinForm").onsubmit=async e=>{
       e.preventDefault();
-      if(!supabase){toast("Lisa config.js-i Supabase Publishable key.",true);return;}
+      if(!supabase){toast("Supabase ühendus puudub. Lisa config.js-i sb_publishable_... võti.",true);return;}
       const d=Object.fromEntries(new FormData(e).entries());
       const {error}=await supabase.from("streamer_applications").insert({name:d.name,email:d.email,platform:d.platform,channel_url:d.channel_url,game:d.game||null,avatar_url:d.avatar_url||null,message:d.message||null,status:"pending"});
       if(error){toast(error.message,true);return}
@@ -49,7 +55,7 @@
     $(".cancel").onclick=closeModal;
     $("#loginForm").onsubmit=async e=>{
       e.preventDefault();
-      if(!supabase){toast("Lisa config.js-i Supabase Publishable key.",true);return}
+      if(!supabase){toast("Supabase ühendus puudub. Lisa config.js-i sb_publishable_... võti.",true);return}
       const d=Object.fromEntries(new FormData(e).entries());
       const {data,error}=await supabase.auth.signInWithPassword({email:d.email,password:d.password});
       if(error){toast(error.message,true);return}
