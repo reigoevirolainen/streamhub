@@ -17,10 +17,14 @@ CREATE TABLE IF NOT EXISTS public.streamers (
   is_live boolean NOT NULL DEFAULT false,
   viewers integer NOT NULL DEFAULT 0,
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  last_checked_at timestamptz,
+  sync_error text
 );
 
 ALTER TABLE public.streamers ADD COLUMN IF NOT EXISTS live_video_id text;
+ALTER TABLE public.streamers ADD COLUMN IF NOT EXISTS last_checked_at timestamptz;
+ALTER TABLE public.streamers ADD COLUMN IF NOT EXISTS sync_error text;
 ALTER TABLE public.streamers DROP CONSTRAINT IF EXISTS streamers_platform_check;
 ALTER TABLE public.streamers ADD CONSTRAINT streamers_platform_check CHECK (platform IN ('Twitch','YouTube','Kick','TikTok'));
 ALTER TABLE public.streamers ENABLE ROW LEVEL SECURITY;
