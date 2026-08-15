@@ -22,6 +22,8 @@ create table if not exists public.streamers(
  last_checked_at timestamptz,
  last_live_at timestamptz,
  sync_error text,
+ manual_live boolean not null default false,
+ manual_viewers integer not null default 0,
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now()
 );
@@ -35,6 +37,8 @@ alter table public.streamers add column if not exists viewers integer default 0;
 alter table public.streamers add column if not exists last_checked_at timestamptz;
 alter table public.streamers add column if not exists last_live_at timestamptz;
 alter table public.streamers add column if not exists sync_error text;
+alter table public.streamers add column if not exists manual_live boolean not null default false;
+alter table public.streamers add column if not exists manual_viewers integer not null default 0;
 alter table public.streamers add column if not exists created_at timestamptz default now();
 alter table public.streamers add column if not exists updated_at timestamptz default now();
 
@@ -95,8 +99,8 @@ language plpgsql security definer set search_path=public as $$
 declare r public.streamers;
 begin
  update public.streamers set
-   is_live=coalesce(p_is_live,false),
-   viewers=greatest(coalesce(p_viewers,0),0),
+   is_live=case when manual_live then true else coalesce(p_is_live,false) end,
+   viewers=case when manual_live and coalesce(p_viewers,0)=0 then greatest(manual_viewers,0) else greatest(coalesce(p_viewers,0),0) end,
    game=case when p_game is not null and trim(p_game)<>'' then trim(p_game) else game end,
    thumbnail_url=case when p_thumbnail_url is not null and trim(p_thumbnail_url)<>'' then p_thumbnail_url else thumbnail_url end,
    live_video_id=case when p_is_live then nullif(trim(coalesce(p_live_video_id,'')),'') else null end,

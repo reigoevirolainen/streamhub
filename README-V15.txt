@@ -76,3 +76,9 @@ For unsupported/unauthorized platforms V15 does not pretend the streamer is live
 Twitch cards can show an iframe preview on hover when LIVE.
 YouTube cards can show the live video preview when a live_video_id exists.
 TikTok LIVE embedding requires TikTok approval for the host domain.
+
+V15.1 MANUAL LIVE FALLBACK
+- Admin form now has 'MÄRGI PRAEGU LIVE' for platforms where automatic LIVE detection is unavailable.
+- Twitch/YouTube/Kick automatic API results remain the preferred source.
+- If manual_live is enabled, the card is shown LIVE; an API sync can still update viewer count when the platform API returns a value.
+- For Twitch, manual LIVE is normally unnecessary because Get Streams directly reports whether the channel is broadcasting and its viewer_count.
