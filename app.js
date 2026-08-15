@@ -1,35 +1,65 @@
 (() => {
-  const baseCfg = window.STREAMHUB_CONFIG || {};
+  const BASE_URL = "https://rrzglnazdppgjjtaswmd.supabase.co";
   const savedKey = localStorage.getItem("streamhub_supabase_publishable_key") || "";
-  const cfg = { ...baseCfg, SUPABASE_PUBLISHABLE_KEY: savedKey || baseCfg.SUPABASE_PUBLISHABLE_KEY || "" };
-  let supabase = (window.supabase && cfg.SUPABASE_URL && cfg.SUPABASE_PUBLISHABLE_KEY)
-    ? window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY)
-    : null;
+  let supabaseClient = null;
 
-  function showSetup() {
+  const $ = s => document.querySelector(s);
+  const toast = (msg, bad=false) => {
+    const t=$("#toast");
+    t.textContent=msg;
+    t.className="toast show "+(bad?"bad":"good");
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer=setTimeout(()=>t.className="toast",3500);
+  };
+  const esc = s => String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+
+  function getClient(){
+    if(supabaseClient) return supabaseClient;
+    const key=localStorage.getItem("streamhub_supabase_publishable_key") || "";
+    if(!window.supabase || !key.startsWith("sb_publishable_")) return null;
+    supabaseClient=window.supabase.createClient(BASE_URL,key);
+    return supabaseClient;
+  }
+
+  function openModal(html){
+    $("#modalRoot").innerHTML=`<div class="modal-back" id="back"><div class="modal">${html}</div></div>`;
+    $("#back").addEventListener("click",e=>{if(e.target.id==="back")closeModal()});
+    $(".close")?.addEventListener("click",closeModal);
+  }
+  function closeModal(){ $("#modalRoot").innerHTML=""; }
+
+  function showSetup(){
     openModal(`<button class="close">×</button>
-      <div class="eyebrow">STREAMHUB SEADISTUS</div>
-      <h2>Ühenda Supabase</h2>
-      <p style="color:#9695aa">Kleebi siia oma Supabase <b>Publishable key</b>. See peab algama <code>sb_publishable_</code>.</p>
-      <div class="field"><label>SUPABASE PUBLISHABLE KEY</label><input id="sbKey" type="password" placeholder="sb_publishable_..." autocomplete="off"></div>
+      <div class="eyebrow">STREAMHUB</div><h2>Ühenda Supabase</h2>
+      <p style="color:#9695aa">Kopeeri Supabase → Settings → API Keys alt <b>Publishable key</b> ja kleebi see siia.</p>
+      <div class="field"><label>PUBLISHABLE KEY</label><input id="sbKey" type="password" placeholder="sb_publishable_..." autocomplete="off"></div>
+      <p style="font-size:12px;color:#777">Ära kasuta siin kunagi <code>sb_secret_...</code> võtit.</p>
       <div class="modal-actions"><button class="btn cancel">Tühista</button><button class="primary" id="connectBtn">ÜHENDA</button></div>`);
     $(".cancel").onclick=closeModal;
     $("#connectBtn").onclick=async()=>{
       const key=$("#sbKey").value.trim();
-      if(!key.startsWith("sb_publishable_")){toast("See ei ole Supabase Publishable key.",true);return}
-      try {
-        const client=window.supabase.createClient(baseCfg.SUPABASE_URL,key);
-        const {error}=await client.from("streamers").select("id").limit(1);
-        if(error && error.code !== "PGRST116"){toast("Võti ei tööta või RLS/tabel pole valmis: "+error.message,true);return}
-        localStorage.setItem("streamhub_supabase_publishable_key",key);
-        cfg.SUPABASE_PUBLISHABLE_KEY=key;
-        supabase=client;
-        closeModal();
-        toast("Supabase ühendatud.");
-        load();
-      } catch(e){toast("Supabase ühendamine ebaõnnestus: "+e.message,true)}
+      if(!key.startsWith("sb_publishable_")){
+        toast("Palun kasuta Supabase Publishable key'd, mis algab sb_publishable_.",true);return;
+      }
+      // Do not block connection on a database-table test. Save the valid publishable
+      // key first, then let normal data loading report any table/RLS issue separately.
+      localStorage.setItem("streamhub_supabase_publishable_key",key);
+      supabaseClient=window.supabase.createClient(BASE_URL,key);
+      closeModal();
+      updateConnectionButton();
+      toast("Supabase võti salvestatud.");
+      load();
     };
   }
+
+  function updateConnectionButton(){
+    const b=$("#setupBtn");
+    if(!b) return;
+    const ok=!!getClient();
+    b.textContent=ok?"SUPABASE ✓":"ÜHENDA";
+    b.classList.toggle("connected",ok);
+  }
+
 
   let streamers = [];
   let filter = "Kõik";
@@ -66,9 +96,9 @@
     $(".cancel").onclick=closeModal;
     $("#joinForm").onsubmit=async e=>{
       e.preventDefault();
-      if(!supabase){showSetup(); return;}
+      const sb=getClient(); if(!sb){showSetup(); return;}
       const d=Object.fromEntries(new FormData(e).entries());
-      const {error}=await supabase.from("streamer_applications").insert({name:d.name,email:d.email,platform:d.platform,channel_url:d.channel_url,game:d.game||null,avatar_url:d.avatar_url||null,message:d.message||null,status:"pending"});
+      const {error}=await sb.from("streamer_applications").insert({name:d.name,email:d.email,platform:d.platform,channel_url:d.channel_url,game:d.game||null,avatar_url:d.avatar_url||null,message:d.message||null,status:"pending"});
       if(error){toast(error.message,true);return}
       closeModal();toast("Taotlus saadetud! Admin vaatab selle üle.");
     };
@@ -84,11 +114,11 @@
       e.preventDefault();
       if(!supabase){showSetup(); return}
       const d=Object.fromEntries(new FormData(e).entries());
-      const {data,error}=await supabase.auth.signInWithPassword({email:d.email,password:d.password});
+      const {data,error}=await sb.auth.signInWithPassword({email:d.email,password:d.password});
       if(error){toast(error.message,true);return}
-      const {data:p}=await supabase.from("profiles").select("user_type,username").eq("id",data.user.id).maybeSingle();
-      if(type==="admin" && p?.user_type!=="admin"){await supabase.auth.signOut();toast("See konto ei ole admin.",true);return}
-      if(type==="user" && p?.user_type!=="streamer"){await supabase.auth.signOut();toast("See konto ei ole striimer.",true);return}
+      const {data:p}=await sb.from("profiles").select("user_type,username").eq("id",data.user.id).maybeSingle();
+      if(type==="admin" && p?.user_type!=="admin"){await sb.auth.signOut();toast("See konto ei ole admin.",true);return}
+      if(type==="user" && p?.user_type!=="streamer"){await sb.auth.signOut();toast("See konto ei ole striimer.",true);return}
       closeModal();toast("Sisselogimine õnnestus.");
     };
   }
@@ -113,7 +143,7 @@
       render();
       return;
     }
-    const {data,error}=await supabase.from("streamers").select("*").order("is_live",{ascending:false}).order("name");
+    const {data,error}=await sb.from("streamers").select("*").order("is_live",{ascending:false}).order("name");
     if(error){toast(error.message,true);return}
     streamers=data||[]; render();
   }
@@ -121,11 +151,12 @@
   function setup(){
     const setupBtn=document.createElement("button");
     setupBtn.className="btn";
-    setupBtn.textContent=supabase?"ÜHENDATUD":"ÜHENDA";
+    setupBtn.textContent=getClient()?"SUPABASE ✓":"ÜHENDA";
     setupBtn.id="setupBtn";
     setupBtn.title="Supabase seadistus";
     $(".actions").prepend(setupBtn);
     setupBtn.onclick=showSetup;
+    updateConnectionButton();
     $("#joinBtn").onclick=joinModal;
     $("#userBtn").onclick=()=>loginModal("user");
     $("#adminBtn").onclick=()=>loginModal("admin");

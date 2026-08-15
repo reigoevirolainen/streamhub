@@ -17,3 +17,5 @@
 .primary{box-shadow:0 8px 24px rgba(182,61,185,.18)}
 
 code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#caa9ff}
+
+.btn.connected{border-color:#2d8c68;color:#7ff0c1}
