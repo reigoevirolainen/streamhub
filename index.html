@@ -1,85 +1,73 @@
 <!doctype html>
 <html lang="et">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>StreamHub Eesti — LIVE striimerid</title>
-<meta name="description" content="Eesti striimerid ühes kohas. LIVE staatus ja vaatajate arv automaatselt.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%238b5cf6'/%3E%3Cpath d='M17 15h31v11H28v7h17v11H28v13H17z' fill='white'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>StreamHub EE</title>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-<div class="ambient"></div>
-<header class="nav">
- <a class="brand" href="#"><span class="brand-icon">S</span><span>STREAM<span>HUB</span></span><b>EE</b></a>
- <nav><a href="#live">LIVE</a><a href="#streamers">STRIIMERID</a><a href="#about">INFO</a></nav>
- <div class="nav-actions"><button id="joinBtn" class="ghost">+ LIITU</button><button id="adminBtn" class="ghost">ADMIN</button></div>
+<header class="topbar">
+  <a class="brand" href="#"><span>S</span><b>STREAMHUB</b><small>EE</small></a>
+  <nav>
+    <a href="#live">LIVE</a>
+    <a href="#streamers">STRIIMERID</a>
+    <a href="#info">INFO</a>
+  </nav>
+  <div class="actions">
+    <button id="joinBtn" class="btn secondary">+ LIITU</button>
+    <button id="userBtn" class="btn secondary">KASUTAJA</button>
+    <button id="adminBtn" class="btn secondary">ADMIN</button>
+  </div>
 </header>
 
 <main>
-<section class="hero">
- <div class="hero-copy">
-  <div class="kicker"><i></i>EESTI STRIIMERID ÜHES KOHAS</div>
-  <h1>Kes on<br><em>praegu LIVE?</em></h1>
-  <p>StreamHub kontrollib toetatud platvorme automaatselt ja näitab päris LIVE staatust ning hetkevaatajate arvu.</p>
-  <div class="hero-cta"><a href="#live" class="btn primary">🔴 VAATA LIVE STRIIME</a><a href="#streamers" class="btn ghost">KÕIK STRIIMERID →</a></div>
- </div>
- <div class="hero-panel">
-  <div class="pulse"></div><span>STAATUS</span><strong id="heroStatus">KONTROLLIB...</strong><small id="heroChecked">Ootan esimest sünkroonimist</small>
-  <div class="hero-stats"><div><b id="liveCount">0</b><span>LIVE</span></div><div><b id="viewerCount">0</b><span>VAATAJAT</span></div><div><b id="streamerCount">0</b><span>STRIIMERIT</span></div></div>
- </div>
-</section>
+  <section class="hero">
+    <div>
+      <div class="eyebrow">ESTONIA • LIVE DIRECTORY</div>
+      <h1>Leia oma lemmik<br><em>striimer.</em></h1>
+      <p>Üks koht Twitchi, YouTube'i, Kicki ja TikToki striimeritele.</p>
+      <div class="hero-actions">
+        <a href="#live" class="btn primary">🔴 Vaata LIVE striime</a>
+        <button id="heroJoin" class="btn secondary">Liitu StreamHubiga →</button>
+      </div>
+    </div>
+  </section>
 
-<section id="live" class="section">
- <div class="section-top"><div><div class="kicker">NOW PLAYING</div><h2>LIVE <em>praegu</em></h2></div><div id="filters" class="filters"></div></div>
- <div id="liveGrid" class="cards"></div>
- <div id="liveEmpty" class="empty hidden"><span>◌</span><h3>Hetkel ei ole ühtegi LIVE striimerit</h3><p>Staatus kontrollitakse automaatselt.</p></div>
-</section>
+  <section id="live" class="section">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">NOW PLAYING</div>
+        <h2>LIVE <em>praegu</em></h2>
+      </div>
+      <div id="platformFilters" class="filters"></div>
+    </div>
+    <div id="liveGrid" class="live-grid empty-state">Hetkel pole ühtegi kinnitatud LIVE striimerit.</div>
+  </section>
 
-<section id="streamers" class="section">
- <div class="section-top"><div><div class="kicker">DISCOVER</div><h2>Kõik <em>striimerid</em></h2></div><input id="search" class="search" placeholder="Otsi nime või mängu..."></div>
- <div id="allGrid" class="cards"></div>
-</section>
+  <section id="streamers" class="section">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">DISCOVER</div>
+        <h2>Kõik <em>striimerid</em></h2>
+      </div>
+      <input id="search" class="search" placeholder="Otsi striimerit...">
+    </div>
+    <div id="streamerGrid" class="streamer-grid"></div>
+  </section>
 
-<section id="about" class="about">
- <div><div class="kicker">STREAMHUB EE</div><h2>Eesti striimerid.<br><em>Ühes kohas.</em></h2></div>
- <div><p>Admin lisab kanali ühe korra. Toetatud platvormide puhul küsib StreamHub taustal platvormilt LIVE staatuse, vaatajate arvu, kategooria ja LIVE thumbnail'i.</p><button id="aboutJoin" class="btn primary">OLED STRIIMER? LIITU →</button></div>
-</section>
+  <section id="info" class="section info">
+    <div class="eyebrow">STREAMHUB</div>
+    <h2>Kas oled ise <em>striimer?</em></h2>
+    <p>Saada taotlus. Admin vaatab selle üle ning kinnitatud striimerile luuakse automaatselt eraldi konto.</p>
+    <button id="infoJoin" class="btn primary">Saada liitumistaotlus →</button>
+  </section>
 </main>
-<footer><span>© 2026 StreamHub Eesti</span><span id="footerSync">Automaatne kontroll</span></footer>
 
-<div id="joinModal" class="modal hidden"><div class="modal-box">
-<button class="close" data-close="joinModal">×</button><div class="kicker">JOIN STREAMHUB</div><h2>Liitu <em>StreamHubiga</em></h2><p>Saada avaldus. Sinu e-posti ei kuvata avalikult.</p>
-<form id="joinForm">
-<label>NIMI<input id="joinName" required maxlength="80"></label>
-<label>PLATVORM<select id="joinPlatform"><option>Twitch</option><option>YouTube</option><option>Kick</option><option>TikTok</option></select></label>
-<label>KANALI URL<input id="joinUrl" required type="url"></label>
-<label>E-POST<input id="joinEmail" required type="email"></label>
-<label>SÕNUM<textarea id="joinMessage" maxlength="1000"></textarea></label>
-<input id="honeypot" class="honeypot" tabindex="-1" autocomplete="off">
-<button class="btn primary submit">SAADA AVALDUS →</button><div id="joinStatus"></div>
-</form></div></div>
+<div id="modalRoot"></div>
+<div id="toast"></div>
 
-<div id="adminModal" class="modal hidden"><div class="modal-box admin-box">
-<button class="close" data-close="adminModal">×</button>
-<div id="loginView"><div class="kicker">STREAMHUB ADMIN</div><h2>Admin <em>login</em></h2><form id="loginForm"><label>E-POST<input id="loginEmail" required type="email"></label><label>PAROOL<input id="loginPassword" required type="password"></label><button class="btn primary submit">LOGI SISSE</button><div id="loginError"></div></form></div>
-<div id="adminView" class="hidden">
-<div class="admin-title"><div><div class="kicker">ADMIN PANEL</div><h2>Striimerid</h2><p>LIVE ja vaatajad tulevad automaatselt platvormilt.</p></div><button id="logoutBtn" class="ghost">Logi välja</button></div>
-<form id="streamerForm">
-<input id="editId" type="hidden">
-<label>STRIIMERI NIMI<input id="name" required maxlength="80"></label>
-<label>PLATVORM<select id="platform"><option>Twitch</option><option>YouTube</option><option>Kick</option><option>TikTok</option></select></label>
-<label>KANALI URL<input id="url" required type="url" placeholder="https://twitch.tv/kasutaja"></label>
-<label>MIDA TA STRIIMIB? <small>(nt Fortnite, Minecraft)</small><input id="game" placeholder="Fortnite"></label>
-<label>AVATARI URL <small>(valikuline)</small><input id="avatar" type="url"></label>
-<div class="form-row"><button id="saveBtn" class="btn primary submit">LISA STRIIMER</button><button id="cancelEdit" type="button" class="ghost hidden">TÜHISTA</button></div>
-<div id="adminError"></div>
-</form>
-<div id="adminList" class="admin-list"></div>
-<div class="applications"><div class="kicker">AVALDUSED</div><div id="applicationsList"></div></div>
-</div></div></div>
-
-<script src="app.js"></script>
-</body></html>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./app.js"></script>
+</body>
+</html>
