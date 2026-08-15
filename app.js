@@ -1,8 +1,35 @@
 (() => {
-  const cfg = window.STREAMHUB_CONFIG || {};
-  const supabase = (window.supabase && cfg.SUPABASE_URL && cfg.SUPABASE_PUBLISHABLE_KEY)
+  const baseCfg = window.STREAMHUB_CONFIG || {};
+  const savedKey = localStorage.getItem("streamhub_supabase_publishable_key") || "";
+  const cfg = { ...baseCfg, SUPABASE_PUBLISHABLE_KEY: savedKey || baseCfg.SUPABASE_PUBLISHABLE_KEY || "" };
+  let supabase = (window.supabase && cfg.SUPABASE_URL && cfg.SUPABASE_PUBLISHABLE_KEY)
     ? window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY)
     : null;
+
+  function showSetup() {
+    openModal(`<button class="close">×</button>
+      <div class="eyebrow">STREAMHUB SEADISTUS</div>
+      <h2>Ühenda Supabase</h2>
+      <p style="color:#9695aa">Kleebi siia oma Supabase <b>Publishable key</b>. See peab algama <code>sb_publishable_</code>.</p>
+      <div class="field"><label>SUPABASE PUBLISHABLE KEY</label><input id="sbKey" type="password" placeholder="sb_publishable_..." autocomplete="off"></div>
+      <div class="modal-actions"><button class="btn cancel">Tühista</button><button class="primary" id="connectBtn">ÜHENDA</button></div>`);
+    $(".cancel").onclick=closeModal;
+    $("#connectBtn").onclick=async()=>{
+      const key=$("#sbKey").value.trim();
+      if(!key.startsWith("sb_publishable_")){toast("See ei ole Supabase Publishable key.",true);return}
+      try {
+        const client=window.supabase.createClient(baseCfg.SUPABASE_URL,key);
+        const {error}=await client.from("streamers").select("id").limit(1);
+        if(error && error.code !== "PGRST116"){toast("Võti ei tööta või RLS/tabel pole valmis: "+error.message,true);return}
+        localStorage.setItem("streamhub_supabase_publishable_key",key);
+        cfg.SUPABASE_PUBLISHABLE_KEY=key;
+        supabase=client;
+        closeModal();
+        toast("Supabase ühendatud.");
+        load();
+      } catch(e){toast("Supabase ühendamine ebaõnnestus: "+e.message,true)}
+    };
+  }
 
   let streamers = [];
   let filter = "Kõik";
@@ -39,7 +66,7 @@
     $(".cancel").onclick=closeModal;
     $("#joinForm").onsubmit=async e=>{
       e.preventDefault();
-      if(!supabase){toast("Supabase ühendus puudub. Lisa config.js-i sb_publishable_... võti.",true);return;}
+      if(!supabase){showSetup(); return;}
       const d=Object.fromEntries(new FormData(e).entries());
       const {error}=await supabase.from("streamer_applications").insert({name:d.name,email:d.email,platform:d.platform,channel_url:d.channel_url,game:d.game||null,avatar_url:d.avatar_url||null,message:d.message||null,status:"pending"});
       if(error){toast(error.message,true);return}
@@ -55,7 +82,7 @@
     $(".cancel").onclick=closeModal;
     $("#loginForm").onsubmit=async e=>{
       e.preventDefault();
-      if(!supabase){toast("Supabase ühendus puudub. Lisa config.js-i sb_publishable_... võti.",true);return}
+      if(!supabase){showSetup(); return}
       const d=Object.fromEntries(new FormData(e).entries());
       const {data,error}=await supabase.auth.signInWithPassword({email:d.email,password:d.password});
       if(error){toast(error.message,true);return}
@@ -92,6 +119,13 @@
   }
 
   function setup(){
+    const setupBtn=document.createElement("button");
+    setupBtn.className="btn";
+    setupBtn.textContent=supabase?"ÜHENDATUD":"ÜHENDA";
+    setupBtn.id="setupBtn";
+    setupBtn.title="Supabase seadistus";
+    $(".actions").prepend(setupBtn);
+    setupBtn.onclick=showSetup;
     $("#joinBtn").onclick=joinModal;
     $("#userBtn").onclick=()=>loginModal("user");
     $("#adminBtn").onclick=()=>loginModal("admin");

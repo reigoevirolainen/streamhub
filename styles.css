@@ -15,3 +15,5 @@
 @keyframes modalin{from{transform:translateY(8px) scale(.985);opacity:.7}to{transform:none;opacity:1}}
 .field input:focus,.field textarea:focus,.field select:focus,.search:focus{outline:none;border-color:#8654ed;box-shadow:0 0 0 3px rgba(134,84,237,.12)}
 .primary{box-shadow:0 8px 24px rgba(182,61,185,.18)}
+
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#caa9ff}
