@@ -1,26 +1,11 @@
-# StreamHub Full
+# StreamHub v4
 
-Includes:
-- Supabase streamer database + admin
-- Public "Liitu" application form
-- Supabase Edge Function for private email delivery
-- Twitch hover preview (autoplay muted); browser policies prevent reliable automatic audio on hover, so sound is enabled by opening the stream/clicking.
-- Twitch/YouTube/Kick links
-- Search and platform filters
+Parandatud admini striimeri salvestamine. v4 ei kasuta HTML elementide automaatseid `window`-muutujaid, mis põhjustasid v3-s võimaliku `name`, `url`, `platform`, `live` jms konflikti.
 
-## Supabase
-Run `supabase.sql` in SQL Editor as `postgres`.
+Enne deployd käivita `supabase.sql` Supabase SQL Editoris `Run as: postgres`.
 
-Deploy `supabase/functions/submit-streamer-application/index.ts` as an Edge Function named `submit-streamer-application`.
-
-Set these Edge Function secrets:
-- `RESEND_API_KEY`
-- `NOTIFY_EMAIL` = your private Gmail address
-
-For email sending from `noreply@streamhub.ee`, verify `streamhub.ee` in Resend first.
-
-Do NOT put secret/service keys into the website or GitHub.
+GitHubi pane failid otse `main` branchi, mitte GitHub Release'i Assets alla.
 
 
-## v3
-TikTok support, refined join/admin buttons, proper textarea typography, favicon, and Twitch hover preview. Run supabase.sql as postgres before using TikTok.
+## v5
+Admini uue striimeri lisamine kasutab `admin_add_streamer` SECURITY DEFINER RPC funktsiooni. Käivita kogu `supabase.sql` enne deployd.
