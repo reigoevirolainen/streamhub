@@ -4,8 +4,14 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>StreamHub Eesti — Eesti striimerid</title>
 <meta name="description" content="Eesti striimerid ühes kohas. Vaata kes on LIVE.">
+<meta name="theme-color" content="#07070b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Cdefs%3E%3ClinearGradient id=%27g%27 x1=%270%27 y1=%270%27 x2=%271%27 y2=%271%27%3E%3Cstop stop-color=%238b5cf6/%3E%3Cstop offset=%271%27 stop-color=%23ec4899/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2764%27 height=%2764%27 rx=%2718%27 fill=%27url(%23g)%27/%3E%3Cpath d=%27M18 18h28v9H27v8h15v9H27v12h-9z%27 fill=%27white%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<meta property="og:title" content="StreamHub Eesti">
+<meta property="og:description" content="Eesti striimerid ühes kohas.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://streamhub.ee/">
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -14,7 +20,7 @@
 <header class="nav">
 <a class="logo" href="#"><span class="logo-mark">S</span><span>STREAM<span>HUB</span></span><small>EE</small></a>
 <nav><a class="active" href="#live">LIVE</a><a href="#streamers">STRIIMERID</a><a href="#about">INFO</a></nav>
-<div class="nav-actions"><button class="join-btn" onclick="openJoin()">+ LIITU</button><button class="add-btn" onclick="openAdmin()">ADMIN</button></div>
+<div class="nav-actions"><button class="add-btn" onclick="openJoin()">+ LIITU</button><button class="add-btn" onclick="openAdmin()">ADMIN</button></div>
 </header>
 <main>
 <section class="hero">
@@ -26,7 +32,7 @@
 </section>
 
 <section id="live" class="section"><div class="section-head"><div><div class="section-kicker">NOW PLAYING</div><h2>LIVE <span>praegu</span></h2></div>
-<div class="filters"><button class="filter active" data-filter="all">Kõik</button><button class="filter" data-filter="Twitch">Twitch</button><button class="filter" data-filter="YouTube">YouTube</button><button class="filter" data-filter="Kick">Kick</button></div></div>
+<div class="filters"><button class="filter active" data-filter="all">Kõik</button><button class="filter" data-filter="Twitch">Twitch</button><button class="filter" data-filter="YouTube">YouTube</button><button class="filter" data-filter="Kick">Kick</button><button class="filter" data-filter="TikTok">TikTok</button></div></div>
 <div id="liveGrid" class="grid"></div><div id="emptyLive" class="empty hidden">Hetkel pole ühtegi striimerit LIVE.</div></section>
 
 <section id="streamers" class="section"><div class="section-head"><div><div class="section-kicker">DISCOVER</div><h2>Kõik <span>striimerid</span></h2></div><div class="search-wrap"><span>⌕</span><input id="search" type="search" placeholder="Otsi striimerit..."></div></div><div id="allGrid" class="grid"></div></section>
@@ -41,7 +47,7 @@
 <div class="section-kicker">JOIN STREAMHUB</div><h2>Liitu StreamHubiga</h2><p class="muted">Täida vorm. Avaldus salvestatakse ja sulle vastatakse e-posti teel.</p>
 <form id="joinForm">
 <label>Striimeri nimi *<input id="joinName" required maxlength="80" placeholder="Näiteks Selgrootu"></label>
-<label>Platvorm *<select id="joinPlatform"><option>Twitch</option><option>YouTube</option><option>Kick</option></select></label>
+<label>Platvorm *<select id="joinPlatform"><option>Twitch</option><option>YouTube</option><option>Kick</option><option>TikTok</option></select></label>
 <label>Kanali link *<input id="joinUrl" required type="url" maxlength="500" placeholder="https://twitch.tv/sinu_kasutajanimi"></label>
 <label>Sinu e-post *<input id="joinEmail" required type="email" maxlength="254" placeholder="sina@email.ee"></label>
 <label>Sõnum <textarea id="joinMessage" maxlength="1000" placeholder="Midagi, mida tahad meile öelda..."></textarea></label>
@@ -55,7 +61,7 @@
 <div id="loginView"><div class="section-kicker">STREAMHUB ADMIN</div><h2>Admin login</h2><p class="muted">Logi sisse oma Supabase kasutajaga.</p>
 <form id="loginForm"><label>E-post<input id="loginEmail" type="email" required></label><label>Parool<input id="loginPassword" type="password" required></label><button class="primary submit" type="submit">LOGI SISSE</button></form><div id="loginError" class="admin-error hidden"></div></div>
 <div id="adminView" class="hidden"><div class="admin-top"><div><div class="section-kicker">ADMIN PANEL</div><h2>Striimerid</h2></div><button class="secondary small-btn" onclick="logout()">Logi välja</button></div>
-<form id="streamerForm"><input id="editId" type="hidden"><label>Nimi<input id="name" required></label><label>Platvorm<select id="platform"><option>Twitch</option><option>YouTube</option><option>Kick</option></select></label><label>Kanali URL<input id="url" required type="url"></label><label>Mäng<input id="game"></label><label>Avatari URL<input id="avatar" type="url"></label><label>Thumbnail URL<input id="thumbnail" type="url"></label><label class="check"><input id="live" type="checkbox"> On praegu LIVE</label><label>Vaatajad<input id="viewers" type="number" min="0" value="0"></label>
+<form id="streamerForm"><input id="editId" type="hidden"><label>Nimi<input id="name" required></label><label>Platvorm<select id="platform"><option>Twitch</option><option>YouTube</option><option>Kick</option><option>TikTok</option></select></label><label>Kanali URL<input id="url" required type="url"></label><label>Mäng<input id="game"></label><label>Avatari URL<input id="avatar" type="url"></label><label>Thumbnail URL<input id="thumbnail" type="url"></label><label class="check"><input id="live" type="checkbox"> On praegu LIVE</label><label>Vaatajad<input id="viewers" type="number" min="0" value="0"></label>
 <div class="form-actions"><button class="primary submit" type="submit" id="saveBtn">Lisa striimer</button><button class="secondary hidden" type="button" id="cancelEdit" onclick="cancelEdit()">Tühista</button></div></form>
 <div id="adminList" class="admin-list"></div><div id="adminError" class="admin-error hidden"></div></div></div></div>
 <script src="app.js"></script>

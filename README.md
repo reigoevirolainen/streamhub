@@ -20,3 +20,7 @@ Set these Edge Function secrets:
 For email sending from `noreply@streamhub.ee`, verify `streamhub.ee` in Resend first.
 
 Do NOT put secret/service keys into the website or GitHub.
+
+
+## v3
+TikTok support, refined join/admin buttons, proper textarea typography, favicon, and Twitch hover preview. Run supabase.sql as postgres before using TikTok.
