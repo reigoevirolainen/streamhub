@@ -271,6 +271,27 @@ async function saveStreamer(e){
   }
 }
 
+
+function renderAdminList(){
+  const el=$("adminList");
+  if(!el)return;
+  if(!streamers.length){
+    el.innerHTML='<div class="empty">Ühtegi striimerit pole.</div>';
+    return;
+  }
+  el.innerHTML=streamers.map(s=>`
+    <div class="admin-row">
+      <div>
+        <strong>${esc(s.name)}</strong>
+        <span>${esc(s.platform)} · ${esc(s.game||"Mäng määramata")} · ${s.is_live?`LIVE · ${Number(s.viewers||0).toLocaleString("et-EE")} vaatajat`:`offline`}</span>
+      </div>
+      <div class="admin-row-actions">
+        <button class="secondary small-btn" type="button" onclick="editStreamer('${s.id}')">Muuda</button>
+        <button class="danger-btn" type="button" onclick="deleteStreamer('${s.id}')">Kustuta</button>
+      </div>
+    </div>`).join("");
+}
+
 function editStreamer(id){
   const s=streamers.find(x=>x.id===id);
   if(!s)return;
@@ -345,7 +366,9 @@ async function approveApplication(id){
   const a=applications.find(x=>x.id===id);
   if(!a)return;
 
-  const {error}=await db.rpc("admin_approve_application",{p_application_id:id});
+  const {error}=await db.from("streamer_applications")
+    .update({status:"approved"})
+    .eq("id",id);
 
   if(error){
     $("adminError").textContent=error.message;
@@ -353,14 +376,13 @@ async function approveApplication(id){
     return;
   }
 
-  await Promise.all([loadApplications(),loadStreamers()]);
+  await loadApplications();
 }
 
 async function rejectApplication(id){
-  const {error}=await db.rpc("admin_set_application_status",{
-    p_application_id:id,
-    p_status:"rejected"
-  });
+  const {error}=await db.from("streamer_applications")
+    .update({status:"rejected"})
+    .eq("id",id);
 
   if(error){
     $("adminError").textContent=error.message;
