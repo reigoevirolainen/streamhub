@@ -78,8 +78,20 @@
 
   function backendRequired() {
     if (getSb()) return true;
-    toast("Supabase pole ühendatud. Lisa config.js-i oma Publishable key või Verceli SUPABASE_PUBLISHABLE_KEY.", "error");
     return false;
+  }
+
+  function backendNotice(container) {
+    if (!container) return;
+    let box = container.querySelector(".backend-notice");
+    if (!box) {
+      box = document.createElement("div");
+      box.className = "backend-notice";
+      box.innerHTML =
+        "<strong>Ühendus seadistamisel</strong>" +
+        "<span>Veebileht töötab, kuid konto- ja taotlusefunktsioonid vajavad Supabase Publishable key'd.</span>";
+      container.prepend(box);
+    }
   }
 
   // ---------- PUBLIC NAVIGATION ----------
@@ -112,7 +124,10 @@
 
   async function submitApplication(e) {
     e.preventDefault();
-    if (!backendRequired()) return;
+    if (!backendRequired()) {
+      backendNotice(e.currentTarget.closest(".modal"));
+      return;
+    }
     const form = e.currentTarget;
     const btn = form.querySelector('button[type="submit"]');
     const payload = Object.fromEntries(new FormData(form).entries());
@@ -151,7 +166,10 @@
 
   async function streamerLogin(e) {
     e.preventDefault();
-    if (!backendRequired()) return;
+    if (!backendRequired()) {
+      backendNotice(e.currentTarget.closest(".modal"));
+      return;
+    }
     const form = e.currentTarget;
     const f = new FormData(form);
     const btn = form.querySelector('button[type="submit"]');
@@ -195,7 +213,10 @@
 
   async function adminLogin(e) {
     e.preventDefault();
-    if (!backendRequired()) return;
+    if (!backendRequired()) {
+      backendNotice(e.currentTarget.closest(".modal"));
+      return;
+    }
     const form = e.currentTarget;
     const f = new FormData(form);
     const btn = form.querySelector('button[type="submit"]');
@@ -222,7 +243,10 @@
   }
 
   async function openAdminPanel() {
-    if (!backendRequired()) return;
+    if (!backendRequired()) {
+      openModal(`<button class="close" aria-label="Sulge">×</button><div class="eyebrow">ADMIN PANEL</div><h2>Admin</h2><div class="backend-notice"><strong>Ühendus seadistamisel</strong><span>Admini andmed muutuvad kättesaadavaks pärast Supabase Publishable key lisamist Verceli keskkonnamuutujasse.</span></div>`);
+      return;
+    }
     if (!(await isAdmin())) return toast("Ainult admin saab seda avada.", "error");
     const { data, error } = await getSb().from("streamer_applications").select("*").order("created_at", { ascending: false });
     if (error) return toast(error.message, "error");
@@ -260,7 +284,10 @@
   }
 
   async function openStreamerDashboard() {
-    if (!backendRequired()) return;
+    if (!backendRequired()) {
+      openModal(`<button class="close" aria-label="Sulge">×</button><div class="eyebrow">KASUTAJA</div><h2>Minu konto</h2><div class="backend-notice"><strong>Ühendus seadistamisel</strong><span>Kasutajakonto vajab Supabase Publishable key'd. Avalik leht ise töötab.</span></div>`);
+      return;
+    }
     const { data: { user } } = await getSb().auth.getUser();
     if (!user) return openLogin();
     const { data: profile, error: pe } = await getSb().from("profiles").select("*").eq("id", user.id).single();

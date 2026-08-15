@@ -43,3 +43,18 @@ width:100%;background:#09090f;color:#fff;border:1px solid #2c2c39;border-radius:
 @media(max-width:850px){.topbar nav{display:none}.live-grid,.streamer-grid{grid-template-columns:1fr 1fr}.hero h1{font-size:45px}}
 @media(max-width:580px){main{padding:40px 16px}.live-grid,.streamer-grid{grid-template-columns:1fr}.actions .btn{padding:9px 10px}.actions #adminBtn{display:none}.section-head{align-items:start;gap:15px;flex-direction:column}.search{width:100%}}
 .live-embed{position:absolute;inset:0;width:100%;height:100%;border:0;opacity:0;transition:opacity .25s;pointer-events:none}.card:hover .live-embed{opacity:1}.card:hover .preview>img{opacity:.18}.toast{position:fixed;right:22px;bottom:22px;z-index:100;background:#171720;border:1px solid #343447;border-radius:12px;padding:13px 16px;box-shadow:0 12px 40px #0008;font-size:12px;font-weight:700}.toast.error{border-color:#743044}.toast.ok{border-color:#276f54}.modal{max-height:88vh;overflow:auto}.application-url{display:block;color:#a978ff;font-size:11px;margin-top:5px;overflow-wrap:anywhere}.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}.dash-row{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:15px;border:1px solid var(--line);border-radius:13px;background:#0d0d15;margin:16px 0}.status{font-size:11px;font-weight:900}.status.on{color:#27d48a}.status.off{color:#ff5c78}.admin-list{display:grid;gap:12px}.application{padding:15px;border:1px solid var(--line);border-radius:13px;background:#0d0d15;display:grid;gap:5px}.application small{color:#9292a6;font-size:10px}.modal-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:12px}.form{display:grid;gap:12px;margin-top:18px}.field{display:grid;gap:6px}.field label{font-size:10px;font-weight:800;color:#a7a7b8}.field input,.field select,.field textarea{width:100%;background:#0b0b12;border:1px solid #292936;color:#fff;border-radius:10px;padding:11px 12px;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:#8055c7}.close{position:absolute;right:18px;top:14px;border:0;background:none;color:#aaa;font-size:26px;cursor:pointer}.modal-backdrop{position:fixed;inset:0;background:#000b;backdrop-filter:blur(8px);z-index:50;display:grid;place-items:center;padding:20px}.modal{position:relative;width:min(620px,100%);background:#101019;border:1px solid #292936;border-radius:20px;padding:28px;box-shadow:0 30px 100px #000}.modal h2{font-size:30px;margin:0 0 8px}.modal p{color:#9292a6;font-size:12px;line-height:1.6}.switch{display:flex}.info p{max-width:620px}@media(max-width:850px){.topbar{padding:0 16px;gap:10px}.topbar nav{display:none}.actions{margin-left:auto}.btn{padding:9px 11px;font-size:11px}main{padding:45px 16px}.hero h1{font-size:44px}.live-grid,.streamer-grid{grid-template-columns:1fr}.section-head{align-items:start;gap:15px;flex-direction:column}.filters{flex-wrap:wrap}.search{width:100%}.modal{padding:22px}.modal-actions{flex-wrap:wrap}.dash-row{align-items:flex-start;flex-direction:column}}
+
+
+/* V23: neutral backend setup notice; never a blocking red error */
+.backend-notice {
+  display: grid;
+  gap: 6px;
+  margin: 14px 0;
+  padding: 13px 15px;
+  border: 1px solid rgba(160, 120, 255, .28);
+  border-radius: 12px;
+  background: rgba(120, 90, 220, .07);
+  color: #b9acd8;
+}
+.backend-notice strong { color: #fff; }
+.backend-notice span { font-size: 13px; line-height: 1.45; }
