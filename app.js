@@ -3,9 +3,14 @@
 
   const C = window.STREAMHUB_CONFIG || {};
   const ADMIN_UID = "56a4036e-b37d-4928-abf2-8f49d709f5b7";
-  const db = window.supabase?.createClient?.(C.SUPABASE_URL, C.SUPABASE_PUBLISHABLE_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-  });
+  const supabaseClient = (window.supabase && C.SUPABASE_URL && C.SUPABASE_PUBLISHABLE_KEY)
+    ? window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_PUBLISHABLE_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      })
+    : null;
+  const db = supabaseClient;
+  // Compatibility alias: older handlers in deployed builds used `supabase`.
+  const supabase = db;
 
   let streamers = [];
   let currentUser = null;
@@ -14,12 +19,12 @@
   let activePlatform = "Kõik";
 
   const games = [
-    { name: "Fortnite", art: "https://image.api.playstation.com/vulcan/ap/rnd/202605/1305/c0fc8d262a1c6c21490cc664dd5959112b059e2a64207865.png" },
-    { name: "Minecraft", art: "https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/key-art/PDP-Hero_OV-Deluxe_16x9.jpg" },
-    { name: "Call of Duty: Warzone", art: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1962663/header.jpg" },
-    { name: "Apex Legends", art: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1172470/header.jpg" },
-    { name: "Grand Theft Auto V", art: "https://media-rockstargames-com.akamaized.net/rockstargames-newsite/img/global/games/fob/1280/V.jpg" },
-    { name: "VALORANT", art: "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/9f939eff9fee851cc96367c394b185c2db33a492-1920x1080.jpg?accountingTag=VAL&auto=format&fit=fill&q=80&w=1082" }
+    { name: "Fortnite", art: "assets/games/fortnite.svg" },
+    { name: "Minecraft", art: "assets/games/minecraft.svg" },
+    { name: "Call of Duty: Warzone", art: "assets/games/warzone.svg" },
+    { name: "Apex Legends", art: "assets/games/apex.svg" },
+    { name: "Grand Theft Auto V", art: "assets/games/gta5.svg" },
+    { name: "VALORANT", art: "assets/games/valorant.svg" }
   ];
 
   const $ = (s) => document.querySelector(s);
@@ -53,6 +58,28 @@
 
   function supaError(e) {
     return [e?.code, e?.message, e?.details, e?.hint].filter(Boolean).join(" — ") || "Tundmatu Supabase viga";
+  }
+
+  function showError(selector, message) {
+    const x = typeof selector === "string" ? $(selector) : selector;
+    if (!x) return;
+    x.textContent = message;
+    x.classList.remove("hidden", "success");
+    x.classList.add("error");
+  }
+
+  function setBusy(form, busy, label = "Töötlen…") {
+    if (!form) return;
+    form.querySelectorAll("button[type=submit]").forEach(btn => {
+      if (busy) {
+        btn.dataset.originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = label;
+      } else {
+        btn.disabled = false;
+        if (btn.dataset.originalText) btn.textContent = btn.dataset.originalText;
+      }
+    });
   }
 
   function card(s) {
@@ -144,7 +171,7 @@
     $("#loginForm").addEventListener("submit", async e => {
       e.preventDefault();
       if (!dbReady()) return;
-      const d = Object.fromEntries(new FormData(form));
+      const d = Object.fromEntries(new FormData(e.currentTarget));
       const { data, error } = await db.auth.signInWithPassword({ email: d.email.trim(), password: d.password });
       if (error) { showAccountError(supaError(error)); return; }
       currentUser = data.user;
@@ -167,7 +194,7 @@
     $("#signupForm").addEventListener("submit", async e => {
       e.preventDefault();
       if (!dbReady()) return;
-      const d = Object.fromEntries(new FormData(form));
+      const d = Object.fromEntries(new FormData(e.currentTarget));
       if (d.password !== d.password2) { showAccountError("Paroolid ei kattu."); return; }
       const { data, error } = await db.auth.signUp({
         email: d.email.trim().toLowerCase(), password: d.password,
@@ -218,7 +245,7 @@
     $("#cancelJoin").onclick = closeModal;
     $("#joinForm").addEventListener("submit", async e => {
       e.preventDefault(); if (!dbReady()) return;
-      const d = Object.fromEntries(new FormData(form));
+      const d = Object.fromEntries(new FormData(e.currentTarget));
       const { error } = await db.rpc("submit_streamer_application", {
         p_name: d.name.trim(),
         p_email: d.email.trim().toLowerCase(),
@@ -295,7 +322,7 @@
       e.preventDefault(); const form=e.currentTarget; if(!form.reportValidity()) return; if(!dbReady()) return;
       setBusy(form,true,"LOGIM SISSE…");
       try {
-        const d=Object.fromEntries(new FormData(form));
+        const d=Object.fromEntries(new FormData(e.currentTarget));
         await db.auth.signOut();
         const {data,error}=await db.auth.signInWithPassword({email:d.email.trim().toLowerCase(),password:d.password});
         if(error){showError("#adminLoginError",supaError(error));return;}
@@ -337,14 +364,14 @@
   }
 
   async function rejectApp(id) {
-    const {error}=await db.from("streamer_applications").update({status:"rejected"}).eq("id",id);
+    const {error}=await db.rpc("admin_reject_application",{p_application_id:id});
     if(error){toast(supaError(error),true);return;}
     toast("Taotlus tagasi lükatud."); await loadAdminApps();
   }
 
   async function adminDelete(id) {
     if(!confirm("Kustuta striimer?")) return;
-    const {error}=await db.from("streamers").delete().eq("id",id);
+    const {error}=await db.rpc("admin_delete_streamer",{p_streamer_id:id});
     if(error){toast(supaError(error),true);return;}
     toast("Kustutatud."); await loadStreamers(); await loadAdminStreams();
   }
@@ -354,7 +381,17 @@
     const b=$("#adminBody");
     b.innerHTML=`<div class="field"><label>NIMI</label><input id="aName" value="${esc(s.name)}"></div><div class="field"><label>MÄNG</label><input id="aGame" value="${esc(s.game||"")}"></div><div class="field"><label>THUMBNAIL URL</label><input id="aThumb" value="${esc(s.thumbnail_url||"")}"></div><div class="field"><label>KANALI URL</label><input id="aUrl" value="${esc(s.channel_url)}"></div><div class="modal-actions"><button type="button" class="btn" id="backAdmin">Tagasi</button><button type="button" class="primary" id="saveAdmin">Salvesta</button></div>`;
     $("#backAdmin").onclick=loadAdminStreams;
-    $("#saveAdmin").onclick=async()=>{const {error}=await db.from("streamers").update({name:$("#aName").value.trim(),game:$("#aGame").value.trim()||null,thumbnail_url:$("#aThumb").value.trim()||null,channel_url:$("#aUrl").value.trim(),updated_at:new Date().toISOString()}).eq("id",id);if(error){toast(supaError(error),true);return;}toast("Salvestatud.");await loadStreamers();loadAdminStreams();};
+    $("#saveAdmin").onclick=async()=>{
+      const {error}=await db.rpc("admin_update_streamer",{
+        p_streamer_id:id,
+        p_name:$("#aName").value.trim(),
+        p_game:$("#aGame").value.trim()||null,
+        p_thumbnail_url:$("#aThumb").value.trim()||null,
+        p_channel_url:$("#aUrl").value.trim()
+      });
+      if(error){toast(supaError(error),true);return;}
+      toast("Salvestatud."); await loadStreamers(); await loadAdminStreams();
+    };
   }
 
   async function loadStreamers() {
@@ -366,7 +403,8 @@
 
   async function boot() {
     if(!dbReady()) return;
-    const {data}=await db.auth.getSession();
+    const {data,error}=await db.auth.getSession();
+    if (error) { toast(supaError(error), true); return; }
     currentUser=data.session?.user||null;
     if(currentUser && currentUser.id!==ADMIN_UID) await loadProfile();
     setupFilters(); renderGames(); await loadStreamers();
@@ -378,10 +416,10 @@
 
   function setup() {
     // Explicit listeners. These are installed only after the DOM exists.
-    $("#userBtn").addEventListener("click", e => { e.preventDefault(); currentUser ? userModal() : accountModal("login"); });
-    $("#adminBtn").addEventListener("click", e => { e.preventDefault(); adminLogin(); });
-    $("#search").addEventListener("input", render);
-    $("#clearGameFilter").addEventListener("click", () => { activeGame=null; render(); });
+    $("#userBtn")?.addEventListener("click", e => { e.preventDefault(); currentUser ? userModal() : accountModal("login"); });
+    $("#adminBtn")?.addEventListener("click", e => { e.preventDefault(); adminLogin(); });
+    $("#search")?.addEventListener("input", render);
+    $("#clearGameFilter")?.addEventListener("click", () => { activeGame=null; render(); });
     $("[data-scroll=\"#live\"]")?.addEventListener("click", e=>{e.preventDefault();$("#live")?.scrollIntoView({behavior:"smooth"});});
     $("[data-scroll=\"#streamers\"]")?.addEventListener("click", e=>{e.preventDefault();$("#streamers")?.scrollIntoView({behavior:"smooth"});});
     boot();
