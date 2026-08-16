@@ -1,0 +1,12 @@
+This is the original StreamHub Eesti v2 baseline recovered from the uploaded project.
+
+The four original application files were NOT modified:
+- app.js
+- index.html
+- style.css
+- README.md
+
+This baseline uses direct Supabase table operations and the original ADMIN_UID.
+It does NOT contain the later profiles/RPC/claim system that broke compatibility.
+
+Do not mix this with the later V20-V30 SQL/app.js until the original baseline is restored and verified.
