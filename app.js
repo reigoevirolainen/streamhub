@@ -57,24 +57,48 @@ function loginModal(kind){
   if(pe){await sb.auth.signOut();toast(pe.message,true);return}
   if(kind==="admin"&&p?.user_type!=="admin"){await sb.auth.signOut();toast("See konto ei ole admin.",true);return}
   if(kind==="user"&&p?.user_type!=="streamer"){await sb.auth.signOut();toast("See konto ei ole streamer.",true);return}
-  currentUser=data.user;currentProfile=p;closeModal();toast("Sisselogimine õnnestus.");
+  currentUser=data.user;currentProfile=p;
+  if(kind==="user"){
+    const {error:ce}=await sb.rpc("claim_my_streamer");
+    if(ce && !/Approved streamer record not found/i.test(ce.message)){
+      await sb.auth.signOut(); toast(ce.message,true); return;
+    }
+  }
+  closeModal();toast("Sisselogimine õnnestus.");
   if(kind==="admin") adminPanel(); else streamerPanel();
  };
 }
 
 function streamerPanel(){
  openModal(`<button class="close">×</button><div class="eyebrow">STREAMER</div><h2>Minu konto</h2>
- <div class="panelbox"><p>Oled sisse logitud.</p><div class="switchrow"><span>ONLINE</span><button id="onlineBtn" class="primary">ONLINE / OFFLINE</button></div></div>
+ <div id="myStreamerBox" class="panelbox"><div class="empty">Laen...</div></div>
  <div class="modal-actions"><button class="btn" id="logoutBtn">LOGI VÄLJA</button></div>`);
  $("#logoutBtn").onclick=async()=>{await sb.auth.signOut();currentUser=null;currentProfile=null;closeModal();toast("Välja logitud.")};
- $("#onlineBtn").onclick=async()=>{
-  const {data,error}=await sb.from("streamers").update({is_live:true,updated_at:new Date().toISOString()}).eq("owner_id",currentUser.id).select().maybeSingle();
-  if(error){toast(error.message,true);return}
-  toast("Sinu staatus on LIVE.");
-  loadStreamers();
+ loadMyStreamer();
+}
+async function loadMyStreamer(){
+ const {data,error}=await sb.from("streamers").select("*").eq("owner_id",currentUser.id).order("created_at",{ascending:false}).limit(1).maybeSingle();
+ if(error){$("#myStreamerBox").innerHTML=`<p class="error">${esc(error.message)}</p>`;return}
+ if(!data){$("#myStreamerBox").innerHTML=`<div class="empty">Sinu kinnitatud striimeri profiili ei leitud.</div>`;return}
+ $("#myStreamerBox").innerHTML=`
+  <div class="panelbox">
+   <b>${esc(data.name)}</b>
+   <p class="muted">${esc(data.platform)} · ${esc(data.game||"Mäng määramata")}</p>
+   <div class="switchrow"><span>STAATUS: <b id="myStatus">${data.is_live?"ONLINE":"OFFLINE"}</b></span>
+   <button id="toggleLive" class="${data.is_live?"btn":"primary"}">${data.is_live?"LÜLITA OFFLINE":"LÜLITA ONLINE"}</button></div>
+   <div style="margin-top:14px;color:#999">Vaatajad: <b id="myViewers">${Number(data.viewers||0).toLocaleString("et-EE")}</b></div>
+  </div>`;
+ $("#toggleLive").onclick=async()=>{
+   const next=!data.is_live;
+   const {error}=await sb.from("streamers").update({is_live:next,updated_at:new Date().toISOString()}).eq("id",data.id).eq("owner_id",currentUser.id);
+   if(error){toast(error.message,true);return}
+   data.is_live=next;
+   $("#myStatus").textContent=next?"ONLINE":"OFFLINE";
+   $("#toggleLive").textContent=next?"LÜLITA OFFLINE":"LÜLITA ONLINE";
+   $("#toggleLive").className=next?"btn":"primary";
+   loadStreamers(); toast(next?"Oled nüüd ONLINE.":"Oled nüüd OFFLINE.");
  };
 }
-
 function adminPanel(){
  openModal(`<button class="close">×</button><div class="eyebrow">ADMIN</div><h2>Admin</h2>
  <div id="adminContent"><div class="empty">Laen taotlusi...</div></div>
@@ -93,7 +117,7 @@ async function loadApplications(){
 async function approve(id){
  const {data,error}=await sb.rpc("admin_approve_streamer",{p_application_id:id});
  if(error){toast(error.message,true);return}
- toast("Taotlus kinnitatud. Konto loomise protsess käivitati.");
+ toast("Taotlus kinnitatud. Striimer lisati kataloogi.");
  loadApplications();
 }
 async function reject(id){

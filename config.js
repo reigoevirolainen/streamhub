@@ -1,10 +1,9 @@
 /*
- STREAMHUB PRODUCTION CONFIG
- Paste your Supabase Publishable key (sb_publishable_...) below once.
- This key is safe for browser use when RLS is correctly configured.
- NEVER put sb_secret_... or service_role here.
+  StreamHub Production V2
+  This is the Supabase PUBLISHABLE key. It is safe for browser use when RLS is configured.
+  NEVER put an sb_secret_... key in this file.
 */
 window.STREAMHUB_CONFIG = {
   SUPABASE_URL: "https://rrzglnazdppgjjtaswmd.supabase.co",
-  SUPABASE_PUBLISHABLE_KEY: ""
+  SUPABASE_PUBLISHABLE_KEY: "sb_publishable_ax0HpMi18hz-AQ2x8XOT3w_gRLYKE4h"
 };
