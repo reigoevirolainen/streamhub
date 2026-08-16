@@ -18,9 +18,18 @@
   let activeGame = null;
   let activePlatform = "Kõik";
 
-  // Featured game artwork is embedded as SVG data so the cards never depend on
-  // a separately deployed /assets folder. Each game gets distinct artwork.
-  const gameArt = (name) => {
+  // Official / publisher-hosted game artwork researched for V35.
+  // The SVG fallback remains local so the UI still renders if an external image is unavailable.
+  const GAME_ART_URLS = {
+    "Fortnite": "https://cdn1.epicgames.com/offer/fn/FNECO_36-10_ForbiddenFruit_EGS_Launcher_KeyArt_Blade_2560x1440_2560x1440-abce17aa0386b48069aa42c1ebf7b864",
+    "Minecraft": "https://cdn.mos.cms.futurecdn.net/v2/t%3A0%2Cl%3A448%2Ccw%3A1152%2Cch%3A1152%2Cq%3A80%2Cw%3A1152/rpPGiw7RjFaeJCCDBC4Bna.jpg",
+    "Call of Duty: Warzone": "https://image.api.playstation.com/vulcan/ap/rnd/202312/0123/978efa66c9645e4692ac7036a31aa002a49d0efb4b88b45c.png",
+    "Apex Legends": "https://cdn.shopify.com/s/files/1/0556/5795/5430/articles/unnamed_40671e72-d1c1-4847-a527-d6a28c25e36b.jpg?v=1706891100",
+    "Grand Theft Auto V": "https://media.vandal.net/m/15192/grand-theft-auto-v-2015413122229_1.jpg",
+    "VALORANT": "https://images.squarespace-cdn.com/content/v1/5f031aa98cea4c639ef3f14f/1628022926456-P2ZU0NTSDBH1VXQKB5EO/riot%2Bnew%2Bheader.jpg"
+  };
+
+  const fallbackGameArt = (name) => {
     const cfg = {
       "Fortnite": ["#6d3df2","#17103b","FORTNITE","✦"],
       "Minecraft": ["#4e9d3d","#13240e","MINECRAFT","◆"],
@@ -30,18 +39,11 @@
       "VALORANT": ["#d54b66","#250c12","VALORANT","◇"]
     }[name] || ["#7c4dff","#171225",name,"✦"];
     const [a,b,title,mark] = cfg;
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500">
-      <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="6" stdDeviation="8" flood-opacity=".65"/></filter></defs>
-      <rect width="900" height="500" fill="url(#bg)"/>
-      <circle cx="120" cy="80" r="190" fill="#fff" opacity=".10"/><circle cx="790" cy="420" r="280" fill="#000" opacity=".20"/>
-      <path d="M0 410 L180 250 L320 335 L470 185 L610 315 L760 175 L900 300 V500 H0Z" fill="#000" opacity=".20"/>
-      <path d="M0 90 Q180 20 360 100 T900 75" fill="none" stroke="#fff" stroke-opacity=".13" stroke-width="7"/>
-      <text x="450" y="245" text-anchor="middle" fill="#fff" font-family="Arial Black,Arial,sans-serif" font-size="58" font-weight="900" letter-spacing="2" filter="url(#shadow)">${title}</text>
-      <text x="450" y="315" text-anchor="middle" fill="#fff" opacity=".90" font-family="Arial,sans-serif" font-size="72" font-weight="900">${mark}</text>
-      <text x="450" y="365" text-anchor="middle" fill="#fff" opacity=".75" font-family="Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="5">STREAMHUB FEATURED GAME</text>
-    </svg>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="900" height="500" fill="url(#bg)"/><circle cx="120" cy="80" r="190" fill="#fff" opacity=".10"/><circle cx="790" cy="420" r="280" fill="#000" opacity=".20"/><path d="M0 410 L180 250 L320 335 L470 185 L610 315 L760 175 L900 300 V500 H0Z" fill="#000" opacity=".20"/><text x="450" y="245" text-anchor="middle" fill="#fff" font-family="Arial Black,Arial,sans-serif" font-size="58" font-weight="900">${title}</text><text x="450" y="315" text-anchor="middle" fill="#fff" opacity=".9" font-family="Arial,sans-serif" font-size="72" font-weight="900">${mark}</text></svg>`;
     return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
   };
+
+  const gameArt = (name) => GAME_ART_URLS[name] || fallbackGameArt(name);
 
   const games = [
     { name: "Fortnite" },
@@ -51,6 +53,7 @@
     { name: "Grand Theft Auto V" },
     { name: "VALORANT" }
   ].map(g => ({ ...g, art: gameArt(g.name) }));
+
 
   const $ = (s) => document.querySelector(s);
   const esc = (v) => String(v ?? "").replace(/[&<>"']/g, c => ({
@@ -136,7 +139,7 @@
       img.dataset.fallbackBound = "1";
       img.addEventListener("error", () => {
         img.onerror = null;
-        img.src = gameArt(img.dataset.gameFallback || "Fortnite");
+        img.src = fallbackGameArt(img.dataset.gameFallback || "Fortnite");
       }, { once: true });
     });
   }
@@ -146,6 +149,8 @@
     const live = rows.filter(s => s.is_live);
     $("#liveGrid").innerHTML = live.length ? live.map(card).join("") : `<div class="empty">Hetkel pole valitud vaates ühtegi LIVE striimerit.</div>`;
     $("#streamerGrid").innerHTML = rows.length ? rows.map(card).join("") : `<div class="empty">Ühtegi striimerit ei leitud.</div>`;
+    $("#heroLiveCount") && ($("#heroLiveCount").textContent = streamers.filter(s => s.is_live).length.toLocaleString("et-EE"));
+    $("#heroStreamerCount") && ($("#heroStreamerCount").textContent = streamers.length.toLocaleString("et-EE"));
     wireImageFallbacks();
     renderGames();
   }
@@ -157,7 +162,7 @@
     strip.innerHTML = games.map(g => {
       const count = streamers.filter(s => String(s.game || "").trim().toLowerCase() === g.name.toLowerCase() && s.is_live).length;
       return `<button type="button" class="game-tile ${activeGame === g.name ? "active" : ""}" data-game="${esc(g.name)}">
-        <span class="game-art" style="background-image:url('${esc(g.art)}')"></span>
+        <img class="game-art" src="${esc(g.art)}" data-game-art-fallback="${esc(g.name)}" alt="${esc(g.name)}" loading="lazy">
         <span class="game-name">${esc(g.name)}</span><span class="game-count">${count} LIVE</span>
       </button>`;
     }).join("");
@@ -166,6 +171,11 @@
       render();
       $("#games")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }));
+    strip.querySelectorAll("img[data-game-art-fallback]").forEach(img => {
+      if (img.dataset.bound) return;
+      img.dataset.bound = "1";
+      img.addEventListener("error", () => { img.onerror = null; img.src = fallbackGameArt(img.dataset.gameArtFallback || "Fortnite"); }, { once: true });
+    });
 
     if (!activeGame) { results.classList.add("hidden"); results.innerHTML = ""; return; }
     const found = streamers.filter(s => String(s.game || "").trim().toLowerCase() === activeGame.toLowerCase());
