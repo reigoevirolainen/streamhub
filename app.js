@@ -18,14 +18,40 @@
   let activeGame = null;
   let activePlatform = "Kõik";
 
+  // Featured game artwork is embedded as SVG data so the cards never depend on
+  // a separately deployed /assets folder. Each game gets distinct artwork.
+  const gameArt = (name) => {
+    const cfg = {
+      "Fortnite": ["#6d3df2","#17103b","FORTNITE","✦"],
+      "Minecraft": ["#4e9d3d","#13240e","MINECRAFT","◆"],
+      "Call of Duty: Warzone": ["#7d7d7d","#171717","WARZONE","◈"],
+      "Apex Legends": ["#c94c62","#210d13","APEX LEGENDS","△"],
+      "Grand Theft Auto V": ["#7f9d43","#171b10","GRAND THEFT AUTO V","V"],
+      "VALORANT": ["#d54b66","#250c12","VALORANT","◇"]
+    }[name] || ["#7c4dff","#171225",name,"✦"];
+    const [a,b,title,mark] = cfg;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500">
+      <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="6" stdDeviation="8" flood-opacity=".65"/></filter></defs>
+      <rect width="900" height="500" fill="url(#bg)"/>
+      <circle cx="120" cy="80" r="190" fill="#fff" opacity=".10"/><circle cx="790" cy="420" r="280" fill="#000" opacity=".20"/>
+      <path d="M0 410 L180 250 L320 335 L470 185 L610 315 L760 175 L900 300 V500 H0Z" fill="#000" opacity=".20"/>
+      <path d="M0 90 Q180 20 360 100 T900 75" fill="none" stroke="#fff" stroke-opacity=".13" stroke-width="7"/>
+      <text x="450" y="245" text-anchor="middle" fill="#fff" font-family="Arial Black,Arial,sans-serif" font-size="58" font-weight="900" letter-spacing="2" filter="url(#shadow)">${title}</text>
+      <text x="450" y="315" text-anchor="middle" fill="#fff" opacity=".90" font-family="Arial,sans-serif" font-size="72" font-weight="900">${mark}</text>
+      <text x="450" y="365" text-anchor="middle" fill="#fff" opacity=".75" font-family="Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="5">STREAMHUB FEATURED GAME</text>
+    </svg>`;
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  };
+
   const games = [
-    { name: "Fortnite", art: "assets/games/fortnite.svg" },
-    { name: "Minecraft", art: "assets/games/minecraft.svg" },
-    { name: "Call of Duty: Warzone", art: "assets/games/warzone.svg" },
-    { name: "Apex Legends", art: "assets/games/apex.svg" },
-    { name: "Grand Theft Auto V", art: "assets/games/gta5.svg" },
-    { name: "VALORANT", art: "assets/games/valorant.svg" }
-  ];
+    { name: "Fortnite" },
+    { name: "Minecraft" },
+    { name: "Call of Duty: Warzone" },
+    { name: "Apex Legends" },
+    { name: "Grand Theft Auto V" },
+    { name: "VALORANT" }
+  ].map(g => ({ ...g, art: gameArt(g.name) }));
+
   const $ = (s) => document.querySelector(s);
   const esc = (v) => String(v ?? "").replace(/[&<>"']/g, c => ({
     "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
@@ -82,9 +108,9 @@
   }
 
   function card(s) {
-    const img = s.thumbnail_url || s.avatar_url || "assets/games/fortnite.svg";
+    const img = s.thumbnail_url || s.avatar_url || gameArt(s.game || "Fortnite");
     return `<article class="card">
-      <div class="preview"><img src="${esc(img)}" alt="${esc(s.name)} thumbnail" loading="lazy">
+      <div class="preview"><img src="${esc(img)}" data-game-fallback="${esc(s.game || "Fortnite")}" alt="${esc(s.name)} thumbnail" loading="lazy">
         <span class="badge ${s.is_live ? "" : "offline"}">${s.is_live ? "● LIVE" : "OFFLINE"}</span>
         ${s.is_live ? `<span class="viewers">👁 ${Number(s.viewers || 0).toLocaleString("et-EE")}</span>` : ""}
       </div>
@@ -104,11 +130,23 @@
     );
   }
 
+  function wireImageFallbacks() {
+    document.querySelectorAll("img[data-game-fallback]").forEach(img => {
+      if (img.dataset.fallbackBound) return;
+      img.dataset.fallbackBound = "1";
+      img.addEventListener("error", () => {
+        img.onerror = null;
+        img.src = gameArt(img.dataset.gameFallback || "Fortnite");
+      }, { once: true });
+    });
+  }
+
   function render() {
     const rows = filtered();
     const live = rows.filter(s => s.is_live);
     $("#liveGrid").innerHTML = live.length ? live.map(card).join("") : `<div class="empty">Hetkel pole valitud vaates ühtegi LIVE striimerit.</div>`;
     $("#streamerGrid").innerHTML = rows.length ? rows.map(card).join("") : `<div class="empty">Ühtegi striimerit ei leitud.</div>`;
+    wireImageFallbacks();
     renderGames();
   }
 
@@ -134,6 +172,7 @@
     results.classList.remove("hidden");
     results.innerHTML = `<div class="game-results-title">${esc(activeGame)} — ${found.length} striimerit</div>
       <div class="game-results-grid">${found.length ? found.map(card).join("") : `<div class="empty">Selle mängu all pole veel striimereid.</div>`}</div>`;
+    wireImageFallbacks();
   }
 
   function setupFilters() {
