@@ -37,7 +37,12 @@ function joinModal(){
    name:d.name,email:d.email,platform:d.platform,channel_url:d.channel_url,
    game:d.game||null,avatar_url:d.avatar_url||null,message:d.message||null,status:"pending"
   });
-  if(error){toast(error.message,true);return}
+  if(error){
+    console.error("StreamHub application insert error:", error);
+    const detail = [error.message,error.hint,error.details].filter(Boolean).join(" — ");
+    toast(detail || "Taotluse saatmine ebaõnnestus.",true);
+    return;
+  }
   closeModal();toast("Taotlus saadetud. Admin vaatab selle üle.");
  };
 }

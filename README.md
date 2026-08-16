@@ -1,35 +1,14 @@
-# StreamHub PRODUCTION V2
+# StreamHub PRODUCTION V3 FIX
 
-This build has the supplied Supabase PUBLISHABLE key already in `config.js`.
+This version fixes the most likely cause of the "SAADA TAOTLUS" failure:
+`CREATE TABLE IF NOT EXISTS` does not modify an already-existing `streamer_applications` table. V3 explicitly adds the columns, repairs constraints, grants Data API access, and recreates the RLS policies.
 
-## Do this once
+## REQUIRED
 
-1. Upload the files to the GitHub repo root.
-2. In Supabase SQL Editor run the ENTIRE file:
-   `supabase/production_v2.sql`
-3. Find your own Auth user UUID in Supabase Authentication → Users.
-4. Run the final admin line from the SQL file with your UUID:
-   `update public.profiles set user_type='admin' where id='YOUR-UUID';`
-5. Deploy/redeploy Vercel.
+1. Upload V3 files to GitHub root.
+2. In Supabase SQL Editor run **the entire** `supabase/production_v3_fix.sql`.
+3. In Supabase Dashboard go to **Integrations → Data API** and make sure `streamer_applications` is exposed. Supabase's 2026 Data API changes can require explicit exposure/grants for public tables.
+4. Redeploy Vercel.
+5. Test `+ LIITU` → `SAADA TAOTLUS`.
 
-## Security
-
-The browser contains ONLY the `sb_publishable_...` key. Supabase documents publishable keys as safe to expose in public browser code when RLS is configured. Secret keys (`sb_secret_...`) must stay server-side and are never included here.
-
-## What works in this V2
-
-- Public navigation and UI
-- + LIITU → `streamer_applications`
-- Admin login
-- User/streamer login
-- Admin-only application list
-- Admin approve/reject
-- Approved streamer row
-- Automatic claim of approved streamer by matching email
-- Streamer ONLINE/OFFLINE control
-- Public LIVE/offline display
-- Twitch / YouTube / Kick / TikTok
-- Search and platform filters
-- RLS + Data API grants
-
-Automatic creation of a new Auth account and sending a temporary password by email is deliberately NOT faked in browser code. That requires a trusted server/Edge Function using a secret key.
+If it still fails, V3 now shows the full Postgres error, hint and details in the toast and logs the full error in browser Console. That exact message identifies the remaining issue.
