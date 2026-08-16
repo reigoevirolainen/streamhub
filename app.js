@@ -26,7 +26,6 @@
     { name: "Grand Theft Auto V", art: "assets/games/gta5.svg" },
     { name: "VALORANT", art: "assets/games/valorant.svg" }
   ];
-
   const $ = (s) => document.querySelector(s);
   const esc = (v) => String(v ?? "").replace(/[&<>"']/g, c => ({
     "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
@@ -83,7 +82,7 @@
   }
 
   function card(s) {
-    const img = s.thumbnail_url || s.avatar_url || "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80";
+    const img = s.thumbnail_url || s.avatar_url || "assets/games/fortnite.svg";
     return `<article class="card">
       <div class="preview"><img src="${esc(img)}" alt="${esc(s.name)} thumbnail" loading="lazy">
         <span class="badge ${s.is_live ? "" : "offline"}">${s.is_live ? "● LIVE" : "OFFLINE"}</span>
@@ -238,6 +237,7 @@
         <div class="field"><label>PLATVORM</label><select name="platform"><option>Twitch</option><option>YouTube</option><option>Kick</option><option>TikTok</option></select></div>
         <div class="field"><label>KANALI URL</label><input name="channel_url" type="url" required></div>
         <div class="field"><label>MIDA SA STRIIMID?</label><input name="game" placeholder="Fortnite"></div>
+        <div class="field"><label>THUMBNAIL URL (valikuline)</label><input name="thumbnail_url" type="url" placeholder="https://..."></div>
         <div class="field"><label>AVATARI URL (valikuline)</label><input name="avatar_url" type="url"></div>
         <div class="field"><label>SÕNUM (valikuline)</label><textarea name="message"></textarea></div>
         <div class="modal-actions"><button type="button" class="btn" id="cancelJoin">Tühista</button><button type="submit" class="primary">SAADA TAOTLUS</button></div>
@@ -253,6 +253,7 @@
         p_channel_url: d.channel_url.trim(),
         p_game: d.game?.trim() || null,
         p_avatar_url: d.avatar_url?.trim() || null,
+        p_thumbnail_url: d.thumbnail_url?.trim() || null,
         p_message: d.message?.trim() || null
       });
       if (error) { const x=$("#joinError"); x.textContent=supaError(error); x.classList.remove("hidden"); return; }
@@ -352,7 +353,7 @@
     const b=$("#adminBody"); if(!b) return;
     const {data,error}=await db.from("streamer_applications").select("*").order("created_at",{ascending:false});
     if(error){b.innerHTML=`<div class="notice error">${esc(supaError(error))}</div>`;return;}
-    b.innerHTML=(data||[]).map(a=>`<div class="app-row"><b>${esc(a.name)}</b><div class="meta">${esc(a.email)} · ${esc(a.platform)} · ${esc(a.game||"")}</div><div class="meta"><a href="${esc(a.channel_url)}" target="_blank" rel="noopener">${esc(a.channel_url)}</a></div><div class="meta">Staatus: <b>${esc(a.status)}</b></div>${a.status==="pending"?`<div class="admin-actions"><button type="button" class="primary" data-approve="${a.id}">AKSEPTEERI</button><button type="button" class="danger" data-reject="${a.id}">KEELDU</button></div>`:""}</div>`).join("")||`<div class="empty">Taotlusi pole.</div>`;
+    b.innerHTML=(data||[]).map(a=>`<div class="app-row">${a.thumbnail_url?`<img class="admin-thumb" src="${esc(a.thumbnail_url)}" alt="">`:""}<b>${esc(a.name)}</b><div class="meta">${esc(a.email)} · ${esc(a.platform)} · ${esc(a.game||"")}</div><div class="meta"><a href="${esc(a.channel_url)}" target="_blank" rel="noopener">${esc(a.channel_url)}</a></div><div class="meta">Staatus: <b>${esc(a.status)}</b></div>${a.status==="pending"?`<div class="admin-actions"><button type="button" class="primary" data-approve="${a.id}">AKSEPTEERI</button><button type="button" class="danger" data-reject="${a.id}">KEELDU</button></div>`:""}</div>`).join("")||`<div class="empty">Taotlusi pole.</div>`;
     b.querySelectorAll("[data-approve]").forEach(x=>x.onclick=()=>approveApp(x.dataset.approve));
     b.querySelectorAll("[data-reject]").forEach(x=>x.onclick=()=>rejectApp(x.dataset.reject));
   }

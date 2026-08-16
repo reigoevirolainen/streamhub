@@ -23,3 +23,6 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .game-tile .game-art:after{background:linear-gradient(to bottom,rgba(0,0,0,.02) 0%,rgba(0,0,0,.10) 30%,rgba(0,0,0,.90) 100%)}
 .game-tile .game-name{color:#fff!important;font-family:Inter,ui-sans-serif,system-ui,sans-serif}
 .game-tile .game-count{color:#fff!important}
+
+.admin-thumb{display:block;width:180px;height:100px;object-fit:cover;border-radius:10px;border:1px solid #302e3d;margin-bottom:10px}
+.game-strip{scrollbar-width:thin}
