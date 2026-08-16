@@ -1,21 +1,23 @@
-# StreamHub PRODUCTION V4 FIX
+# StreamHub V30 STABLE
 
-This version specifically fixes the public "SAADA TAOTLUS" path.
+This package is based directly on the uploaded `streamhub-main.zip`.
 
-### Why V4 is different
-The previous migration attempted `ALTER COLUMN ... SET NOT NULL` on a legacy table. If old rows contained NULLs, PostgreSQL could abort the migration. V4 never performs that fragile operation.
+## Deploy
+1. Replace the files in your GitHub/Vercel project with this package.
+2. Supabase -> SQL Editor -> **New query**.
+3. Paste the ENTIRE `supabase.sql` from this package.
+4. Click **Run**.
+5. The result must contain: `STREAMHUB V30 DATABASE READY`.
+6. Redeploy Vercel and hard refresh with Ctrl+F5.
 
-The public browser now calls a dedicated `SECURITY DEFINER` function:
-`public.submit_streamer_application(...)`
+## Important
+Do NOT run the old MAIN/Kasutajad/V15/V23/V25 SQL after this.
 
-That function validates the input and inserts the application server-side. The browser only needs EXECUTE permission for the function. Direct anonymous INSERT on the application table is intentionally not required.
+## Admin
+The first authenticated account can bootstrap itself as admin exactly once by clicking ADMIN and logging in. After an admin exists, other users cannot bootstrap themselves.
 
-### Setup
-1. Upload V4 to GitHub root.
-2. Run the ENTIRE `supabase/production_v4_fix.sql` in Supabase SQL Editor.
-3. Make sure Data API is enabled and the `public` schema is exposed. Supabase's current Data API model requires explicit grants/exposure for new public tables/functions.
-4. Redeploy Vercel.
-5. Test `+ LIITU`.
+## Security
+Only the supplied `sb_publishable_...` key is in `config.js`. Supabase documents publishable keys as safe for browser apps when RLS is configured; secret keys must stay server-side.
 
-The supplied publishable key is already in `config.js`.
-Never put an `sb_secret_...` key in frontend code.
+## Automatic LIVE detection
+The frontend supports the database LIVE/OFFLINE and viewer fields. Automatic Twitch/YouTube API synchronization is separate server-side work and should use a Supabase Edge Function with secrets, not browser code.
