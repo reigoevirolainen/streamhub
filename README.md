@@ -1,14 +1,21 @@
-# StreamHub PRODUCTION V3 FIX
+# StreamHub PRODUCTION V4 FIX
 
-This version fixes the most likely cause of the "SAADA TAOTLUS" failure:
-`CREATE TABLE IF NOT EXISTS` does not modify an already-existing `streamer_applications` table. V3 explicitly adds the columns, repairs constraints, grants Data API access, and recreates the RLS policies.
+This version specifically fixes the public "SAADA TAOTLUS" path.
 
-## REQUIRED
+### Why V4 is different
+The previous migration attempted `ALTER COLUMN ... SET NOT NULL` on a legacy table. If old rows contained NULLs, PostgreSQL could abort the migration. V4 never performs that fragile operation.
 
-1. Upload V3 files to GitHub root.
-2. In Supabase SQL Editor run **the entire** `supabase/production_v3_fix.sql`.
-3. In Supabase Dashboard go to **Integrations → Data API** and make sure `streamer_applications` is exposed. Supabase's 2026 Data API changes can require explicit exposure/grants for public tables.
+The public browser now calls a dedicated `SECURITY DEFINER` function:
+`public.submit_streamer_application(...)`
+
+That function validates the input and inserts the application server-side. The browser only needs EXECUTE permission for the function. Direct anonymous INSERT on the application table is intentionally not required.
+
+### Setup
+1. Upload V4 to GitHub root.
+2. Run the ENTIRE `supabase/production_v4_fix.sql` in Supabase SQL Editor.
+3. Make sure Data API is enabled and the `public` schema is exposed. Supabase's current Data API model requires explicit grants/exposure for new public tables/functions.
 4. Redeploy Vercel.
-5. Test `+ LIITU` → `SAADA TAOTLUS`.
+5. Test `+ LIITU`.
 
-If it still fails, V3 now shows the full Postgres error, hint and details in the toast and logs the full error in browser Console. That exact message identifies the remaining issue.
+The supplied publishable key is already in `config.js`.
+Never put an `sb_secret_...` key in frontend code.

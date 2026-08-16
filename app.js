@@ -33,13 +33,18 @@ function joinModal(){
  $(".cancel").onclick=closeModal;
  $("#joinForm").onsubmit=async e=>{
   e.preventDefault(); const d=Object.fromEntries(new FormData(e));
-  const {error}=await sb.from("streamer_applications").insert({
-   name:d.name,email:d.email,platform:d.platform,channel_url:d.channel_url,
-   game:d.game||null,avatar_url:d.avatar_url||null,message:d.message||null,status:"pending"
+  const {data,error}=await sb.rpc("submit_streamer_application",{
+   p_name:d.name,
+   p_email:d.email,
+   p_platform:d.platform,
+   p_channel_url:d.channel_url,
+   p_game:d.game||null,
+   p_avatar_url:d.avatar_url||null,
+   p_message:d.message||null
   });
   if(error){
-    console.error("StreamHub application insert error:", error);
-    const detail = [error.message,error.hint,error.details].filter(Boolean).join(" — ");
+    console.error("StreamHub application RPC error:", error);
+    const detail = [error.message,error.hint,error.details,error.code].filter(Boolean).join(" — ");
     toast(detail || "Taotluse saatmine ebaõnnestus.",true);
     return;
   }
