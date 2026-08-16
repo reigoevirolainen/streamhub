@@ -34,18 +34,30 @@ function joinModal(){
  $("#joinForm").onsubmit=async e=>{
   e.preventDefault(); const d=Object.fromEntries(new FormData(e));
   const {data,error}=await sb.rpc("submit_streamer_application",{
-   p_name:d.name,
-   p_email:d.email,
-   p_platform:d.platform,
-   p_channel_url:d.channel_url,
-   p_game:d.game||null,
-   p_avatar_url:d.avatar_url||null,
-   p_message:d.message||null
+    p_name:d.name,
+    p_email:d.email,
+    p_platform:d.platform,
+    p_channel_url:d.channel_url,
+    p_game:d.game||null,
+    p_avatar_url:d.avatar_url||null,
+    p_message:d.message||null
   });
+
   if(error){
-    console.error("StreamHub application RPC error:", error);
-    const detail = [error.message,error.hint,error.details,error.code].filter(Boolean).join(" — ");
-    toast(detail || "Taotluse saatmine ebaõnnestus.",true);
+    console.error("StreamHub submit_streamer_application error:", error);
+    const detail=[error.code,error.message,error.hint,error.details].filter(Boolean).join(" — ");
+    toast("Taotlus ei läinud läbi: "+(detail||"Supabase viga"),true);
+    const box=$("#joinForm");
+    if(box){
+      let dbg=document.getElementById("submitDebug");
+      if(!dbg){
+        dbg=document.createElement("div");
+        dbg.id="submitDebug";
+        dbg.style.cssText="margin-top:12px;padding:12px;border:1px solid #6a3150;border-radius:9px;color:#ff9db7;font-size:12px;line-height:1.5;word-break:break-word";
+        box.appendChild(dbg);
+      }
+      dbg.textContent="Supabase: "+(detail||"tundmatu viga");
+    }
     return;
   }
   closeModal();toast("Taotlus saadetud. Admin vaatab selle üle.");

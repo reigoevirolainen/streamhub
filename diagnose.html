@@ -1,0 +1,23 @@
+<!doctype html><html lang="et"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>StreamHub Diagnostika</title>
+<style>body{font-family:system-ui;background:#09090f;color:#eee;padding:30px;max-width:900px;margin:auto}button{padding:12px 18px;background:#8e50e8;color:white;border:0;border-radius:8px}pre{white-space:pre-wrap;background:#13131c;padding:16px;border-radius:10px;margin-top:15px}.ok{color:#70e5b2}.bad{color:#ff7898}</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./config.js"></script></head>
+<body><h1>StreamHub diagnostika</h1><p>See leht ei muuda sinu andmeid. See kontrollib ainult ühendust, Data API ligipääsu ja taotluse funktsiooni.</p><button id="run">KÄIVITA TEST</button><pre id="out">Vajuta nuppu.</pre>
+<script>
+const out=document.getElementById("out");const log=(x,ok)=>out.innerHTML+=`<div class="${ok===true?'ok':ok===false?'bad':''}">${x}</div>`;
+run.onclick=async()=>{
+ out.innerHTML="";
+ const c=window.STREAMHUB_CONFIG||{};
+ log("URL: "+(c.SUPABASE_URL?"OK":"PUUDU"),!!c.SUPABASE_URL);
+ log("Publishable key: "+(c.SUPABASE_PUBLISHABLE_KEY?.startsWith("sb_publishable_")?"OK":"PUUDU/VALE"),c.SUPABASE_PUBLISHABLE_KEY?.startsWith("sb_publishable_"));
+ if(!window.supabase||!c.SUPABASE_URL||!c.SUPABASE_PUBLISHABLE_KEY)return;
+ const sb=supabase.createClient(c.SUPABASE_URL,c.SUPABASE_PUBLISHABLE_KEY);
+ const a=await sb.from("streamers").select("id").limit(1);
+ log("streamers SELECT: "+(a.error?a.error.code+" — "+a.error.message:"OK"),!a.error);
+ const r=await sb.rpc("submit_streamer_application",{p_name:"__DIAGNOSTIC__",p_email:"diagnostic-invalid@example.invalid",p_platform:"Twitch",p_channel_url:"https://example.com",p_game:null,p_avatar_url:null,p_message:"DIAGNOSTIC"});
+ log("RPC submit: "+(r.error?r.error.code+" — "+r.error.message+" — "+(r.error.hint||""):"OK"),!r.error);
+ if(!r.error && r.data){await sb.from("streamer_applications").delete().eq("id",r.data);}
+ const ins=await sb.from("streamer_applications").insert({name:"__DIAGNOSTIC__",email:"diagnostic-invalid@example.invalid",platform:"Twitch",channel_url:"https://example.com",status:"pending"}).select("id").maybeSingle();
+ log("Direct INSERT: "+(ins.error?ins.error.code+" — "+ins.error.message+" — "+(ins.error.hint||""):"OK"),!ins.error);
+ if(!ins.error && ins.data?.id)await sb.from("streamer_applications").delete().eq("id",ins.data.id);
+};
+</script></body></html>
