@@ -23,3 +23,5 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .game-tile .game-art:after{background:linear-gradient(to bottom,rgba(0,0,0,.02) 0%,rgba(0,0,0,.10) 30%,rgba(0,0,0,.90) 100%)}
 .game-tile .game-name{color:#fff!important;font-family:Inter,ui-sans-serif,system-ui,sans-serif}
 .game-tile .game-count{color:#fff!important}
+
+.noscript{position:fixed;left:20px;right:20px;bottom:20px;z-index:500;text-align:center}.btn,.primary,.filter,.game-tile,.cardlink,.close-btn,button{cursor:pointer}.btn:focus-visible,.primary:focus-visible,.filter:focus-visible,.game-tile:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #b77cff;outline-offset:2px}.game-art{background-color:#171321}
