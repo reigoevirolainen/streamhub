@@ -14,11 +14,12 @@
   let activePlatform = "Kõik";
 
   const games = [
-    { name: "Fortnite", art: "https://cdn2.unrealengine.com/fortnite-battle-royale-1920x1080-8f1f3a0e2f8b.jpg" },
+    { name: "Fortnite", art: "https://image.api.playstation.com/vulcan/ap/rnd/202605/1305/c0fc8d262a1c6c21490cc664dd5959112b059e2a64207865.png" },
     { name: "Minecraft", art: "https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/key-art/PDP-Hero_OV-Deluxe_16x9.jpg" },
     { name: "Call of Duty: Warzone", art: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1962663/header.jpg" },
     { name: "Apex Legends", art: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1172470/header.jpg" },
-    { name: "Grand Theft Auto V", art: "https://media-rockstargames-com.akamaized.net/rockstargames-newsite/img/global/games/fob/1280/V.jpg" }
+    { name: "Grand Theft Auto V", art: "https://media-rockstargames-com.akamaized.net/rockstargames-newsite/img/global/games/fob/1280/V.jpg" },
+    { name: "VALORANT", art: "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/9f939eff9fee851cc96367c394b185c2db33a492-1920x1080.jpg?accountingTag=VAL&auto=format&fit=fill&q=80&w=1082" }
   ];
 
   const $ = (s) => document.querySelector(s);
@@ -169,13 +170,13 @@
       const d = Object.fromEntries(new FormData(e));
       if (d.password !== d.password2) { showAccountError("Paroolid ei kattu."); return; }
       const { data, error } = await db.auth.signUp({
-        email: d.email.trim(), password: d.password,
+        email: d.email.trim().toLowerCase(), password: d.password,
         options: { data: { username: d.username.trim() } }
       });
       if (error) { showAccountError(supaError(error)); return; }
       if (!data.user) { showAccountError("Konto loomine ebaõnnestus."); return; }
       if (!data.session) {
-        $("#accountBody").innerHTML = `<div class="notice success"><b>Konto on loodud.</b><br><br>Supabase nõuab praegu e-posti kinnitamist. Ava oma Gmailis kinnituslink ja seejärel vajuta KASUTAJA → LOGI SISSE.</div>`;
+        $("#accountBody").innerHTML = `<div class="notice success"><b>Konto on loodud.</b><br><br>Kui e-posti kinnitus on Supabase'is sisse lülitatud, ava Gmailis kinnituslink. Seejärel vajuta KASUTAJA → LOGI SISSE.</div>`;
         return;
       }
       currentUser = data.user;
@@ -193,8 +194,12 @@
   async function loadProfile() {
     currentProfile = null;
     if (!currentUser || !db) return;
-    const { data } = await db.from("profiles").select("id,username,role").eq("id", currentUser.id).maybeSingle();
+    const { data } = await db.from("profiles").select("id,username,user_type").eq("id", currentUser.id).maybeSingle();
     currentProfile = data || null;
+    if (!currentProfile) {
+      const { data: ensured, error: ensureError } = await db.rpc("ensure_my_profile");
+      if (!ensureError) currentProfile = ensured || null;
+    }
   }
 
   function joinModal() {
@@ -214,10 +219,14 @@
     $("#joinForm").addEventListener("submit", async e => {
       e.preventDefault(); if (!dbReady()) return;
       const d = Object.fromEntries(new FormData(e));
-      const { error } = await db.from("streamer_applications").insert({
-        name: d.name.trim(), email: d.email.trim().toLowerCase(), platform: d.platform,
-        channel_url: d.channel_url.trim(), game: d.game?.trim() || null,
-        avatar_url: d.avatar_url?.trim() || null, message: d.message?.trim() || null, status: "pending"
+      const { error } = await db.rpc("submit_streamer_application", {
+        p_name: d.name.trim(),
+        p_email: d.email.trim().toLowerCase(),
+        p_platform: d.platform,
+        p_channel_url: d.channel_url.trim(),
+        p_game: d.game?.trim() || null,
+        p_avatar_url: d.avatar_url?.trim() || null,
+        p_message: d.message?.trim() || null
       });
       if (error) { const x=$("#joinError"); x.textContent=supaError(error); x.classList.remove("hidden"); return; }
       closeModal(); toast("Taotlus saadetud. Admin vaatab selle üle.");
@@ -236,34 +245,26 @@
     const p = $("#userPanel"); if (!p) return;
     const { data: s, error } = await db.from("streamers").select("*").eq("owner_id", currentUser.id).maybeSingle();
     if (error) { p.innerHTML = `<div class="notice error">${esc(supaError(error))}</div>`; return; }
-    p.innerHTML = `<div class="account-panel"><div class="notice">${esc(currentUser.email || "")} · ${esc(currentProfile?.role || "user")}</div>
+    p.innerHTML = `<div class="account-panel"><div class="notice">${esc(currentUser.email || "")} · ${esc(currentProfile?.user_type || "streamer")}</div>
       ${s ? streamerControls(s) : `<div class="notice">Kinnitatud striimeriprofiili ei leitud. Kui admin on sinu taotluse kinnitanud, vajuta allolevat nuppu.</div><button type="button" class="primary" id="claimBtn">VÕTA OMA STRIIMERIPROFIIL</button>`}
       <button type="button" class="btn" id="logoutUser">LOGI VÄLJA</button></div>`;
     $("#logoutUser").onclick = async () => { await db.auth.signOut(); currentUser=null; currentProfile=null; closeModal(); toast("Välja logitud."); };
     $("#claimBtn")?.addEventListener("click", claimStreamer);
     $("#toggleLive")?.addEventListener("click", () => toggleLive(s));
-    $("#saveViewers")?.addEventListener("click", () => saveViewers(s));
+
   }
 
   function streamerControls(s) {
     return `<div class="notice">${esc(s.platform)} · ${esc(s.game || "Streaming")}<br><a href="${esc(s.channel_url)}" target="_blank" rel="noopener">${esc(s.channel_url)}</a></div>
       <div class="live-switch ${s.is_live ? "online" : ""}"><span>STAATUS<br><strong>${s.is_live ? "ONLINE" : "OFFLINE"}</strong></span><button type="button" class="primary" id="toggleLive">${s.is_live ? "LÜLITA OFFLINE" : "LÜLITA ONLINE"}</button></div>
-      <div class="field"><label>VAATAJAD</label><input id="viewerValue" type="number" min="0" value="${Number(s.viewers || 0)}"></div>
-      <button type="button" class="btn" id="saveViewers">SALVESTA VAATAJAD</button>`;
+      <div class="notice">Vaatajate arv tuleb automaatselt platvormi API-st. Seda numbrit ei saa striimer ise muuta.</div>`;
   }
 
   async function toggleLive(s) {
     const next = !s.is_live;
-    const { error } = await db.rpc("set_my_stream_status", { p_is_live: next, p_viewers: next ? Number(s.viewers || 0) : 0 });
+    const { error } = await db.rpc("set_my_stream_live", { p_is_live: next });
     if (error) { toast(supaError(error), true); return; }
     toast(next ? "Oled nüüd ONLINE." : "Oled nüüd OFFLINE."); await loadStreamers(); await loadUserPanel();
-  }
-
-  async function saveViewers(s) {
-    const v = Math.max(0, Number($("#viewerValue")?.value || 0));
-    const { error } = await db.rpc("set_my_stream_status", { p_is_live: true, p_viewers: v });
-    if (error) { toast(supaError(error), true); return; }
-    toast("Vaatajate arv salvestatud."); await loadStreamers(); await loadUserPanel();
   }
 
   async function claimStreamer() {
