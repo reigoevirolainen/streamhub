@@ -1,97 +1,59 @@
 <!doctype html>
 <html lang="et">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>StreamHub — Eesti striimerid</title>
-<link rel="icon" href="assets/streamhub-logo.png">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-:root{--bg:#07070d;--panel:#0f0f18;--line:#29253a;--muted:#9792aa;--text:#f7f5ff;--purple:#a55cff;--pink:#df3fc0}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}
-body:before{content:"";position:fixed;inset:0;z-index:-2;background:
-linear-gradient(90deg,rgba(5,5,12,.98) 0%,rgba(5,5,12,.82) 36%,rgba(5,5,12,.34) 67%,rgba(5,5,12,.55) 100%),
-url("assets/streamhub-bg.png") center/cover no-repeat}
-body:after{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(circle at 90% 18%,rgba(146,62,255,.20),transparent 30%),linear-gradient(180deg,transparent 55%,rgba(7,7,13,.92))}
-header{height:72px;border-bottom:1px solid #211e2d;background:rgba(6,6,12,.75);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:space-between;padding:0 4vw;position:sticky;top:0;z-index:10}
-.logo{height:38px;display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.06em}.logo img{width:34px;height:34px;object-fit:contain}
-nav{display:flex;gap:26px}nav a{color:#aaa5b9;text-decoration:none;font-size:13px;font-weight:800}
-.actions{display:flex;gap:8px}.btn{border:1px solid var(--line);background:#0c0c14;color:#fff;border-radius:11px;padding:10px 15px;font-weight:800;cursor:pointer}.btn.primary{border:0;background:linear-gradient(90deg,var(--purple),var(--pink));box-shadow:0 12px 32px rgba(179,74,255,.24)}
-.wrap{max-width:1200px;margin:auto;padding:0 24px}.hero{min-height:470px;display:flex;align-items:center}.hero-copy{max-width:610px}.eyebrow{color:#b86cff;font-size:11px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}.hero h1{font-size:clamp(48px,6vw,82px);line-height:.92;margin:15px 0}.grad{background:linear-gradient(90deg,#9d5cff,#e03fc2);-webkit-background-clip:text;color:transparent}.hero p{color:#aaa5b8;max-width:550px;line-height:1.6}.stats{display:flex;gap:10px;margin-top:28px}.stat{padding:14px 20px;border:1px solid var(--line);background:rgba(12,12,20,.7);border-radius:13px}.stat b{font-size:20px;display:block}.stat small{font-size:9px;color:#777286;letter-spacing:.12em}
-section{padding:60px 0}.section-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:20px}.section-head h2{font-size:34px;margin:6px 0}.scroll{display:flex;gap:16px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#8f4de5 #12101a;padding:4px 4px 16px;scroll-snap-type:x mandatory}.scroll::-webkit-scrollbar{height:8px}.scroll::-webkit-scrollbar-thumb{background:linear-gradient(90deg,var(--purple),var(--pink));border-radius:99px}.game{min-width:260px;height:145px;border:1px solid var(--line);border-radius:16px;overflow:hidden;position:relative;scroll-snap-align:start;background:#111}.game img{width:100%;height:100%;object-fit:cover;opacity:.82}.game:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.8),transparent 70%)}.game span{position:absolute;z-index:2;bottom:14px;left:16px;font-weight:900}.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}.card{background:rgba(12,12,20,.85);border:1px solid var(--line);border-radius:16px;overflow:hidden}.thumb{height:130px;background:#171522}.thumb img{width:100%;height:100%;object-fit:cover}.card-body{padding:16px}.live{color:#ff5c75;font-size:11px;font-weight:900}.muted{color:var(--muted);font-size:13px}.empty{border:1px dashed #3a354b;padding:40px;text-align:center;color:#716c7f;border-radius:16px}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:30}.modal.open{display:flex}.box{width:min(620px,94vw);max-height:90vh;overflow:auto;background:#10101a;border:1px solid #39334c;border-radius:20px;padding:24px;box-shadow:0 30px 100px #000}.box h2{margin-top:0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:6px;margin:8px 0}.field.full{grid-column:1/-1}.field label{font-size:10px;font-weight:900;color:#9b95aa;letter-spacing:.08em}.field input,.field select,.field textarea{width:100%;background:#08080f;border:1px solid #332e43;color:#fff;border-radius:10px;padding:12px}.field textarea{min-height:90px;resize:vertical}.notice{margin-top:12px;padding:12px;border-radius:10px;background:#151321;border:1px solid #302a40;font-size:13px}.error{color:#ff7188}.ok{color:#6dffb0}
-@media(max-width:800px){nav{display:none}.hero{min-height:400px}.grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>STREAMHUB — Eesti Gaming & Streamer Hub</title>
+  <meta name="description" content="Leia oma lemmik Eesti striimer, vaata kes on LIVE ja hüppa otse kanalisse.">
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  <link rel="stylesheet" href="style.css?v=38.1">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
 </head>
 <body>
-<header>
-  <a class="logo" href="#"><img src="assets/streamhub-logo.png" onerror="this.style.display='none'"><span>STREAMHUB</span></a>
-  <nav><a href="#live">LIVE</a><a href="#games">MÄNGUD</a><a href="#streamers">STRIIMERID</a><a href="#info">INFO</a></nav>
-  <div class="actions"><button class="btn" id="loginBtn">Kasutaja</button><button class="btn" id="joinBtn">Liitu striimerina</button></div>
-</header>
+  <div class="bg-grid"></div><div class="noise"></div>
+  <header class="nav">
+    <a class="brand" href="#"><span class="brand-mark">S</span><span>STREAMHUB</span><small>EE</small></a>
+    <nav><a href="#live">LIVE</a><a href="#games">MÄNGUD</a><a href="#streamers">STRIIMERID</a><a href="#about">INFO</a></nav>
+    <div class="nav-actions"><button id="joinBtn" class="ghost">LIITU STRIIMERINA</button><button id="accountBtn" class="account">KASUTAJA</button><button id="adminBtn" class="admin hidden">ADMIN</button></div>
+  </header>
 
-<main>
-<div class="wrap">
-<section class="hero">
- <div class="hero-copy">
-  <div class="eyebrow">Eesti striimerid ühes kohas</div>
-  <h1>Leia oma <span class="grad">lemmik striimer.</span><br>Ela kaasa LIVE'is.</h1>
-  <p>Vaata, kes on praegu LIVE, avasta uusi mängijaid ja hüppa otse oma lemmikkanalisse.</p>
-  <div class="actions"><a class="btn primary" href="#live">🔴 Vaata LIVE striime</a><a class="btn" href="#streamers">Kõik striimerid →</a></div>
-  <div class="stats"><div class="stat"><b id="liveCount">0</b><small>LIVE STRIIMI</small></div><div class="stat"><b id="streamerCount">0</b><small>STRIIMERIT</small></div><div class="stat"><b id="gameCount">6</b><small>FEATURED MÄNGU</small></div></div>
- </div>
-</section>
+  <main>
+    <section class="hero" id="live">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="pulse"></span> EESTI GAMING HUB</div>
+        <h1>Leia oma <span>lemmik striimer.</span><br>Ela kaasa LIVE'is.</h1>
+        <p>Avasta Eesti gaming community, vaata kes on parasjagu LIVE ja hüppa ühe klikiga otse kanalisse.</p>
+        <div class="hero-actions"><button class="primary" id="heroLiveBtn">VAATA LIVE'I</button><button class="ghost" id="heroJoinBtn">HAKA STRIIMERIKS</button></div>
+      </div>
+      <div class="hero-card">
+        <div class="scan"></div>
+        <div class="hero-card-top"><span>STREAMHUB LIVE</span><span id="liveCount">0 ONLINE</span></div>
+        <div class="radar"><div class="radar-ring r1"></div><div class="radar-ring r2"></div><div class="radar-ring r3"></div><div class="radar-dot"></div></div>
+        <div class="hero-card-bottom"><strong>GAME ON</strong><span>EST • 24/7</span></div>
+      </div>
+    </section>
 
-<section id="live"><div class="section-head"><div><div class="eyebrow">NOW PLAYING</div><h2>LIVE <span class="grad">praegu</span></h2></div></div><div id="liveCards" class="cards"><div class="empty">Hetkel pole valitud vaates ühtegi LIVE striimerit.</div></div></section>
+    <section class="section" id="games">
+      <div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Featured <span>Games</span></h2></div><button class="ghost" id="allGamesBtn">KÕIK MÄNGUD</button></div>
+      <div class="rail-wrap"><button class="rail-btn left" data-target="gameRail">‹</button><div class="rail" id="gameRail"></div><button class="rail-btn right" data-target="gameRail">›</button></div>
+    </section>
 
-<section id="games"><div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Featured <span class="grad">Games</span></h2></div><button class="btn" onclick="document.querySelector('#gameScroll').scrollBy({left:500,behavior:'smooth'})">→</button></div><div id="gameScroll" class="scroll"></div></section>
+    <section class="section" id="streamers">
+      <div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Kõik <span>striimerid</span></h2><p class="section-sub">Kõik StreamHubi striimerid ühes kohas. Sorteerimata ja alati sirvitav.</p></div><div class="filters"><button class="filter active" data-platform="Kõik">Kõik</button><button class="filter" data-platform="Twitch">Twitch</button><button class="filter" data-platform="YouTube">YouTube</button><button class="filter" data-platform="Kick">Kick</button><button class="filter" data-platform="TikTok">TikTok</button></div></div>
+      <div class="streamer-rail-wrap"><button class="rail-btn left" data-target="streamerRail">‹</button><div class="streamer-rail" id="streamerRail"></div><button class="rail-btn right" data-target="streamerRail">›</button></div>
+    </section>
 
-<section id="streamers"><div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Kõik <span class="grad">striimerid</span></h2></div><input id="search" placeholder="Otsi striimerit..." style="background:#0c0c14;border:1px solid #302b40;color:white;padding:10px;border-radius:10px"></div><div id="streamerCards" class="cards"></div></section>
+    <section class="cta">
+      <div><div class="eyebrow">STREAMER AREA</div><h2>Sinu kanal. Sinu community.</h2><p>Liitu StreamHubiga ja anna vaatajatele üks koht, kust sind alati üles leida.</p></div><button class="primary" id="ctaJoin">LIITU STREAMHUBIGA <span>→</span></button>
+    </section>
 
-<section id="info"><div class="card" style="padding:28px"><div class="eyebrow">STREAMHUB</div><h2>StreamHub on uus platvorm, mis koondab kõik Eesti striimerid ühele lehele.</h2></div></section>
-</div>
-</main>
+    <section class="about" id="about"><div class="eyebrow">ABOUT STREAMHUB</div><p>StreamHub on uus platvorm, mis koondab kõik Eesti striimerid ühele lehele.</p></section>
+  </main>
 
-<div id="joinModal" class="modal"><div class="box"><button class="btn" style="float:right" onclick="closeJoin()">✕</button><h2>Liitu striimerina</h2><p class="muted">Täida taotlus. Admin vaatab selle üle. Sa ei pea ise kontot kinnitama.</p>
-<form id="joinForm"><div class="grid">
-<div class="field"><label>STRIIMERI NIMI</label><input name="name" required></div>
-<div class="field"><label>E-POST / KASUTAJATUNNUS</label><input type="email" name="email" required></div>
-<div class="field"><label>PAROOL</label><input type="password" name="password" required minlength="6"></div>
-<div class="field"><label>PAROOL UUESTI</label><input type="password" name="password2" required minlength="6"></div>
-<div class="field"><label>PLATVORM</label><select name="platform"><option>Twitch</option><option>YouTube</option><option>Kick</option><option>TikTok</option></select></div>
-<div class="field"><label>MIDA SA STRIIMID?</label><input name="game" value="Fortnite" required></div>
-<div class="field full"><label>KANALI URL</label><input name="channel_url" placeholder="https://..." required></div>
-<div class="field full"><label>THUMBNAIL URL (valikuline)</label><input name="thumbnail_url" placeholder="https://..."></div>
-<div class="field full"><label>AVATARI URL (valikuline)</label><input name="avatar_url" placeholder="https://..."></div>
-<div class="field full"><label>SÕNUM (valikuline)</label><textarea name="message"></textarea></div>
-</div><button class="btn primary" type="submit">SAADA TAOTLUS</button><div id="joinResult" class="notice"></div></form></div></div>
+  <footer><div class="brand"><span class="brand-mark">S</span><span>STREAMHUB</span><small>EE</small></div><span>ESTONIAN GAMING COMMUNITY</span></footer>
 
-<script>
-const SUPABASE_URL = "https://rrzglnazdppgjjtaswmd.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
-const sb = window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-const FUNCTION_NAME="streamer-workflow";
-
-document.getElementById("joinBtn").onclick=()=>document.getElementById("joinModal").classList.add("open");
-document.getElementById("loginBtn").onclick=()=>alert("Admin/kasutaja login ühenda olemasoleva V35 auth-modaliga.");
-function closeJoin(){document.getElementById("joinModal").classList.remove("open")}
-function card(s){return `<article class="card"><div class="thumb">${s.thumbnail_url?`<img src="${s.thumbnail_url}" onerror="this.style.display='none'">`:""}</div><div class="card-body"><b>${escapeHtml(s.name||"Striimer")}</b><div class="muted">${escapeHtml(s.game||"Gaming")} · ${escapeHtml(s.platform||"")}</div><div class="${s.is_live?'live':'muted'}">${s.is_live?'● LIVE':'OFFLINE'}</div><br><a class="btn" target="_blank" rel="noopener" href="${escapeAttr(s.channel_url||'#')}">AVA KANAL</a></div></article>`}
-function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function escapeAttr(v){return escapeHtml(v)}
-async function load(){
- const [g,s]=await Promise.all([
-   sb.from("games").select("*").eq("is_featured",true).order("sort_order"),
-   sb.from("streamers").select("*").eq("is_active",true).order("is_live",{ascending:false}).order("name")
- ]);
- if(g.data){document.getElementById("gameScroll").innerHTML=g.data.map(x=>`<article class="game"><img src="${escapeAttr(x.image_url||"")}" loading="lazy"><span>${escapeHtml(x.name)}</span></article>`).join("");document.getElementById("gameCount").textContent=g.data.length}
- const streamers=s.data||[];document.getElementById("streamerCount").textContent=streamers.length;document.getElementById("liveCount").textContent=streamers.filter(x=>x.is_live).length;
- render(streamers);
- window.__streamers=streamers;
-}
-function render(arr){document.getElementById("streamerCards").innerHTML=arr.length?arr.map(card).join(""):`<div class="empty">Ühtegi kinnitatud striimerit pole veel.</div>`;const live=arr.filter(x=>x.is_live);document.getElementById("liveCards").innerHTML=live.length?live.map(card).join(""):`<div class="empty">Hetkel pole valitud vaates ühtegi LIVE striimerit.</div>`}
-document.getElementById("search").oninput=e=>{const q=e.target.value.toLowerCase();render((window.__streamers||[]).filter(s=>(s.name||"").toLowerCase().includes(q)||(s.game||"").toLowerCase().includes(q)))}
-document.getElementById("joinForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);const body={action:"submit",...Object.fromEntries(f.entries())};const r=document.getElementById("joinResult");r.className="notice";r.textContent="Saadan taotlust...";
-try{const {data,error}=await sb.functions.invoke(FUNCTION_NAME,{body});if(error)throw error;if(!data?.ok)throw new Error(data?.error||"Taotlus ebaõnnestus.");r.className="notice ok";r.textContent="Taotlus saadetud! Admin vaatab selle üle.";e.target.reset()}catch(err){console.error(err);r.className="notice error";r.textContent=err.message||"Edge Functioni viga."}};
-load();
-</script>
-</body></html>
+  <div id="modalRoot"></div><div id="toast" class="toast"></div>
+  <script src="app.js?v=38.1"></script>
+</body>
+</html>
