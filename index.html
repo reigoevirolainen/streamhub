@@ -1,59 +1,53 @@
 <!doctype html>
 <html lang="et">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>STREAMHUB — Eesti Gaming & Streamer Hub</title>
-  <meta name="description" content="Leia oma lemmik Eesti striimer, vaata kes on LIVE ja hüppa otse kanalisse.">
-  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-  <link rel="stylesheet" href="style.css?v=38.1">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>StreamHub Eesti — Eesti striimerid</title>
+<meta name="description" content="Leia Eesti striimerid, vaata LIVE kanaleid ja filtreeri mängu järgi.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
 </head>
 <body>
-  <div class="bg-grid"></div><div class="noise"></div>
-  <header class="nav">
-    <a class="brand" href="#"><span class="brand-mark">S</span><span>STREAMHUB</span><small>EE</small></a>
-    <nav><a href="#live">LIVE</a><a href="#games">MÄNGUD</a><a href="#streamers">STRIIMERID</a><a href="#about">INFO</a></nav>
-    <div class="nav-actions"><button id="joinBtn" class="ghost">LIITU STRIIMERINA</button><button id="accountBtn" class="account">KASUTAJA</button><button id="adminBtn" class="admin hidden">ADMIN</button></div>
-  </header>
+<header class="topbar">
+<a class="brand" href="#"><span class="brandmark">S</span><span>STREAMHUB</span><b>EE</b></a>
+<nav class="nav"><a href="#live">LIVE</a><a href="#games">MÄNGUD</a><a href="#streamers">STRIIMERID</a><a href="#about">INFO</a></nav>
+<div class="actions"><button class="btn" id="userBtn">KASUTAJA</button><button class="primary" id="adminBtn">ADMIN</button></div>
+</header>
 
-  <main>
-    <section class="hero" id="live">
-      <div class="hero-copy">
-        <div class="eyebrow"><span class="pulse"></span> EESTI GAMING HUB</div>
-        <h1>Leia oma <span>lemmik striimer.</span><br>Ela kaasa LIVE'is.</h1>
-        <p>Avasta Eesti gaming community, vaata kes on parasjagu LIVE ja hüppa ühe klikiga otse kanalisse.</p>
-        <div class="hero-actions"><button class="primary" id="heroLiveBtn">VAATA LIVE'I</button><button class="ghost" id="heroJoinBtn">HAKA STRIIMERIKS</button></div>
-      </div>
-      <div class="hero-card">
-        <div class="scan"></div>
-        <div class="hero-card-top"><span>STREAMHUB LIVE</span><span id="liveCount">0 ONLINE</span></div>
-        <div class="radar"><div class="radar-ring r1"></div><div class="radar-ring r2"></div><div class="radar-ring r3"></div><div class="radar-dot"></div></div>
-        <div class="hero-card-bottom"><strong>GAME ON</strong><span>EST • 24/7</span></div>
-      </div>
-    </section>
+<main>
+<section class="hero">
+<div class="eyebrow">● EESTI STRIIMERID ÜHES KOHAS</div>
+<h1>Kes on<br><span>praegu LIVE?</span></h1>
+<p>Leia Eesti striimerid, vaata viimast streamipilti ja hüppa otse kanalisse.</p>
+<div class="hero-actions"><a class="primary" href="#live">🔴 Vaata LIVE striime</a><a class="btn" href="#streamers">Kõik striimerid →</a></div><div class="hero-stats"><div class="stat"><strong id="heroLiveCount">0</strong><span>LIVE striimi</span></div><div class="stat"><strong id="heroStreamerCount">0</strong><span>striimerit</span></div><div class="stat"><strong>6</strong><span>featured mängu</span></div></div>
+</section>
 
-    <section class="section" id="games">
-      <div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Featured <span>Games</span></h2></div><button class="ghost" id="allGamesBtn">KÕIK MÄNGUD</button></div>
-      <div class="rail-wrap"><button class="rail-btn left" data-target="gameRail">‹</button><div class="rail" id="gameRail"></div><button class="rail-btn right" data-target="gameRail">›</button></div>
-    </section>
+<section id="live" class="section">
+<div class="section-head"><div><div class="eyebrow">NOW PLAYING</div><h2>LIVE <span>praegu</span></h2></div>
+<div class="filters" id="platformFilters"></div></div>
+<div id="liveGrid" class="live-grid"></div>
+</section>
 
-    <section class="section" id="streamers">
-      <div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Kõik <span>striimerid</span></h2><p class="section-sub">Kõik StreamHubi striimerid ühes kohas. Sorteerimata ja alati sirvitav.</p></div><div class="filters"><button class="filter active" data-platform="Kõik">Kõik</button><button class="filter" data-platform="Twitch">Twitch</button><button class="filter" data-platform="YouTube">YouTube</button><button class="filter" data-platform="Kick">Kick</button><button class="filter" data-platform="TikTok">TikTok</button></div></div>
-      <div class="streamer-rail-wrap"><button class="rail-btn left" data-target="streamerRail">‹</button><div class="streamer-rail" id="streamerRail"></div><button class="rail-btn right" data-target="streamerRail">›</button></div>
-    </section>
+<section id="games" class="section">
+<div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Featured <span>Games</span></h2></div><button class="btn" id="clearGameFilter">Kõik mängud</button></div>
+<div id="gameStrip" class="game-strip"></div>
+<div id="gameResults" class="game-results hidden"></div>
+</section>
 
-    <section class="cta">
-      <div><div class="eyebrow">STREAMER AREA</div><h2>Sinu kanal. Sinu community.</h2><p>Liitu StreamHubiga ja anna vaatajatele üks koht, kust sind alati üles leida.</p></div><button class="primary" id="ctaJoin">LIITU STREAMHUBIGA <span>→</span></button>
-    </section>
+<section id="streamers" class="section">
+<div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Kõik <span>striimerid</span></h2></div><input id="search" class="search" type="search" placeholder="Otsi striimerit..."></div>
+<div id="streamerGrid" class="streamer-grid"></div>
+</section>
 
-    <section class="about" id="about"><div class="eyebrow">ABOUT STREAMHUB</div><p>StreamHub on uus platvorm, mis koondab kõik Eesti striimerid ühele lehele.</p></section>
-  </main>
+<section id="about" class="section info"><div><div class="eyebrow">STREAMHUB EE</div><h2>Eesti striimerid.<br><span>Ühes kohas.</span></h2></div><p>StreamHub koondab Eesti striimerid ühele lehele. Striimer saab oma kontolt staatust hallata ning admin kinnitab uued liitumistaotlused.</p></section>
+</main>
+<footer>© 2026 StreamHub Eesti</footer>
 
-  <footer><div class="brand"><span class="brand-mark">S</span><span>STREAMHUB</span><small>EE</small></div><span>ESTONIAN GAMING COMMUNITY</span></footer>
-
-  <div id="modalRoot"></div><div id="toast" class="toast"></div>
-  <script src="app.js?v=38.1"></script>
-</body>
-</html>
+<div id="modalRoot"></div>
+<div id="toast" class="toast"></div>
+<noscript><div class="noscript notice error">StreamHub vajab JavaScripti, et sisselogimine ja Supabase toimiksid.</div></noscript>
+<script src="app.js?v=35.0"></script>
+</body></html>

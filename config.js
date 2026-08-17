@@ -1,5 +1,4 @@
 window.STREAMHUB_CONFIG = {
-  SUPABASE_URL: "https://rrzglnazdppgjitaswmd.supabase.co",
-  SUPABASE_PUBLISHABLE_KEY: "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE",
-  EDGE_FUNCTION_NAME: "streamer-workflow"
+  SUPABASE_URL: "https://rrzglnazdppgjjtaswmd.supabase.co",
+  SUPABASE_PUBLISHABLE_KEY: "sb_publishable_ax0HpMi18hz-AQ2x8XOT3w_gRLYKE4h"
 };
