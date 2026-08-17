@@ -12,3 +12,8 @@ main{overflow:hidden}.hero{position:relative;max-width:1250px;margin:0 auto;padd
 .hidden{display:none!important}.full{width:100%}.live-switch{display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid #302e3d;border-radius:12px;background:#0d0d14}.live-switch strong{color:var(--red)}.live-switch.online strong{color:var(--green)}
 @media(max-width:1000px){.nav{display:none}.live-grid,.streamer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.info{grid-template-columns:1fr}.hero{min-height:500px}.game-strip{grid-auto-columns:220px}}
 @media(max-width:620px){.topbar{padding:0 14px;gap:10px}.brand span:nth-child(2){display:none}.actions .btn,.actions .primary{padding:9px 10px}.hero{padding:80px 18px 65px}.hero h1{font-size:58px}.hero p{font-size:15px}.hero-actions{flex-direction:column;align-items:stretch}.section{padding:58px 18px}.section-head{align-items:flex-start;flex-direction:column}.search{width:100%}.live-grid,.streamer-grid,.game-results-grid{grid-template-columns:1fr}.game-strip{grid-auto-columns:235px}.game-tile{height:150px}.account-tabs{flex-wrap:wrap}.account-tabs button{flex:1 1 100%}}
+
+/* V35 background artwork supplied for StreamHub */
+.hero{background-image:linear-gradient(90deg,rgba(7,7,12,.08) 0%,rgba(7,7,12,.04) 48%,rgba(7,7,12,.10) 100%),url('assets/streamhub-background.png');background-size:cover;background-position:center;border-radius:0 0 26px 26px;box-shadow:inset 0 0 100px rgba(0,0,0,.16)}
+#joinBtn{white-space:nowrap}
+@media(max-width:900px){#joinBtn{display:none}}

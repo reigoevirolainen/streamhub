@@ -201,88 +201,22 @@
       <div class="eyebrow">STREAMHUB KASUTAJA</div><h2>Kasutaja</h2>
       <div class="account-tabs">
         <button type="button" class="btn ${tab === "login" ? "primary" : ""}" id="tabLogin">Logi sisse</button>
-        <button type="button" class="btn ${tab === "signup" ? "primary" : ""}" id="tabSignup">Loo konto</button>
-        <button type="button" class="btn" id="tabJoin">Liitu striimerina</button>
+        <button type="button" class="btn ${tab === "join" ? "primary" : ""}" id="tabJoin">Liitu striimerina</button>
       </div><div id="accountBody"></div>`);
     $("#tabLogin").onclick = () => accountModal("login");
-    $("#tabSignup").onclick = () => accountModal("signup");
     $("#tabJoin").onclick = joinModal;
-    tab === "signup" ? signupForm() : loginForm();
-  }
-
-  function loginForm() {
-    $("#accountBody").innerHTML = `<form id="loginForm" class="formgrid">
-      <div class="field"><label>E-POST</label><input name="email" type="email" autocomplete="email" required></div>
-      <div class="field"><label>PAROOL</label><input name="password" type="password" autocomplete="current-password" required></div>
-      <button type="submit" class="primary full">LOGI SISSE</button>
-      <div id="accountError" class="notice error hidden"></div></form>`;
-    $("#loginForm").addEventListener("submit", async e => {
-      e.preventDefault();
-      if (!dbReady()) return;
-      const d = Object.fromEntries(new FormData(e.currentTarget));
-      const { data, error } = await db.auth.signInWithPassword({ email: d.email.trim(), password: d.password });
-      if (error) { showAccountError(supaError(error)); return; }
-      currentUser = data.user;
-      if (currentUser.id === ADMIN_UID) {
-        closeModal(); toast("Adminina sisse logitud."); adminModal(); return;
-      }
-      await loadProfile();
-      closeModal(); toast("Sisse logitud."); userModal();
-    });
-  }
-
-  function signupForm() {
-    $("#accountBody").innerHTML = `<form id="signupForm" class="formgrid">
-      <div class="field"><label>KASUTAJANIMI</label><input name="username" autocomplete="username" required minlength="2" maxlength="40"></div>
-      <div class="field"><label>E-POST</label><input name="email" type="email" autocomplete="email" required></div>
-      <div class="field"><label>PAROOL</label><input name="password" type="password" autocomplete="new-password" minlength="6" required></div>
-      <div class="field"><label>PAROOL UUESTI</label><input name="password2" type="password" autocomplete="new-password" minlength="6" required></div>
-      <button type="submit" class="primary full">LOO KONTO</button>
-      <div id="accountError" class="notice error hidden"></div></form>`;
-    $("#signupForm").addEventListener("submit", async e => {
-      e.preventDefault();
-      if (!dbReady()) return;
-      const d = Object.fromEntries(new FormData(e.currentTarget));
-      if (d.password !== d.password2) { showAccountError("Paroolid ei kattu."); return; }
-      const { data, error } = await db.auth.signUp({
-        email: d.email.trim().toLowerCase(), password: d.password,
-        options: { emailRedirectTo: `${window.location.origin}/`, data: { username: d.username.trim(), display_name: d.username.trim() } }
-      });
-      if (error) { showAccountError(supaError(error)); return; }
-      if (!data.user) { showAccountError("Konto loomine ebaõnnestus."); return; }
-      if (!data.session) {
-        $("#accountBody").innerHTML = `<div class="notice success"><b>Konto on loodud.</b><br><br>Kui e-posti kinnitus on Supabase'is sisse lülitatud, ava Gmailis kinnituslink. Seejärel vajuta KASUTAJA → LOGI SISSE.</div>`;
-        return;
-      }
-      currentUser = data.user;
-      await loadProfile();
-      closeModal(); toast("Konto loodud."); userModal();
-    });
-  }
-
-  function showAccountError(message) {
-    const x = $("#accountError");
-    if (!x) return;
-    x.textContent = message; x.classList.remove("hidden");
-  }
-
-  async function loadProfile() {
-    currentProfile = null;
-    if (!currentUser || !db) return;
-    const { data } = await db.from("profiles").select("id,username,user_type").eq("id", currentUser.id).maybeSingle();
-    currentProfile = data || null;
-    if (!currentProfile) {
-      const { data: ensured, error: ensureError } = await db.rpc("ensure_my_profile");
-      if (!ensureError) currentProfile = ensured || null;
-    }
+    tab === "join" ? joinModal() : loginForm();
   }
 
   function joinModal() {
     openModal(`<button class="close-btn" id="closeModal">×</button><div class="eyebrow">STREAMER</div>
-      <h2>Liitu striimerina</h2><p class="muted">Saada andmed. Admin vaatab taotluse üle. Pärast kinnitamist saad sama e-postiga kasutaja kaudu oma profiili hallata.</p>
+      <h2>Liitu striimerina</h2>
+      <p class="muted">Täida taotlus ja vali endale parool. Konto luuakse alles pärast admini kinnitamist.</p>
       <form id="joinForm" class="formgrid">
         <div class="field"><label>STRIIMERI NIMI</label><input name="name" required maxlength="80"></div>
-        <div class="field"><label>GMAIL / E-POST</label><input name="email" type="email" required maxlength="254"></div>
+        <div class="field"><label>E-POST / KASUTAJATUNNUS</label><input name="email" type="email" autocomplete="email" required maxlength="254"></div>
+        <div class="field"><label>PAROOL</label><input name="password" type="password" autocomplete="new-password" minlength="6" required></div>
+        <div class="field"><label>PAROOL UUESTI</label><input name="password2" type="password" autocomplete="new-password" minlength="6" required></div>
         <div class="field"><label>PLATVORM</label><select name="platform"><option>Twitch</option><option>YouTube</option><option>Kick</option><option>TikTok</option></select></div>
         <div class="field"><label>KANALI URL</label><input name="channel_url" type="url" required></div>
         <div class="field"><label>MIDA SA STRIIMID?</label><input name="game" placeholder="Fortnite"></div>
@@ -293,20 +227,47 @@
         <div id="joinError" class="notice error hidden"></div></form>`);
     $("#cancelJoin").onclick = closeModal;
     $("#joinForm").addEventListener("submit", async e => {
-      e.preventDefault(); if (!dbReady()) return;
-      const d = Object.fromEntries(new FormData(e.currentTarget));
-      const { error } = await db.rpc("submit_streamer_application", {
-        p_name: d.name.trim(),
-        p_email: d.email.trim().toLowerCase(),
-        p_platform: d.platform,
-        p_channel_url: d.channel_url.trim(),
-        p_game: d.game?.trim() || null,
-        p_avatar_url: d.avatar_url?.trim() || null,
-        p_thumbnail_url: d.thumbnail_url?.trim() || null,
-        p_message: d.message?.trim() || null
-      });
-      if (error) { const x=$("#joinError"); x.textContent=supaError(error); x.classList.remove("hidden"); return; }
-      closeModal(); toast("Taotlus saadetud. Admin vaatab selle üle.");
+      e.preventDefault();
+      const form = e.currentTarget;
+      if (!form.reportValidity()) return;
+      if (!dbReady()) return;
+
+      const d = Object.fromEntries(new FormData(form));
+      const errorBox = $("#joinError");
+      if (d.password !== d.password2) {
+        showError(errorBox, "Paroolid ei kattu.");
+        return;
+      }
+
+      setBusy(form, true, "SAADAN…");
+      try {
+        const { data, error } = await db.functions.invoke("streamer-applications", {
+          body: {
+            action: "submit",
+            name: d.name.trim(),
+            email: d.email.trim().toLowerCase(),
+            password: d.password,
+            password2: d.password2,
+            platform: d.platform,
+            channel_url: d.channel_url.trim(),
+            game: d.game?.trim() || null,
+            avatar_url: d.avatar_url?.trim() || null,
+            thumbnail_url: d.thumbnail_url?.trim() || null,
+            message: d.message?.trim() || null
+          }
+        });
+        if (error) throw error;
+        if (!data?.ok) throw new Error(data?.error || "Taotluse saatmine ebaõnnestus.");
+
+        closeModal();
+        toast(data.email_sent === false
+          ? "Taotlus saadetud, kuid admini e-posti teavitus ei läinud välja."
+          : "Taotlus saadetud. Admin saab nüüd e-postiga teate.");
+      } catch (err) {
+        showError(errorBox, supaError(err));
+      } finally {
+        setBusy(form, false);
+      }
     });
   }
 
@@ -320,26 +281,43 @@
 
   async function loadUserPanel() {
     const p = $("#userPanel"); if (!p || !currentUser) return;
-    const { data: s, error } = await db.from("streamers").select("id,name,platform,channel_url,game,is_live,viewers,thumbnail_url,owner_id,owner_email").eq("owner_id", currentUser.id).maybeSingle();
+    const { data: s, error } = await db.from("streamers")
+      .select("id,name,platform,channel_url,game,is_live,viewers,thumbnail_url,owner_id,owner_email")
+      .eq("owner_id", currentUser.id).maybeSingle();
     if (error) { p.innerHTML = `<div class="notice error">${esc(supaError(error))}</div>`; return; }
-    const { data: a } = await db.from("streamer_applications").select("id,name,email,platform,game,status,created_at").ilike("email", currentUser.email || "").order("created_at", { ascending: false }).limit(1).maybeSingle();
+
+    const { data: a } = await db.from("streamer_applications")
+      .select("id,name,email,platform,game,status,created_at")
+      .ilike("email", currentUser.email || "")
+      .order("created_at", { ascending: false }).limit(1).maybeSingle();
     const application = a || null;
+
     let body = "";
     if (s) {
       body = streamerControls(s);
     } else if (application?.status === "pending") {
-      body = `<div class="notice success"><b>Taotlus on saadetud.</b><br>Admin vaatab sinu liitumistaotluse üle. Kui see kinnitatakse, saad siin oma striimeriprofiili siduda.</div><div class="notice">${esc(application.name)} · ${esc(application.platform)} · ${esc(application.game || "Mäng määramata")}<br>Staatus: <b>OOTEL</b></div>`;
+      body = `<div class="notice success"><b>Taotlus on saadetud.</b><br>Admin vaatab sinu liitumistaotluse üle.</div>
+        <div class="notice">${esc(application.name)} · ${esc(application.platform)} · ${esc(application.game || "Mäng määramata")}<br>Staatus: <b>OOTEL</b></div>`;
     } else if (application?.status === "rejected") {
-      body = `<div class="notice error"><b>Taotlus lükati tagasi.</b><br>Võid esitada uue liitumistaotluse.</div><button type="button" class="primary" id="joinAgainBtn">LIITU STRIIMERINA</button>`;
+      body = `<div class="notice error"><b>Taotlus lükati tagasi.</b><br>Võid esitada uue liitumistaotluse.</div>
+        <button type="button" class="primary" id="joinAgainBtn">LIITU STRIIMERINA</button>`;
     } else {
-      body = `<div class="notice">Kinnitatud striimeriprofiili ei leitud. Kui admin on sinu taotluse kinnitanud, vajuta allolevat nuppu.</div><button type="button" class="primary" id="claimBtn">VÕTA OMA STRIIMERIPROFIIL</button>`;
+      body = `<div class="notice">Sul ei ole veel kinnitatud striimeriprofiili.</div>
+        <button type="button" class="primary" id="joinAgainBtn">LIITU STRIIMERINA</button>`;
     }
-    p.innerHTML = `<div class="account-panel"><div class="notice">${esc(currentUser.email || "")} · ${esc(currentProfile?.user_type || "streamer")}</div>${body}<button type="button" class="btn" id="logoutUser">LOGI VÄLJA</button></div>`;
-    $("#logoutUser").onclick = async () => { await db.auth.signOut(); currentUser = null; currentProfile = null; closeModal(); toast("Välja logitud."); };
-    $("#claimBtn")?.addEventListener("click", claimStreamer);
+
+    p.innerHTML = `<div class="account-panel"><div class="notice">${esc(currentUser.email || "")} · ${esc(currentProfile?.user_type || "streamer")}</div>${body}
+      <button type="button" class="btn" id="logoutUser">LOGI VÄLJA</button></div>`;
+
+    $("#logoutUser").onclick = async () => {
+      await db.auth.signOut();
+      currentUser = null; currentProfile = null;
+      closeModal(); toast("Välja logitud.");
+    };
     $("#joinAgainBtn")?.addEventListener("click", joinModal);
     $("#toggleLive")?.addEventListener("click", () => toggleLive(s));
   }
+
   function streamerControls(s) {
     return `<div class="notice">${esc(s.platform)} · ${esc(s.game || "Streaming")}<br><a href="${esc(s.channel_url)}" target="_blank" rel="noopener">${esc(s.channel_url)}</a></div>
       <div class="live-switch ${s.is_live ? "online" : ""}"><span>STAATUS<br><strong>${s.is_live ? "ONLINE" : "OFFLINE"}</strong></span><button type="button" class="primary" id="toggleLive">${s.is_live ? "LÜLITA OFFLINE" : "LÜLITA ONLINE"}</button></div>
@@ -351,13 +329,6 @@
     const { error } = await db.rpc("set_my_stream_live", { p_is_live: next });
     if (error) { toast(supaError(error), true); return; }
     toast(next ? "Oled nüüd ONLINE." : "Oled nüüd OFFLINE."); await loadStreamers(); await loadUserPanel();
-  }
-
-  async function claimStreamer() {
-    const { data, error } = await db.rpc("claim_my_streamer");
-    if (error) { toast(supaError(error), true); return; }
-    if (!data) { toast("Kinnitatud striimeriprofiili ei leitud.", true); return; }
-    toast("Striimeriprofiil ühendatud."); await loadStreamers(); await loadUserPanel();
   }
 
   function adminModal() {
@@ -400,23 +371,54 @@
 
   async function loadAdminApps() {
     const b=$("#adminBody"); if(!b) return;
-    const {data,error}=await db.from("streamer_applications").select("*").order("created_at",{ascending:false});
+    const {data,error}=await db.from("streamer_applications")
+      .select("id,name,email,platform,channel_url,game,avatar_url,thumbnail_url,message,status,created_at,approved_at")
+      .order("created_at",{ascending:false});
     if(error){b.innerHTML=`<div class="notice error">${esc(supaError(error))}</div>`;return;}
-    b.innerHTML=(data||[]).map(a=>`<div class="app-row">${a.thumbnail_url?`<img class="admin-thumb" src="${esc(a.thumbnail_url)}" alt="">`:""}<b>${esc(a.name)}</b><div class="meta">${esc(a.email)} · ${esc(a.platform)} · ${esc(a.game||"")}</div><div class="meta"><a href="${esc(a.channel_url)}" target="_blank" rel="noopener">${esc(a.channel_url)}</a></div><div class="meta">Staatus: <b>${esc(a.status)}</b></div>${a.status==="pending"?`<div class="admin-actions"><button type="button" class="primary" data-approve="${a.id}">AKSEPTEERI</button><button type="button" class="danger" data-reject="${a.id}">KEELDU</button></div>`:""}</div>`).join("")||`<div class="empty">Taotlusi pole.</div>`;
+    b.innerHTML=(data||[]).map(a=>`<div class="app-row">
+      ${a.thumbnail_url?`<img class="admin-thumb" src="${esc(a.thumbnail_url)}" alt="">`:""}
+      <b>${esc(a.name)}</b>
+      <div class="meta">${esc(a.email)} · ${esc(a.platform)} · ${esc(a.game||"")}</div>
+      <div class="meta"><a href="${esc(a.channel_url)}" target="_blank" rel="noopener">${esc(a.channel_url)}</a></div>
+      ${a.message?`<div class="meta">${esc(a.message)}</div>`:""}
+      <div class="meta">Staatus: <b>${esc(a.status)}</b></div>
+      ${a.status==="pending"?`<div class="admin-actions">
+        <button type="button" class="primary" data-approve="${a.id}">AKSEPTEERI</button>
+        <button type="button" class="danger" data-reject="${a.id}">KEELDU</button>
+      </div>`:""}
+    </div>`).join("")||`<div class="empty">Taotlusi pole.</div>`;
     b.querySelectorAll("[data-approve]").forEach(x=>x.onclick=()=>approveApp(x.dataset.approve));
     b.querySelectorAll("[data-reject]").forEach(x=>x.onclick=()=>rejectApp(x.dataset.reject));
   }
 
   async function approveApp(id) {
-    const {error}=await db.rpc("admin_approve_application",{p_application_id:id});
-    if(error){toast(supaError(error),true);return;}
-    toast("Taotlus kinnitatud ja striimeriprofiil loodud."); await loadStreamers(); await loadAdminApps();
+    if(!dbReady()) return;
+    try {
+      $("#adminBody")?.querySelectorAll("[data-approve]").forEach(x=>x.disabled=true);
+      const {data,error}=await db.functions.invoke("streamer-applications",{body:{action:"approve",application_id:id}});
+      if(error) throw error;
+      if(!data?.ok) throw new Error(data?.error || "Taotluse kinnitamine ebaõnnestus.");
+      toast(data.email_sent === false
+        ? "Konto loodi, kuid striimeri e-posti teavitus ei läinud välja."
+        : "Taotlus kinnitatud. Striimerile saadeti sisselogimise andmed.");
+      await loadStreamers(); await loadAdminApps();
+    } catch(err) {
+      toast(supaError(err),true);
+      await loadAdminApps();
+    }
   }
 
   async function rejectApp(id) {
-    const {error}=await db.rpc("admin_reject_application",{p_application_id:id});
-    if(error){toast(supaError(error),true);return;}
-    toast("Taotlus tagasi lükatud."); await loadAdminApps();
+    if(!dbReady()) return;
+    try {
+      const {data,error}=await db.functions.invoke("streamer-applications",{body:{action:"reject",application_id:id}});
+      if(error) throw error;
+      if(!data?.ok) throw new Error(data?.error || "Taotluse tagasilükkamine ebaõnnestus.");
+      toast("Taotlus tagasi lükatud.");
+      await loadAdminApps();
+    } catch(err) {
+      toast(supaError(err),true);
+    }
   }
 
   async function adminDelete(id) {
@@ -467,6 +469,7 @@
   function setup() {
     // Explicit listeners. These are installed only after the DOM exists.
     $("#userBtn")?.addEventListener("click", e => { e.preventDefault(); currentUser ? userModal() : accountModal("login"); });
+    $("#joinBtn")?.addEventListener("click", e => { e.preventDefault(); joinModal(); });
     $("#adminBtn")?.addEventListener("click", e => { e.preventDefault(); adminLogin(); });
     $("#search")?.addEventListener("input", render);
     $("#clearGameFilter")?.addEventListener("click", () => { activeGame=null; render(); });
