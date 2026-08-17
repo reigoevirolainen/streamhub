@@ -155,29 +155,10 @@
     renderGames();
   }
 
-  function wireGameCarousel() {
-    const strip = $("#gameStrip");
-    if (!strip || strip.dataset.carouselBound) return;
-    strip.dataset.carouselBound = "1";
-    const step = () => Math.max(260, Math.round(strip.clientWidth * 0.78));
-    const scrollByCards = (dir) => strip.scrollBy({ left: dir * step(), behavior: "smooth" });
-    $("#gamePrev")?.addEventListener("click", () => scrollByCards(-1));
-    $("#gameNext")?.addEventListener("click", () => scrollByCards(1));
-    $("#gameSidePrev")?.addEventListener("click", () => scrollByCards(-1));
-    $("#gameSideNext")?.addEventListener("click", () => scrollByCards(1));
-    strip.addEventListener("wheel", (event) => {
-      if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
-        event.preventDefault();
-        strip.scrollLeft += event.deltaY;
-      }
-    }, { passive: false });
-  }
-
   function renderGames() {
     const strip = $("#gameStrip");
     const results = $("#gameResults");
     if (!strip || !results) return;
-    wireGameCarousel();
     strip.innerHTML = games.map(g => {
       const count = streamers.filter(s => String(s.game || "").trim().toLowerCase() === g.name.toLowerCase() && s.is_live).length;
       return `<button type="button" class="game-tile ${activeGame === g.name ? "active" : ""}" data-game="${esc(g.name)}">
@@ -227,25 +208,6 @@
     tab === "join" ? joinModal() : loginForm();
   }
 
-  async function invokeStreamerWorkflow(body) {
-    if (!dbReady()) throw new Error("Supabase ühendus puudub.");
-    const functionName = "streamer-workflow";
-    try {
-      const { data, error } = await db.functions.invoke(functionName, { body });
-      if (error) {
-        const detail = [error.name, error.message, error.context?.status ? `HTTP ${error.context.status}` : ""].filter(Boolean).join(" — ");
-        throw new Error(detail || "Edge Functioni päring ebaõnnestus.");
-      }
-      return data;
-    } catch (err) {
-      const msg = err?.message || String(err);
-      if (/failed to send a request|failed to fetch|networkerror/i.test(msg)) {
-        throw new Error(`Edge Function "${functionName}" ei vastanud. Kontrolli, et Supabase'is on deploytud funktsioon täpselt selle nimega ja JWT kontroll on sellel OFF.`);
-      }
-      throw err;
-    }
-  }
-
   function joinModal() {
     openModal(`<button class="close-btn" id="closeModal">×</button><div class="eyebrow">STREAMER</div>
       <h2>Liitu striimerina</h2>
@@ -279,19 +241,22 @@
 
       setBusy(form, true, "SAADAN…");
       try {
-        const data = await invokeStreamerWorkflow({
-          action: "submit",
-          name: d.name.trim(),
-          email: d.email.trim().toLowerCase(),
-          password: d.password,
-          password2: d.password2,
-          platform: d.platform,
-          channel_url: d.channel_url.trim(),
-          game: d.game?.trim() || null,
-          avatar_url: d.avatar_url?.trim() || null,
-          thumbnail_url: d.thumbnail_url?.trim() || null,
-          message: d.message?.trim() || null
+        const { data, error } = await db.functions.invoke("streamer-applications", {
+          body: {
+            action: "submit",
+            name: d.name.trim(),
+            email: d.email.trim().toLowerCase(),
+            password: d.password,
+            password2: d.password2,
+            platform: d.platform,
+            channel_url: d.channel_url.trim(),
+            game: d.game?.trim() || null,
+            avatar_url: d.avatar_url?.trim() || null,
+            thumbnail_url: d.thumbnail_url?.trim() || null,
+            message: d.message?.trim() || null
+          }
         });
+        if (error) throw error;
         if (!data?.ok) throw new Error(data?.error || "Taotluse saatmine ebaõnnestus.");
 
         closeModal();
@@ -430,7 +395,8 @@
     if(!dbReady()) return;
     try {
       $("#adminBody")?.querySelectorAll("[data-approve]").forEach(x=>x.disabled=true);
-      const data=await invokeStreamerWorkflow({action:"approve",application_id:id});
+      const {data,error}=await db.functions.invoke("streamer-applications",{body:{action:"approve",application_id:id}});
+      if(error) throw error;
       if(!data?.ok) throw new Error(data?.error || "Taotluse kinnitamine ebaõnnestus.");
       toast(data.email_sent === false
         ? "Konto loodi, kuid striimeri e-posti teavitus ei läinud välja."
@@ -445,7 +411,8 @@
   async function rejectApp(id) {
     if(!dbReady()) return;
     try {
-      const data=await invokeStreamerWorkflow({action:"reject",application_id:id});
+      const {data,error}=await db.functions.invoke("streamer-applications",{body:{action:"reject",application_id:id}});
+      if(error) throw error;
       if(!data?.ok) throw new Error(data?.error || "Taotluse tagasilükkamine ebaõnnestus.");
       toast("Taotlus tagasi lükatud.");
       await loadAdminApps();
@@ -505,7 +472,7 @@
     $("#joinBtn")?.addEventListener("click", e => { e.preventDefault(); joinModal(); });
     $("#adminBtn")?.addEventListener("click", e => { e.preventDefault(); adminLogin(); });
     $("#search")?.addEventListener("input", render);
-    $("#clearGameFilter")?.addEventListener("click", () => { activeGame=null; render(); $("#gameStrip")?.scrollTo({left:0,behavior:"smooth"}); });
+    $("#clearGameFilter")?.addEventListener("click", () => { activeGame=null; render(); });
     $("[data-scroll=\"#live\"]")?.addEventListener("click", e=>{e.preventDefault();$("#live")?.scrollIntoView({behavior:"smooth"});});
     $("[data-scroll=\"#streamers\"]")?.addEventListener("click", e=>{e.preventDefault();$("#streamers")?.scrollIntoView({behavior:"smooth"});});
     boot();

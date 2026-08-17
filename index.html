@@ -6,13 +6,15 @@
 <meta name="description" content="Leia Eesti striimerid, vaata LIVE kanaleid ja filtreeri mängu järgi.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/streamhub-logo.png">
+<link rel="apple-touch-icon" href="assets/streamhub-logo.png">
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 </head>
 <body>
 <header class="topbar">
-<a class="brand" href="#"><span class="brandmark">S</span><span>STREAMHUB</span><b>EE</b></a>
+<a class="brand" href="#" aria-label="StreamHub"><img class="brand-logo" src="assets/streamhub-logo.png" alt="StreamHub logo"><span>STREAMHUB</span><b>EE</b></a>
 <nav class="nav"><a href="#live">LIVE</a><a href="#games">MÄNGUD</a><a href="#streamers">STRIIMERID</a><a href="#about">INFO</a></nav>
 <div class="actions"><button class="btn" id="userBtn">KASUTAJA</button><button class="btn" id="joinBtn">LIITU STRIIMERINA</button><button class="primary" id="adminBtn">ADMIN</button></div>
 </header>
@@ -21,7 +23,7 @@
 <section class="hero">
 <div class="eyebrow">● EESTI STRIIMERID ÜHES KOHAS</div>
 <h1>Kes on<br><span>praegu LIVE?</span></h1>
-<p>Leia Eesti striimerid, vaata viimast streamipilti ja hüppa otse kanalisse.</p>
+<p>Leia oma lemmik striimer ja ela kaasa LIVE'is.</p>
 <div class="hero-actions"><a class="primary" href="#live">🔴 Vaata LIVE striime</a><a class="btn" href="#streamers">Kõik striimerid →</a></div><div class="hero-stats"><div class="stat"><strong id="heroLiveCount">0</strong><span>LIVE striimi</span></div><div class="stat"><strong id="heroStreamerCount">0</strong><span>striimerit</span></div><div class="stat"><strong>6</strong><span>featured mängu</span></div></div>
 </section>
 
@@ -32,8 +34,8 @@
 </section>
 
 <section id="games" class="section">
-<div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Featured <span>Games</span></h2></div><button class="btn" id="clearGameFilter">Kõik mängud</button></div>
-<div id="gameStrip" class="game-strip"></div>
+<div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Featured <span>Games</span></h2></div><div class="game-head-actions"><button class="btn carousel-btn" id="gamePrev" type="button" aria-label="Eelmised mängud">←</button><button class="btn" id="clearGameFilter" type="button">Kõik mängud</button><button class="btn carousel-btn" id="gameNext" type="button" aria-label="Järgmised mängud">→</button></div></div>
+<div class="game-carousel"><button class="carousel-side prev" id="gameSidePrev" type="button" aria-label="Keri vasakule">‹</button><div id="gameStrip" class="game-strip"></div><button class="carousel-side next" id="gameSideNext" type="button" aria-label="Keri paremale">›</button></div>
 <div id="gameResults" class="game-results hidden"></div>
 </section>
 
@@ -42,12 +44,12 @@
 <div id="streamerGrid" class="streamer-grid"></div>
 </section>
 
-<section id="about" class="section info"><div><div class="eyebrow">STREAMHUB EE</div><h2>Eesti striimerid.<br><span>Ühes kohas.</span></h2></div><p>StreamHub koondab Eesti striimerid ühele lehele. Striimer saab oma kontolt staatust hallata ning admin kinnitab uued liitumistaotlused.</p></section>
+<section id="about" class="section info"><div><div class="eyebrow">STREAMHUB EE</div><h2>Eesti striimerid.<br><span>Ühes kohas.</span></h2></div><p>StreamHub on uus platvorm, mis koondab kõik Eesti striimerid ühele lehele.</p></section>
 </main>
 <footer>© 2026 StreamHub Eesti</footer>
 
 <div id="modalRoot"></div>
 <div id="toast" class="toast"></div>
 <noscript><div class="noscript notice error">StreamHub vajab JavaScripti, et sisselogimine ja Supabase toimiksid.</div></noscript>
-<script src="app.js?v=35.0"></script>
+<script src="app.js?v=35.5"></script>
 </body></html>
