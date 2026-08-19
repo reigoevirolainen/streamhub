@@ -1,19 +1,10 @@
 "use strict";
 
-// --- KONFIGURATSIOON ---
-// Panin siia otse sinu õiged andmed, et vältida igasuguseid ühenduse vigu!
-const MY_SUPABASE_URL = "https://rrzglnazdppgjjtaswmd.supabase.co";
-const MY_SUPABASE_KEY = "sb_publishable_ax0HpMi18hz-AQ2x8XOT3w_gRLYKE4h";
-
-const C = window.STREAMHUB_CONFIG || {
-    SUPABASE_URL: MY_SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY: MY_SUPABASE_KEY
-};
-
+const C = window.STREAMHUB_CONFIG || {};
 const ADMIN_UID = "56a4036e-b37d-4928-abf2-8f49d709f5b7";
 const EDGE_URL = (C.SUPABASE_URL) ? `${String(C.SUPABASE_URL).replace(/\/+$/, "")}/functions/v1/streamer-workflow` : "";
 
-const db = window.supabase 
+const db = (window.supabase && C.SUPABASE_URL && C.SUPABASE_PUBLISHABLE_KEY)
   ? window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_PUBLISHABLE_KEY, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     })
@@ -21,6 +12,7 @@ const db = window.supabase
 
 const $ = s => document.querySelector(s);
 let currentUser = null;
+let currentStreamers = []; // Hoiab laetud striimereid mälus
 
 // --- TEAVITUSED ---
 function toast(msg, isError = false) {
@@ -35,7 +27,7 @@ function toast(msg, isError = false) {
 // --- KÄIVITAMINE ---
 async function init() {
     if (!db) {
-        toast("Andmebaasi ühendus puudub. Palun kontrolli, kas Supabase skript on HTML failis laetud.", true);
+        toast("Andmebaasi ühendus puudub. Kontrolli, kas config.js on olemas.", true);
         return;
     }
 
@@ -88,7 +80,7 @@ function setupEvents() {
     if ($("#logoutBtn")) {
         $("#logoutBtn").onclick = async () => {
             await db.auth.signOut();
-            window.location.href = "/"; // Suunab pealehele tagasi
+            window.location.href = "/"; 
         };
     }
 
@@ -104,12 +96,37 @@ function setupEvents() {
             loadTabData(btn.dataset.tab);
         };
     });
+
+    // Striimeri andmete muutmise vormi salvestamine
+    if ($("#editStreamerForm")) {
+        $("#editStreamerForm").onsubmit = async (e) => {
+            e.preventDefault();
+            const id = $("#editId").value;
+            const updates = {
+                name: $("#editName").value.trim(),
+                platform: $("#editPlatform").value,
+                game: $("#editGame").value.trim() || null,
+                channel_url: $("#editUrl").value.trim(),
+                thumbnail_url: $("#editThumb").value.trim() || null,
+                updated_at: new Date().toISOString()
+            };
+
+            toast("Salvestan andmeid...");
+            const { error } = await db.from("streamers").update(updates).eq("id", id);
+            
+            if (error) return toast("Viga salvestamisel: " + error.message, true);
+            
+            toast("Muudatused edukalt salvestatud!");
+            closeEditModal();
+            fetchStreamers(); // Laeb nimekirja uuesti
+        };
+    }
 }
 
 function showDashboard() {
     $("#loginScreen").classList.add("hidden");
     $("#adminDashboard").classList.remove("hidden");
-    loadTabData("streamers"); // Laeb vaikimisi striimerid
+    loadTabData("streamers");
 }
 
 function loadTabData(tab) {
@@ -125,19 +142,22 @@ async function fetchStreamers() {
     const { data, error } = await db.from("streamers").select("*").order("name");
     if (error) return toast("Viga striimerite laadimisel: " + error.message, true);
 
+    currentStreamers = data || []; // Salvestame andmed, et modaal saaks neid lugeda
     const container = $("#streamersList");
-    if (!data.length) {
+    
+    if (!currentStreamers.length) {
         container.innerHTML = "Andmebaasis pole ühtegi striimerit.";
         return;
     }
 
-    container.innerHTML = data.map(s => `
+    container.innerHTML = currentStreamers.map(s => `
         <div class="data-row">
             <div class="data-info">
                 <strong>${s.name} ${s.is_live ? "🔴 LIVE" : "⚫ OFFLINE"}</strong>
                 <span class="data-meta">${s.platform} | Mäng: ${s.game || "Määramata"}</span>
             </div>
-            <div>
+            <div style="display: flex; gap: 8px;">
+                <button class="action-btn" onclick="openEditModal('${s.id}')">Muuda</button>
                 <button class="action-btn ${s.is_live ? "" : "success"}" onclick="toggleStatus('${s.id}', ${s.is_live})">
                     ${s.is_live ? "Tee Offline" : "Tee Online"}
                 </button>
@@ -147,13 +167,33 @@ async function fetchStreamers() {
     `).join("");
 }
 
+// --- MODAALI JUHTIMINE ---
+window.openEditModal = function(id) {
+    const s = currentStreamers.find(x => x.id === id);
+    if (!s) return;
+    
+    // Täidame lahtrid striimeri praeguste andmetega
+    $("#editId").value = s.id;
+    $("#editName").value = s.name || "";
+    $("#editPlatform").value = s.platform || "Twitch";
+    $("#editGame").value = s.game || "";
+    $("#editUrl").value = s.channel_url || "";
+    $("#editThumb").value = s.thumbnail_url || "";
+    
+    $("#editModal").style.display = "flex";
+};
+
+window.closeEditModal = function() {
+    $("#editModal").style.display = "none";
+};
+// -------------------------
+
 window.toggleStatus = async function(id, currentStatus) {
     toast("Muudan staatust...");
     const { error } = await db.from("streamers").update({ is_live: !currentStatus }).eq("id", id);
     
     if (error) return toast("Viga: " + error.message, true);
 
-    // Salvestame logi
     await db.from("streamer_logs").insert({
         streamer_id: id,
         action: !currentStatus ? 'ADMIN_SET_ONLINE' : 'ADMIN_SET_OFFLINE'
@@ -258,5 +298,4 @@ async function fetchLogs() {
     }).join("");
 }
 
-// Käivita süsteem, kui DOM on laetud
 document.addEventListener("DOMContentLoaded", init);
