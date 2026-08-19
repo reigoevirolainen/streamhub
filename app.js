@@ -542,4 +542,33 @@
   }
   
   document.addEventListener("DOMContentLoaded",setup);
+
+  // --- KOODI KAITSE (Keelab paremkliki, F12 ja Ctrl+U) ---
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    // Keela F12
+    if (e.key === 'F12' || e.keyCode === 123) {
+      e.preventDefault();
+      return false;
+    }
+    // Keela Ctrl+Shift+I (Avab DevTools)
+    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) {
+      e.preventDefault();
+      return false;
+    }
+    // Keela Ctrl+Shift+J (Avab Console)
+    if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j')) {
+      e.preventDefault();
+      return false;
+    }
+    // Keela Ctrl+U (Avab Page Source)
+    if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) {
+      e.preventDefault();
+      return false;
+    }
+  });
+  // --------------------------------------------------------
 })();

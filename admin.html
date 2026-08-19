@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamHub PRO Admin</title>
+    <link rel="stylesheet" href="admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <!-- SISSELOGIMISE EKRAAN -->
+    <div id="loginScreen" class="fullscreen-center">
+        <div class="login-box">
+            <h2>Admin Sisselogimine</h2>
+            <form id="adminLoginForm">
+                <input type="email" name="email" placeholder="E-posti aadress" required>
+                <input type="password" name="password" placeholder="Parool" required>
+                <button type="submit" class="primary-btn">LOGI SISSE</button>
+                <div id="loginError" class="notice error hidden"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PÕHILINE DASHBOARD -->
+    <div id="adminDashboard" class="dashboard hidden">
+        
+        <!-- Küljemenüü -->
+        <aside class="sidebar">
+            <div class="brand">STREAMHUB<br><span>PRO ADMIN</span></div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-tab="streamers">Striimerid</button>
+                <button class="nav-btn" data-tab="applications">Taotlused</button>
+                <button class="nav-btn" data-tab="logs">Süsteemi Logid</button>
+            </nav>
+            <div class="sidebar-bottom">
+                <button id="logoutBtn" class="nav-btn danger">Logi välja</button>
+            </div>
+        </aside>
+
+        <!-- Sisu ala -->
+        <main class="content">
+            <!-- Striimerid -->
+            <div id="tab-streamers" class="tab-content active">
+                <header><h1>Hallatavad Striimerid</h1></header>
+                <div class="card-table" id="streamersList">Laen andmeid...</div>
+            </div>
+
+            <!-- Taotlused -->
+            <div id="tab-applications" class="tab-content hidden">
+                <header><h1>Liitumistaotlused</h1></header>
+                <div class="card-table" id="appsList">Laen andmeid...</div>
+            </div>
+
+            <!-- Logid -->
+            <div id="tab-logs" class="tab-content hidden">
+                <header><h1>Ajalugu & Logid</h1></header>
+                <div class="card-table" id="logsList">Laen andmeid...</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Teavitused (Toast) -->
+    <div id="toast" class="toast"></div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
