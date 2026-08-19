@@ -259,7 +259,7 @@
         <div class="field"><label>PLATVORM</label><select name="platform"><option>Twitch</option><option>YouTube</option><option>Kick</option><option>TikTok</option></select></div>
         <div class="field"><label>KANALI URL</label><input name="channel_url" type="url" required></div>
         <div class="field"><label>MIDA SA STRIIMID?</label><input name="game" placeholder="Fortnite"></div>
-        <div class="field"><label>THUMBNAIL URL (valikuline)</label><input name="thumbnail_url" type="url" placeholder="https://..."></div>
+        <div class="field"><label>KANALI PILT / THUMBNAIL (max 2MB, valikuline)</label><input type="file" id="thumbFile" accept="image/png, image/jpeg, image/webp" class="form-input"></div>
         <div class="field"><label>AVATARI URL (valikuline)</label><input name="avatar_url" type="url" placeholder="https://..."></div>
         <div class="field"><label>SÕNUM (valikuline)</label><textarea name="message"></textarea></div>
         <div class="modal-actions"><button type="button" class="btn" id="cancelJoin">Tühista</button><button type="submit" class="primary">SAADA TAOTLUS</button></div>
@@ -277,8 +277,51 @@
       
       setBusy(form,true,"SAADAN…");
       try{
-        await edge("submit",{name:d.name,email:d.email,password:d.password,password2:d.password2,platform:d.platform,channel_url:d.channel_url,game:d.game,thumbnail_url:d.thumbnail_url,avatar_url:d.avatar_url,message:d.message});
-        closeModal();toast("Taotlus saadetud. Admin vaatab selle peatselt üle.");
+        let finalThumbnailUrl = null;
+        const fileInput = document.getElementById("thumbFile");
+        
+        // PILDI ÜLESLAADIMISE LOOGIKA (Maksimaalselt 2MB)
+        if (fileInput && fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            
+            if (file.size > 2 * 1024 * 1024) {
+                showError("#joinError", "Pilt on liiga suur! Maksimaalne lubatud suurus on 2MB.");
+                setBusy(form, false);
+                return;
+            }
+            
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+            
+            toast("Laen pilti üles...");
+            const { error: uploadError } = await db.storage.from('thumbnails').upload(fileName, file);
+            
+            if (uploadError) {
+                showError("#joinError", "Viga pildi üleslaadimisel: " + uploadError.message);
+                setBusy(form, false);
+                return;
+            }
+            
+            const { data: publicUrlData } = db.storage.from('thumbnails').getPublicUrl(fileName);
+            finalThumbnailUrl = publicUrlData.publicUrl;
+        }
+
+        // Taotluse saatmine API kaudu
+        await edge("submit", {
+            name: d.name,
+            email: d.email,
+            password: d.password,
+            password2: d.password2,
+            platform: d.platform,
+            channel_url: d.channel_url,
+            game: d.game,
+            thumbnail_url: finalThumbnailUrl, // Uus URL Supabasest!
+            avatar_url: d.avatar_url,
+            message: d.message
+        });
+        
+        closeModal();
+        toast("Taotlus saadetud. Admin vaatab selle peatselt üle.");
       }catch(err){
           showError("#joinError",err.message||String(err));
       }finally{
@@ -562,8 +605,8 @@
         $("#adminBtn").addEventListener("click", e => {
             e.preventDefault();
             window.location.href = "/admin.html";
-        }); // <-- PARANDATUD RIDA (sulg oli puudu)
-    } // <-- PARANDATUD RIDA (sulg oli puudu)
+        }); 
+    } 
     
     if($("#search")) $("#search").addEventListener("input",render);
     if($("#clearGameFilter")) $("#clearGameFilter").addEventListener("click",()=>{activeGame=null;render();});
