@@ -53,7 +53,7 @@
   function toast(message, bad = false) {
     const t = $("#toast"); if (!t) return;
     t.textContent = message;
-    t.className = `toast show ${bad ? "error" : "good"}`; // Viga oli siin: klass 'error' polnud õigesti pandud
+    t.className = `toast show ${bad ? "error" : "good"}`;
     clearTimeout(window.__streamhubToast);
     window.__streamhubToast = setTimeout(() => { t.className = "toast"; }, 5000);
   }
@@ -101,7 +101,6 @@
     try { 
       body = await r.json(); 
     } catch { 
-      // Viga parandatud: Kui vastus ei ole JSON, anna arusaadav teade
       throw new Error(`Serveri päring ebaõnnestus (HTTP ${r.status}).`); 
     }
     
@@ -199,16 +198,14 @@
   function accountModal(tab="login"){
     openModal(`<button class="close-btn" id="closeModal">×</button><div class="eyebrow">STREAMHUB KASUTAJA</div><h2>Kasutaja</h2>
       <div class="account-tabs">
-        <button type="button" class="btn ${tab==="login"?"primary":""}" id="tabLogin">Logi sisse</button>
-        <button type="button" class="btn ${tab==="signup"?"primary":""}" id="tabSignup">Loo konto</button>
+        <button type="button" class="btn primary" id="tabLogin">Logi sisse</button>
         <button type="button" class="btn" id="tabJoin">Liitu striimerina</button>
       </div><div id="accountBody"></div>`);
     
     if($("#tabLogin")) $("#tabLogin").onclick=()=>accountModal("login");
-    if($("#tabSignup")) $("#tabSignup").onclick=()=>accountModal("signup");
     if($("#tabJoin")) $("#tabJoin").onclick=joinModal;
     
-    tab==="signup" ? signupForm() : loginForm();
+    loginForm();
   }
 
   function loginForm(){
@@ -221,7 +218,7 @@
     
     $("#loginForm").onsubmit=async e=>{
       e.preventDefault();if(!dbReady())return;
-      setBusy(e.currentTarget,true,"LOGIM SISSE…"); // Lisatud kasutajale tagasiside
+      setBusy(e.currentTarget,true,"LOGIM SISSE…"); 
       
       try {
         const d=Object.fromEntries(new FormData(e.currentTarget));
@@ -236,38 +233,6 @@
       } catch(err) {
           showError("#accountError",supaError(err));
       } finally {
-          setBusy(e.currentTarget,false);
-      }
-    };
-  }
-
-  function signupForm(){
-    const body = $("#accountBody");
-    if (!body) return;
-    body.innerHTML=`<form id="signupForm" class="formgrid">
-      <div class="field"><label>KASUTAJANIMI</label><input name="username" autocomplete="username" required minlength="2" maxlength="40"></div>
-      <div class="field"><label>E-POST</label><input name="email" type="email" autocomplete="email" required></div>
-      <div class="field"><label>PAROOL</label><input name="password" type="password" autocomplete="new-password" minlength="6" required></div>
-      <div class="field"><label>PAROOL UUESTI</label><input name="password2" type="password" autocomplete="new-password" minlength="6" required></div>
-      <button type="submit" class="primary full">LOO KONTO</button><div id="accountError" class="notice error hidden"></div></form>`;
-    
-    $("#signupForm").onsubmit=async e=>{
-      e.preventDefault();if(!dbReady())return;
-      const d=Object.fromEntries(new FormData(e.currentTarget));
-      if(d.password!==d.password2){showError("#accountError","Paroolid ei kattu.");return;}
-      
-      setBusy(e.currentTarget,true,"LOON KONTO…");
-      try{
-        const {data,error}=await db.auth.signUp({email:d.email.trim().toLowerCase(),password:d.password,options:{emailRedirectTo:`${window.location.origin}/`,data:{username:d.username.trim(),display_name:d.username.trim()}}});
-        if(error)throw error;
-        if(!data.user)throw new Error("Konto loomine ebaõnnestus.");
-        
-        if(!data.session){$("#accountBody").innerHTML=`<div class="notice success"><b>Konto on loodud.</b><br><br>Kui Supabase nõuab e-posti kinnitamist, ava oma e-postkastis kinnituslink ja logi seejärel sisse.</div>`;return;}
-        
-        currentUser=data.user;await loadProfile();closeModal();toast("Konto loodud.");userModal();
-      }catch(err){
-          showError("#accountError",supaError(err));
-      }finally{
           setBusy(e.currentTarget,false);
       }
     };
