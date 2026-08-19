@@ -4,13 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StreamHub PRO Admin</title>
+    
+    <!-- Tabi mini logo (Favicon) -->
+    <link rel="icon" type="image/png" href="https://cdn.discordapp.com/attachments/767402804872216607/1539685457703600209/Copy_of_Purple_and_Orange_Abstract_Esports_Live_Stream_Twitch_Overlay_1.png?ex=6a873753&is=6a85e5d3&hm=bafb634075283140ac4c727438220c9ee4713ee6ab21c2330e8221cd0de5324a&">
+    
     <link rel="stylesheet" href="admin.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* Sisselogimise ekraani paigutus */
+        #loginScreen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            gap: 40px; 
+            padding: 20px;
+        }
+
+        /* UUS HIIGELSUUR LOGO */
+        .login-logo {
+            display: block;
+            width: 100%;
+            max-width: 700px; /* Täpselt 2 korda suurem kui eelmises versioonis! */
+            height: auto;
+            margin: 0;
+        }
+
+        /* Disain menüü logo jaoks (kasutame mini logot) */
+        .sidebar-logo {
+            height: 32px;
+            vertical-align: middle;
+            margin-right: 12px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+        }
+    </style>
 </head>
 <body>
 
     <!-- SISSELOGIMISE EKRAAN -->
     <div id="loginScreen" class="fullscreen-center">
+        
+        <!-- Sinu uus suurem logo -->
+        <img src="https://cdn.discordapp.com/attachments/767402804872216607/1539688769362468935/Copy_of_Purple_and_Orange_Abstract_Esports_Live_Stream_Twitch_Overlay_3.png?ex=6a873a68&is=6a85e8e8&hm=aa50898368319b4e545d111668efbc570dfc011d2c070e4be835594715d23e6d&" alt="StreamHub Logo" class="login-logo">
+        
         <div class="login-box">
             <h2>Admin Sisselogimine</h2>
             <form id="adminLoginForm">
@@ -27,7 +65,11 @@
         
         <!-- Küljemenüü -->
         <aside class="sidebar">
-            <div class="brand">STREAMHUB<br><span>PRO ADMIN</span></div>
+            <div class="brand">
+                <!-- Mini-logo menüüs -->
+                <img src="https://cdn.discordapp.com/attachments/767402804872216607/1539685457703600209/Copy_of_Purple_and_Orange_Abstract_Esports_Live_Stream_Twitch_Overlay_1.png?ex=6a873753&is=6a85e5d3&hm=bafb634075283140ac4c727438220c9ee4713ee6ab21c2330e8221cd0de5324a&" alt="Logo" class="sidebar-logo">
+                STREAMHUB<br><span>PRO ADMIN</span>
+            </div>
             <nav class="sidebar-nav">
                 <button class="nav-btn active" data-tab="streamers">Striimerid</button>
                 <button class="nav-btn" data-tab="applications">Taotlused</button>
@@ -63,6 +105,9 @@
     <!-- Teavitused (Toast) -->
     <div id="toast" class="toast"></div>
 
+    <!-- SKRIPTID -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>

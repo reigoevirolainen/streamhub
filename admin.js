@@ -1,9 +1,9 @@
 "use strict";
 
 // --- KONFIGURATSIOON ---
-// PANE SIIA OMA PÄRIS SUPABASE ANDMED:
-const MY_SUPABASE_URL = "SINU_SUPABASE_URL_SIIA"; // Näide: "https://xyz.supabase.co"
-const MY_SUPABASE_KEY = "SINU_ANON_KEY_SIIA";     // Sinu pikk anon/publishable võti
+// Panin siia otse sinu õiged andmed, et vältida igasuguseid ühenduse vigu!
+const MY_SUPABASE_URL = "https://rrzglnazdppgjjtaswmd.supabase.co";
+const MY_SUPABASE_KEY = "sb_publishable_ax0HpMi18hz-AQ2x8XOT3w_gRLYKE4h";
 
 const C = window.STREAMHUB_CONFIG || {
     SUPABASE_URL: MY_SUPABASE_URL,
@@ -11,11 +11,9 @@ const C = window.STREAMHUB_CONFIG || {
 };
 
 const ADMIN_UID = "56a4036e-b37d-4928-abf2-8f49d709f5b7";
-const EDGE_URL = (C.SUPABASE_URL && !C.SUPABASE_URL.includes("SINU_SUPABASE")) 
-    ? `${String(C.SUPABASE_URL).replace(/\/+$/, "")}/functions/v1/streamer-workflow` 
-    : "";
+const EDGE_URL = (C.SUPABASE_URL) ? `${String(C.SUPABASE_URL).replace(/\/+$/, "")}/functions/v1/streamer-workflow` : "";
 
-const db = (window.supabase && C.SUPABASE_URL && !C.SUPABASE_URL.includes("SINU_SUPABASE"))
+const db = window.supabase 
   ? window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_PUBLISHABLE_KEY, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     })
@@ -37,7 +35,7 @@ function toast(msg, isError = false) {
 // --- KÄIVITAMINE ---
 async function init() {
     if (!db) {
-        toast("Andmebaasi ühendus puudub. Palun sisesta admin.js faili algusesse oma Supabase URL ja Key!", true);
+        toast("Andmebaasi ühendus puudub. Palun kontrolli, kas Supabase skript on HTML failis laetud.", true);
         return;
     }
 
