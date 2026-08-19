@@ -338,6 +338,13 @@
   async function toggleLive(s){
     const {error}=await db.rpc("set_my_stream_live",{p_is_live:!s.is_live});
     if(error){toast(supaError(error),true);return;}
+    
+    // UUS LOGI SALVESTAMINE: Striimer muudab ise oma staatust
+    await db.from("streamer_logs").insert({
+        streamer_id: s.id,
+        action: !s.is_live ? 'STREAMER_SET_ONLINE' : 'STREAMER_SET_OFFLINE'
+    });
+
     toast(!s.is_live?"Oled nüüd märgitud ONLINE.":"Oled nüüd märgitud OFFLINE.");
     await loadStreamers();
     await loadUserPanel();
@@ -405,16 +412,38 @@
     };
   }
 
+  // UUENDATUD SAMM 2 KOOD: Adminil on kohene võimalus staatust muuta.
   async function loadAdminStreams(){
     const b=$("#adminBody");if(!b)return;
     const {data,error}=await db.from("streamers").select("*").order("name");
     
     if(error){b.innerHTML=`<div class="notice error">${esc(supaError(error))}</div>`;return;}
     
-    b.innerHTML=`<div class="notice">Olemasolevad striimerid andmebaasis</div>${(data||[]).map(s=>`<div class="app-row"><b>${esc(s.name)}</b><div class="meta">${esc(s.platform)} · ${esc(s.game||"Määramata mäng")} · ${s.is_live?"🔴 LIVE":"Offline"}</div><div class="admin-actions"><button type="button" class="btn" data-admin-edit="${s.id}">Muuda</button><button type="button" class="danger" data-admin-delete="${s.id}">Kustuta</button></div></div>`).join("")||`<div class="empty">Ühtegi striimerit pole andmebaasis registreeritud.</div>`}`;
+    b.innerHTML=`<div class="notice">Olemasolevad striimerid andmebaasis</div>${(data||[]).map(s=>`<div class="app-row"><b>${esc(s.name)}</b><div class="meta">${esc(s.platform)} · ${esc(s.game||"Määramata mäng")} · ${s.is_live?"🔴 LIVE":"Offline"}</div><div class="admin-actions">
+    <button type="button" class="${s.is_live ? "btn" : "primary"}" data-admin-status="${s.id}" data-live="${s.is_live}">${s.is_live ? "Tee Offline" : "Tee Online"}</button>
+    <button type="button" class="btn" data-admin-edit="${s.id}">Muuda</button><button type="button" class="danger" data-admin-delete="${s.id}">Kustuta</button></div></div>`).join("")||`<div class="empty">Ühtegi striimerit pole andmebaasis registreeritud.</div>`}`;
     
     b.querySelectorAll("[data-admin-delete]").forEach(x=>x.onclick=()=>adminDelete(x.dataset.adminDelete));
     b.querySelectorAll("[data-admin-edit]").forEach(x=>x.onclick=()=>adminEdit(x.dataset.adminEdit));
+    
+    // Event listener staatuse muutmise nuppudele
+    b.querySelectorAll("[data-admin-status]").forEach(x=>x.onclick=async()=>{
+      const id = x.dataset.adminStatus;
+      const isLiveCurrently = x.dataset.live === "true";
+      
+      const {error} = await db.from("streamers").update({ is_live: !isLiveCurrently }).eq("id", id);
+      if(error){toast("Viga: " + supaError(error),true);return;}
+      
+      // Salvestame logi uude tabelisse
+      await db.from("streamer_logs").insert({
+          streamer_id: id,
+          action: !isLiveCurrently ? 'ADMIN_SET_ONLINE' : 'ADMIN_SET_OFFLINE'
+      });
+      
+      toast(`Staatus muudetud: ${!isLiveCurrently ? 'ONLINE' : 'OFFLINE'}`);
+      await loadAdminStreams();
+      await loadStreamers();
+    });
   }
 
   async function loadAdminApps(){
@@ -529,7 +558,10 @@
     
     if($("#adminBtn")) {
         $("#adminBtn").replaceWith($("#adminBtn").cloneNode(true));
-        $("#adminBtn").addEventListener("click",e=>{e.preventDefault();adminLogin();});
+        // Suuname adminLogin() asemel uuele lehele:
+        $("#adminBtn").addEventListener("click", e => {
+            e.preventDefault();
+            window.location.href = "/admin.html";
     }
     
     if($("#search")) $("#search").addEventListener("input",render);
