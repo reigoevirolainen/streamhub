@@ -185,11 +185,41 @@
   function setupFilters(){
     const filters = $("#platformFilters");
     if (!filters) return;
-    const ps=["Kõik","Twitch","YouTube","Kick","TikTok"];
-    filters.innerHTML=ps.map((p,i)=>`<button type="button" class="filter ${i===0?"active":""}" data-platform="${p}">${p}</button>`).join("");
-    filters.querySelectorAll("[data-platform]").forEach(b=>b.onclick=()=>{
-      activePlatform=b.dataset.platform;
-      filters.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));
+    
+    // Ikoonidega platvormide nimekiri, SVG-d on nüüd inline ja õigesti vormindatud
+    const ps = [
+      { 
+        name: "Kõik", 
+        icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M10 3H3v7h7V3zm0 11H3v7h7v-7zm11-11h-7v7h7V3zm0 11h-7v7h7v-7z"/></svg>` 
+      },
+      { 
+        name: "Twitch", 
+        icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>` 
+      },
+      { 
+        name: "YouTube", 
+        icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>` 
+      },
+      { 
+        name: "Kick", 
+        icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2.666 0h5.334v5.333H10.666v2.667h2.667V5.333h5.334V0h2.666v5.333h-2.666v2.667h-2.667v5.333h2.667v2.667h2.666v8h-2.666v-5.333h-5.334v-2.667h-2.667v2.667H10.666v5.333H2.666z"/></svg>` 
+      },
+      { 
+        name: "TikTok", 
+        icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>` 
+      }
+    ];
+
+    filters.innerHTML = ps.map((p, i) => `
+      <button type="button" class="filter ${i === 0 ? "active" : ""}" data-platform="${p.name}">
+        ${p.icon}
+        <span>${p.name}</span>
+      </button>
+    `).join("");
+
+    filters.querySelectorAll("[data-platform]").forEach(b => b.onclick = () => {
+      activePlatform = b.dataset.platform;
+      filters.querySelectorAll(".filter").forEach(x => x.classList.remove("active"));
       b.classList.add("active");
       render();
     });
@@ -462,7 +492,7 @@
     
     if(error){b.innerHTML=`<div class="notice error">${esc(supaError(error))}</div>`;return;}
     
-    b.innerHTML=`<div class="notice">Olemasolevad striimerid andmebaasis</div>${(data||[]).map(s=>`<div class="app-row"><b>${esc(s.name)}</b><div class="meta">${esc(s.platform)} · ${esc(s.game||"Määramata mäng")} · ${s.is_live?"🔴 LIVE":"Offline"}</div><div class="admin-actions">
+    b.innerHTML=`<div class="notice">Olemasolevad striimerid andmebaasis</div>${(data||[]).map(s=>`<div class="app-row"><b>${esc(s.name)}</b><div class="meta">${esc(s.platform)}</div><div class="meta">${esc(s.game||"Määramata mäng")}</div><div class="meta">${s.is_live?"🔴 LIVE":"Offline"}</div><div class="admin-actions">
     <button type="button" class="${s.is_live ? "btn" : "primary"}" data-admin-status="${s.id}" data-live="${s.is_live}">${s.is_live ? "Tee Offline" : "Tee Online"}</button>
     <button type="button" class="btn" data-admin-edit="${s.id}">Muuda</button><button type="button" class="danger" data-admin-delete="${s.id}">Kustuta</button></div></div>`).join("")||`<div class="empty">Ühtegi striimerit pole andmebaasis registreeritud.</div>`}`;
     
@@ -495,7 +525,7 @@
     
     if(error){b.innerHTML=`<div class="notice error">${esc(supaError(error))}</div>`;return;}
     
-    b.innerHTML=(data||[]).map(a=>`<div class="app-row">${a.thumbnail_url?`<img class="admin-thumb" src="${esc(a.thumbnail_url)}" alt="">`:""}<b>${esc(a.name)}</b><div class="meta">${esc(a.email)} · ${esc(a.platform)} · ${esc(a.game||"Määramata")}</div><div class="meta"><a href="${esc(a.channel_url)}" target="_blank" rel="noopener">${esc(a.channel_url)}</a></div><div class="meta">Staatus: <b>${esc(a.status)}</b></div>${a.status==="pending"?`<div class="admin-actions"><button type="button" class="primary" data-approve="${a.id}">AKSEPTEERI</button><button type="button" class="danger" data-reject="${a.id}">KEELDU</button></div>`:""}</div>`).join("")||`<div class="empty">Ootel taotlusi ei ole.</div>`;
+    b.innerHTML=(data||[]).map(a=>`<div class="app-row">${a.thumbnail_url?`<img class="admin-thumb" src="${esc(a.thumbnail_url)}" alt="">`:""}<b>${esc(a.name)}</b><div class="meta">${esc(a.email)}</div><div class="meta">${esc(a.platform)} · ${esc(a.game||"Määramata")}</div><div class="meta"><a href="${esc(a.channel_url)}" target="_blank" rel="noopener">${esc(a.channel_url)}</a></div><div class="meta">Staatus: <b>${esc(a.status)}</b></div>${a.status==="pending"?`<div class="admin-actions"><button type="button" class="primary" data-approve="${a.id}">AKSEPTEERI</button><button type="button" class="danger" data-reject="${a.id}">KEELDU</button></div>`:""}</div>`).join("")||`<div class="empty">Ootel taotlusi ei ole.</div>`;
     
     b.querySelectorAll("[data-approve]").forEach(x=>x.onclick=()=>approveApp(x.dataset.approve));
     b.querySelectorAll("[data-reject]").forEach(x=>x.onclick=()=>rejectApp(x.dataset.reject));
