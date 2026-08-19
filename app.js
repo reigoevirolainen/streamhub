@@ -562,7 +562,8 @@
         $("#adminBtn").addEventListener("click", e => {
             e.preventDefault();
             window.location.href = "/admin.html";
-    }
+        }); // <-- PARANDATUD RIDA (sulg oli puudu)
+    } // <-- PARANDATUD RIDA (sulg oli puudu)
     
     if($("#search")) $("#search").addEventListener("input",render);
     if($("#clearGameFilter")) $("#clearGameFilter").addEventListener("click",()=>{activeGame=null;render();});
