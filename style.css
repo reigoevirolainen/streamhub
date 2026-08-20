@@ -32,11 +32,12 @@ html {
 
 body {
   margin: 0;
-  background: linear-gradient(90deg, rgba(7,7,12,.97) 0%, rgba(7,7,12,.92) 38%, rgba(7,7,12,.58) 68%, rgba(7,7,12,.76) 100%),
-              url("https://cdn.discordapp.com/attachments/767402804872216607/1539631817320046652/d5e2ff11-af7b-41b0-af81-cd0bc05a4e55.png?ex=6a87055e&is=6a85b3de&hm=6bf0cf4a2479846b89f8d04b37935b53d421bc7efac578b150bbda0a78024046&") center top/cover fixed no-repeat,
-              radial-gradient(900px 500px at 15% -10%, rgba(137,75,255,.16), transparent 60%),
-              radial-gradient(700px 420px at 90% 8%, rgba(224,60,164,.10), transparent 60%), 
-              var(--bg);
+  /* PARANDATUD TAUST: Ilma katkise Discordi lingita, aga ilusate gradientidega */
+  background: 
+    linear-gradient(90deg, rgba(7,7,12,.97) 0%, rgba(7,7,12,.92) 38%, rgba(7,7,12,.58) 68%, rgba(7,7,12,.76) 100%),
+    radial-gradient(900px 500px at 15% -10%, rgba(137,75,255,.16), transparent 60%),
+    radial-gradient(700px 420px at 90% 8%, rgba(224,60,164,.10), transparent 60%), 
+    var(--bg);
   color: var(--text);
   font-family: Inter, system-ui, sans-serif;
   min-height: 100vh;
@@ -275,7 +276,6 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
   .streamer-grid { grid-auto-columns: 280px; }
 }
 
-/* SPETSIAALSELT TAHVLITELE JA LAIEMATELE MOBIILIDELE (ADMIN PANEELI FIX) */
 @media(max-width: 768px) {
   .app-row { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
   .app-row .meta, .app-row b { width: 100%; word-break: break-all; }
@@ -286,7 +286,6 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
   .modal { width: 95%; padding: 20px; margin: 10px; }
 }
 
-/* SPETSIAALSELT KITSATELE MOBIILIDELE */
 @media(max-width: 620px) {
   .topbar { padding: 0 14px; gap: 10px; justify-content: space-between; }
   .brand span:nth-child(2) { display: none; }
@@ -306,7 +305,6 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
   .streamer-grid { grid-auto-columns: 260px; }
   .game-tile { height: 150px; }
   
-  /* Logimise ja profiili nuppude parem paigutus telefonis */
   .account-tabs { flex-wrap: wrap; flex-direction: column; }
   .account-tabs button { flex: 1 1 100%; width: 100%; }
 }
