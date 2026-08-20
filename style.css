@@ -106,7 +106,7 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none!important; 
 
 .brand { display: flex; align-items: center; gap: 9px; font-weight: 900; letter-spacing: -.04em; }
 .brand img { width: 138px; height: auto; display: block; }
-.brandmark { display: none; } /* Peidetud, kuna kasutad pilti */
+.brandmark { display: none; } 
 
 .brand b { font-size: 8px; letter-spacing: .08em; color: #a7a4b6; border: 1px solid #3a3948; border-radius: 5px; padding: 2px 4px; }
 .nav { display: flex; gap: 28px; margin: auto; font-size: 12px; font-weight: 800; color: #8f8da0; }
@@ -164,7 +164,6 @@ main { overflow: hidden; }
   font-size: 11px;
   font-weight: 800;
   cursor: pointer;
-  /* Lisatud ikoonide joonduse toetuseks: */
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -177,8 +176,8 @@ main { overflow: hidden; }
 
 /* -- GRIDID JA KERITAVAD RIBAD -- */
 .live-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; }
-.streamer-grid { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(300px,1fr); gap: 18px; overflow-x: auto; padding: 5px 2px 14px; }
-.game-strip { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(205px,1fr); gap: 14px; overflow-x: auto; padding: 5px 2px 14px; }
+.streamer-grid { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(300px,1fr); gap: 18px; overflow-x: auto; padding: 5px 2px 14px; -webkit-overflow-scrolling: touch; }
+.game-strip { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(205px,1fr); gap: 14px; overflow-x: auto; padding: 5px 2px 14px; -webkit-overflow-scrolling: touch; }
 
 /* --- KAARDID --- */
 .card { overflow: hidden; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; background: linear-gradient(180deg,#11111b,#0c0c13); box-shadow: 0 12px 40px rgba(0,0,0,.18); transition: .22s ease; }
@@ -263,7 +262,10 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
 .info h2 { font-family: 'Space Grotesk'; font-size: clamp(36px,5vw,62px); line-height: .95; letter-spacing: -.06em; margin: 10px 0; }
 .info p { color: #9694a5; line-height: 1.8; font-size: 16px; max-width: 620px; }
 
-/* --- RESPONSIVSUS (MOBIIL & TAHVEL) --- */
+/* =========================================
+   RESPONSIVSUS (MOBIIL & TAHVEL)
+========================================= */
+
 @media(max-width: 1000px) {
   .nav { display: none; }
   .live-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
@@ -273,21 +275,38 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
   .streamer-grid { grid-auto-columns: 280px; }
 }
 
+/* SPETSIAALSELT TAHVLITELE JA LAIEMATELE MOBIILIDELE (ADMIN PANEELI FIX) */
+@media(max-width: 768px) {
+  .app-row { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .app-row .meta, .app-row b { width: 100%; word-break: break-all; }
+  
+  .admin-actions { width: 100%; flex-direction: column; }
+  .admin-actions button { width: 100%; }
+  
+  .modal { width: 95%; padding: 20px; margin: 10px; }
+}
+
+/* SPETSIAALSELT KITSATELE MOBIILIDELE */
 @media(max-width: 620px) {
-  .topbar { padding: 0 14px; gap: 10px; }
+  .topbar { padding: 0 14px; gap: 10px; justify-content: space-between; }
   .brand span:nth-child(2) { display: none; }
-  .actions .btn, .actions .primary { padding: 9px 10px; }
+  .actions .btn, .actions .primary { padding: 9px 10px; font-size: 11px; } 
+  
   .hero { padding: 80px 18px 65px; }
-  .hero h1 { font-size: 58px; }
+  .hero h1 { font-size: 44px; } 
   .hero p { font-size: 15px; }
   .hero-actions { flex-direction: column; align-items: stretch; }
+  
   .section { padding: 58px 18px; }
-  .section-head { align-items: flex-start; flex-direction: column; }
+  .section-head { align-items: flex-start; flex-direction: column; gap: 12px; }
   .search { width: 100%; }
+  
   .live-grid, .game-results-grid { grid-template-columns: 1fr; }
   .game-strip { grid-auto-columns: 235px; }
   .streamer-grid { grid-auto-columns: 260px; }
   .game-tile { height: 150px; }
-  .account-tabs { flex-wrap: wrap; }
-  .account-tabs button { flex: 1 1 100%; }
+  
+  /* Logimise ja profiili nuppude parem paigutus telefonis */
+  .account-tabs { flex-wrap: wrap; flex-direction: column; }
+  .account-tabs button { flex: 1 1 100%; width: 100%; }
 }
