@@ -10,13 +10,26 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-body { background: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; }
+
+/* UUS TAUSTAPILT JA ILUSAD GRADIENTID */
+body { 
+    background: linear-gradient(90deg, rgba(7,7,12,.97) 0%, rgba(7,7,12,.92) 38%, rgba(7,7,12,.58) 68%, rgba(7,7,12,.76) 100%),
+                url("https://cdn.phototourl.com/free/2026-08-20-88319d53-44c1-488e-98ef-f64f2daad229.png") center top/cover fixed no-repeat,
+                radial-gradient(900px 500px at 15% -10%, rgba(137,75,255,.16), transparent 60%),
+                radial-gradient(700px 420px at 90% 8%, rgba(224,60,164,.10), transparent 60%),
+                var(--bg-dark); 
+    color: var(--text-main); 
+    height: 100vh; 
+    overflow: hidden; 
+}
 
 .hidden { display: none !important; }
 
 /* Sisselogimine */
 .fullscreen-center { display: flex; height: 100vh; justify-content: center; align-items: center; }
-.login-box { background: var(--bg-panel); padding: 40px; border-radius: 12px; border: 1px solid var(--border); width: 350px; text-align: center; }
+
+/* Poolläbipaistvad paneelid, et taust läbi kumaks */
+.login-box { background: rgba(16, 16, 26, 0.85); backdrop-filter: blur(10px); padding: 40px; border-radius: 12px; border: 1px solid var(--border); width: 350px; text-align: center; }
 .login-box h2 { margin-bottom: 20px; color: var(--accent); }
 .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; background: #000; border: 1px solid var(--border); color: white; border-radius: 6px; }
 
@@ -31,18 +44,18 @@ button { cursor: pointer; border: none; font-weight: bold; border-radius: 6px; p
 
 /* Dashboard Layout */
 .dashboard { display: flex; height: 100vh; }
-.sidebar { width: 250px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+.sidebar { width: 250px; background: rgba(16, 16, 26, 0.85); backdrop-filter: blur(10px); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
 .brand { padding: 30px 20px; font-size: 20px; font-weight: 900; letter-spacing: 1px; }
 .brand span { color: var(--accent); font-size: 14px; }
 .sidebar-nav { flex-grow: 1; display: flex; flex-direction: column; padding: 0 10px; }
 .nav-btn { background: transparent; color: var(--text-muted); text-align: left; padding: 15px; font-size: 15px; margin-bottom: 5px; }
-.nav-btn:hover, .nav-btn.active { background: #1a1a2e; color: white; }
+.nav-btn:hover, .nav-btn.active { background: rgba(26, 26, 46, 0.8); color: white; }
 .sidebar-bottom { padding: 20px; }
 
 /* Content Area */
-.content { flex-grow: 1; padding: 40px; overflow-y: auto; background: var(--bg-dark); }
+.content { flex-grow: 1; padding: 40px; overflow-y: auto; background: transparent; }
 header { margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-.card-table { background: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border); padding: 20px; }
+.card-table { background: rgba(16, 16, 26, 0.85); backdrop-filter: blur(10px); border-radius: 12px; border: 1px solid var(--border); padding: 20px; }
 
 /* Tabeli stiilis read */
 .data-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border); }
@@ -54,3 +67,15 @@ header { margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bo
 .toast { position: fixed; bottom: 20px; right: 20px; background: var(--bg-panel); border: 1px solid var(--border); padding: 15px 20px; border-radius: 8px; color: white; transform: translateY(100px); opacity: 0; transition: 0.3s; z-index: 1000; }
 .toast.show { transform: translateY(0); opacity: 1; }
 .toast.error { border-color: var(--danger); color: var(--danger); }
+
+/* --- RESPONSIVSUS (MOBIIL) --- */
+@media(max-width: 768px) {
+    .dashboard { flex-direction: column; }
+    .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .sidebar-nav { flex-direction: row; flex-wrap: wrap; justify-content: center; padding: 10px; gap: 5px; }
+    .nav-btn { padding: 10px; font-size: 13px; text-align: center; flex: 1; }
+    .sidebar-bottom { padding: 10px; }
+    .content { padding: 20px; }
+    .data-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .action-btn { width: 100%; margin: 2px 0; }
+}
