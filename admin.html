@@ -85,7 +85,10 @@
         <!-- Sisu ala -->
         <main class="content">
             <div id="tab-streamers" class="tab-content active">
-                <header><h1>Hallatavad Striimerid</h1></header>
+                <header style="display: flex; justify-content: space-between; align-items: center;">
+                    <h1>Hallatavad Striimerid</h1>
+                    <button id="openAddModalBtn" class="primary-btn" style="width: auto; padding: 10px 20px;">+ Lisa Striimer</button>
+                </header>
                 <div class="card-table" id="streamersList">Laen andmeid...</div>
             </div>
             <div id="tab-applications" class="tab-content hidden">
@@ -97,6 +100,39 @@
                 <div class="card-table" id="logsList">Laen andmeid...</div>
             </div>
         </main>
+    </div>
+
+    <!-- STRIIMERI LISAMISE MODAAL -->
+    <div id="addModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+        <div class="login-box" style="width: 450px; max-width: 90%; background: #1a1a24; padding: 25px; border-radius: 8px;">
+            <h2 style="margin-top: 0;">Lisa Uus Striimer</h2>
+            <form id="addStreamerForm">
+                <label style="font-size: 12px; color: #aaa;">NIMI</label>
+                <input type="text" id="addName" class="modal-input" placeholder="nt. Stenboody" required>
+                
+                <label style="font-size: 12px; color: #aaa;">PLATVORM</label>
+                <select id="addPlatform" class="modal-input" required>
+                    <option value="TikTok">TikTok</option>
+                    <option value="Twitch">Twitch</option>
+                    <option value="YouTube">YouTube</option>
+                    <option value="Kick">Kick</option>
+                </select>
+                
+                <label style="font-size: 12px; color: #aaa;">MÄNG (Valikuline)</label>
+                <input type="text" id="addGame" class="modal-input" placeholder="nt. Fortnite">
+                
+                <label style="font-size: 12px; color: #aaa;">KANALI URL</label>
+                <input type="url" id="addUrl" class="modal-input" placeholder="https://www.tiktok.com/@kasutaja" required>
+                
+                <label style="font-size: 12px; color: #aaa;">PILT / THUMBNAIL URL (Valikuline)</label>
+                <input type="url" id="addThumb" class="modal-input" placeholder="https://...">
+                
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="submit" class="primary-btn" style="flex: 1;">LISA</button>
+                    <button type="button" class="action-btn danger" onclick="closeAddModal()" style="flex: 1;">TÜHISTA</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- STRIIMERI MUUTMISE MODAAL (Peidetud) -->
@@ -141,5 +177,55 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script src="admin.js"></script>
+    <script>
+        // Lisa-modaali juhtimine
+        const addModal = document.getElementById('addModal');
+        const openAddBtn = document.getElementById('openAddModalBtn');
+        
+        if (openAddBtn) {
+            openAddBtn.addEventListener('click', () => {
+                addModal.style.display = 'flex';
+            });
+        }
+
+        function closeAddModal() {
+            addModal.style.display = 'none';
+            document.getElementById('addStreamerForm').reset();
+        }
+
+        // Uue striimeri saatmine Supabase'i
+        const addForm = document.getElementById('addStreamerForm');
+        if (addForm) {
+            addForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const name = document.getElementById('addName').value.trim();
+                const platform = document.getElementById('addPlatform').value;
+                const game = document.getElementById('addGame').value.trim();
+                const channel_url = document.getElementById('addUrl').value.trim();
+                const thumbnail_url = document.getElementById('addThumb').value.trim();
+
+                const { error } = await supabase
+                    .from('streamers')
+                    .insert([{ 
+                        name, 
+                        platform, 
+                        game: game || null, 
+                        channel_url, 
+                        thumbnail_url: thumbnail_url || null,
+                        is_live: false, 
+                        viewers: 0 
+                    }]);
+
+                if (error) {
+                    alert('Viga lisamisel: ' + error.message);
+                } else {
+                    alert('Striimer edukalt lisatud!');
+                    closeAddModal();
+                    location.reload();
+                }
+            });
+        }
+    </script>
 </body>
 </html>
