@@ -177,54 +177,68 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script src="admin.js"></script>
+    
     <script>
-        // Lisa-modaali juhtimine
-        const addModal = document.getElementById('addModal');
-        const openAddBtn = document.getElementById('openAddModalBtn');
-        
-        if (openAddBtn) {
-            openAddBtn.addEventListener('click', () => {
-                addModal.style.display = 'flex';
-            });
-        }
+        // Ootame kindlalt, kuni kogu leht on brauseris valmis laetud
+        document.addEventListener('DOMContentLoaded', () => {
+            const addModal = document.getElementById('addModal');
+            const openAddBtn = document.getElementById('openAddModalBtn');
+            const addForm = document.getElementById('addStreamerForm');
+            
+            // 1. Teeme nupu aktiivseks
+            if (openAddBtn) {
+                openAddBtn.addEventListener('click', () => {
+                    addModal.style.display = 'flex';
+                });
+            }
 
+            // 2. Vormi saatmine andmebaasi
+            if (addForm) {
+                addForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const name = document.getElementById('addName').value.trim();
+                    const platform = document.getElementById('addPlatform').value;
+                    const game = document.getElementById('addGame').value.trim();
+                    const channel_url = document.getElementById('addUrl').value.trim();
+                    const thumbnail_url = document.getElementById('addThumb').value.trim();
+
+                    try {
+                        // Küsib andmebaasist
+                        const { error } = await supabase
+                            .from('streamers')
+                            .insert([{ 
+                                name, 
+                                platform, 
+                                game: game || null, 
+                                channel_url, 
+                                thumbnail_url: thumbnail_url || null,
+                                is_live: false, 
+                                viewers: 0 
+                            }]);
+
+                        if (error) {
+                            alert('Viga lisamisel! Kontrolli Supabase RLS seadeid. Veateade: ' + error.message);
+                            console.error(error);
+                        } else {
+                            alert('Striimer edukalt lisatud!');
+                            closeAddModal();
+                            location.reload();
+                        }
+                    } catch (err) {
+                        alert('Skripti viga. Kas config.js failis on supabase defineeritud? (window.supabase = supabase;)');
+                        console.error(err);
+                    }
+                });
+            }
+        });
+
+        // See funktsioon peab olema väljaspool DOMContentLoaded plokki, et HTML onclick töötaks
         function closeAddModal() {
-            addModal.style.display = 'none';
-            document.getElementById('addStreamerForm').reset();
-        }
-
-        // Uue striimeri saatmine Supabase'i
-        const addForm = document.getElementById('addStreamerForm');
-        if (addForm) {
-            addForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                const name = document.getElementById('addName').value.trim();
-                const platform = document.getElementById('addPlatform').value;
-                const game = document.getElementById('addGame').value.trim();
-                const channel_url = document.getElementById('addUrl').value.trim();
-                const thumbnail_url = document.getElementById('addThumb').value.trim();
-
-                const { error } = await supabase
-                    .from('streamers')
-                    .insert([{ 
-                        name, 
-                        platform, 
-                        game: game || null, 
-                        channel_url, 
-                        thumbnail_url: thumbnail_url || null,
-                        is_live: false, 
-                        viewers: 0 
-                    }]);
-
-                if (error) {
-                    alert('Viga lisamisel: ' + error.message);
-                } else {
-                    alert('Striimer edukalt lisatud!');
-                    closeAddModal();
-                    location.reload();
-                }
-            });
+            const modal = document.getElementById('addModal');
+            if (modal) modal.style.display = 'none';
+            const form = document.getElementById('addStreamerForm');
+            if (form) form.reset();
         }
     </script>
 </body>
