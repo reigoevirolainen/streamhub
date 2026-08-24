@@ -179,23 +179,28 @@
     <script src="admin.js"></script>
     
     <script>
-        // Ootame kindlalt, kuni kogu leht on brauseris valmis laetud
         document.addEventListener('DOMContentLoaded', () => {
             const addModal = document.getElementById('addModal');
             const openAddBtn = document.getElementById('openAddModalBtn');
             const addForm = document.getElementById('addStreamerForm');
             
-            // 1. Teeme nupu aktiivseks
+            // 1. Modaali avamine
             if (openAddBtn) {
                 openAddBtn.addEventListener('click', () => {
                     addModal.style.display = 'flex';
                 });
             }
 
-            // 2. Vormi saatmine andmebaasi
+            // 2. Uue striimeri salvestamine
             if (addForm) {
                 addForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
+
+                    // Loome andmebaasi ühenduse kasutades sinu config.js muutujaid
+                    const supabaseClient = supabase.createClient(
+                        window.STREAMHUB_CONFIG.SUPABASE_URL,
+                        window.STREAMHUB_CONFIG.SUPABASE_PUBLISHABLE_KEY
+                    );
 
                     const name = document.getElementById('addName').value.trim();
                     const platform = document.getElementById('addPlatform').value;
@@ -204,8 +209,8 @@
                     const thumbnail_url = document.getElementById('addThumb').value.trim();
 
                     try {
-                        // Küsib andmebaasist
-                        const { error } = await supabase
+                        // Salvestame andmebaasi
+                        const { error } = await supabaseClient
                             .from('streamers')
                             .insert([{ 
                                 name, 
@@ -218,7 +223,7 @@
                             }]);
 
                         if (error) {
-                            alert('Viga lisamisel! Kontrolli Supabase RLS seadeid. Veateade: ' + error.message);
+                            alert('Viga andmebaasi lisamisel! Veateade: ' + error.message);
                             console.error(error);
                         } else {
                             alert('Striimer edukalt lisatud!');
@@ -226,14 +231,14 @@
                             location.reload();
                         }
                     } catch (err) {
-                        alert('Skripti viga. Kas config.js failis on supabase defineeritud? (window.supabase = supabase;)');
+                        alert('Süsteemne viga lisamisel: ' + err.message);
                         console.error(err);
                     }
                 });
             }
         });
 
-        // See funktsioon peab olema väljaspool DOMContentLoaded plokki, et HTML onclick töötaks
+        // Modaali sulgemine
         function closeAddModal() {
             const modal = document.getElementById('addModal');
             if (modal) modal.style.display = 'none';
