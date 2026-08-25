@@ -10,18 +10,16 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 
 <style>
-    /* 1. LÄÄGI JA UJUMISE (SCROLL) FIX */
+    /* 1. SCROLL FIX (Hiirerullik töötab uuesti!) */
     html, body { 
-        overscroll-behavior-y: none; 
-        min-height: 100dvh; 
-        overflow-x: hidden; /* SEE KEELAB PAREMALE/VASAKULE UJUMISE */
+        overflow-x: hidden; /* Keelab ainult vasakule-paremale ujumise */
         width: 100%; 
         margin: 0; padding: 0;
     }
-    * { box-sizing: border-box; } /* Hoiab elemendid alati ekraani raamides */
+    * { box-sizing: border-box; } 
     
     .card, .hero, .modal, .game-tile, .section-head, .spotlight-card { 
         transform: translateZ(0); 
@@ -40,7 +38,7 @@
 
     /* MENÜÜRIBA KLAASEFEKT JA PAIGUTUS */
     .topbar {
-        position: sticky; top: 0; z-index: 100; /* Jääb kerides ekraani ülaossa */
+        position: sticky; top: 0; z-index: 100;
         background: rgba(10, 10, 15, 0.75) !important;
         backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -48,8 +46,8 @@
         padding: 10px 20px;
     }
     
-    /* LOGO SUURUSE FIX */
-    .brand img { height: 45px; width: auto; display: block; } /* Asendas 200px hiiglase */
+    /* LOGO SUURUS ARVUTIS (Suur ja esinduslik) */
+    .brand img { height: 150px; width: auto; display: block; transition: height 0.3s ease; } 
 
     .card, .game-tile, .spotlight-card {
         background: rgba(20, 20, 25, 0.5) !important;
@@ -63,15 +61,16 @@
         box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
 
-    /* MOBIILI OPTIMEERIMINE (UI paigutus ja läägi eemaldamine) */
+    /* MOBIILI OPTIMEERIMINE (Ainult telefonidele alla 768px laiad!) */
     @media (max-width: 768px) {
         .topbar { padding: 10px 15px; }
         
-        /* Tõstab Kasutaja ja Admin valikud logo kõrvale */
+        /* LOGO SUURUS MOBIILIS (Väike, et kõik ära mahuks) */
+        .brand img { height: 45px; }
+        
         .actions { order: 2; display: flex; gap: 8px; }
         .actions button { padding: 8px 12px; font-size: 13px; }
         
-        /* Viib menüü (Live, Mängud jne) omaette reale */
         .nav { 
             order: 3; width: 100%; display: flex; overflow-x: auto; 
             padding: 12px 0 5px 0; margin-top: 10px; 
@@ -79,7 +78,7 @@
             justify-content: flex-start; gap: 15px; 
         }
         
-        /* JÕUDLUSE FIX: Telefonides vähendame bluri drastiliselt, et hoida 60FPS kerimist */
+        /* Läägi vähendamine telefonis */
         .topbar, .card, .game-tile, .spotlight-card {
             backdrop-filter: blur(4px) !important;
             -webkit-backdrop-filter: blur(4px) !important;
@@ -178,5 +177,5 @@
 <div id="modalRoot"></div>
 <div id="toast" class="toast"></div>
 <noscript><div class="noscript notice error">StreamHub vajab JavaScripti, et sisselogimine ja Supabase toimiksid.</div></noscript>
-<script src="app.js?v=45.0"></script>
+<script src="app.js?v=46.0"></script>
 </body></html>
