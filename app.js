@@ -26,7 +26,7 @@
     "VALORANT": "https://images.squarespace-cdn.com/content/v1/5f031aa98cea4c639ef3f14f/1628022926456-P2ZU0NTSDBH1VXQKB5EO/riot%2Bnew%2Bheader.jpg",
     "Counter-Strike 2": "https://cdn.akamai.steamstatic.com/steam/apps/730/capsule_616x353.jpg",
     "PUBG": "https://cdn.akamai.steamstatic.com/steam/apps/578080/capsule_616x353.jpg",
-    "League of Legends": "https://img.sanishtech.com/u/4a549466ca579a2f6037743d918afd3f.jpg",
+    "League of Legends": "https://images.contentstack.io/v3/assets/blt731acb42bb3d1659/blt420f188ce609c1fa/5f79178f7e71920cf2df8416/LoL_Key_Art_03.jpg",
     "Dota 2": "https://cdn.akamai.steamstatic.com/steam/apps/570/capsule_616x353.jpg"
   };
 
@@ -121,9 +121,11 @@
 
   function card(s) {
     const img = s.thumbnail_url || s.avatar_url || gameArt(s.game || "Fortnite");
-    return `<article class="card">
-      <div class="preview"><img src="${esc(img)}" data-game-fallback="${esc(s.game || "Fortnite")}" alt="${esc(s.name)} thumbnail" loading="lazy">
-        <span class="badge ${s.is_live ? "" : "offline"}">${s.is_live ? "● LIVE" : "OFFLINE"}</span>
+    // LISATUD: reveal klass ja andmed hover video jaoks
+    return `<article class="card reveal">
+      <div class="preview" data-platform="${esc(s.platform)}" data-url="${esc(s.channel_url)}">
+        <img src="${esc(img)}" data-game-fallback="${esc(s.game || "Fortnite")}" alt="${esc(s.name)} thumbnail" loading="lazy">
+        <span class="badge ${s.is_live ? "" : "offline"}">${s.is_live ? "<span class='live-dot'></span>LIVE" : "OFFLINE"}</span>
         ${s.is_live ? `<span class="viewers">👁 ${Number(s.viewers || 0).toLocaleString("et-EE")}</span>` : ""}
       </div>
       <div class="cardbody"><div class="cardtitle">${esc(s.name)}</div>
@@ -150,6 +152,82 @@
     });
   }
 
+  // --- UUS: SCROLL REVEAL INIT ---
+  function initReveal() {
+      const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                  entry.target.classList.add('active');
+              }
+          });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  }
+
+  // --- UUS: HOVER VIDEO PREVIEW ---
+  function setupHoverPreviews() {
+      document.querySelectorAll('.card .preview, .spotlight-img').forEach(el => {
+          let hoverTimer;
+          el.addEventListener('mouseenter', () => {
+              const platform = el.dataset.platform;
+              const url = el.dataset.url;
+              let iframeHTML = "";
+
+              // Toetame praegu Twitchi (kõige kergem uputada)
+              if (String(platform).toLowerCase() === "twitch") {
+                  const match = url.match(/twitch\.tv\/([^/?]+)/);
+                  if (match && match[1]) {
+                      const parent = window.location.hostname || "streamhub.ee"; // Nõuab domeeni nime
+                      iframeHTML = `<iframe src="https://player.twitch.tv/?channel=${match[1]}&parent=${parent}&muted=true&autoplay=true" frameborder="0" scrolling="no" allowfullscreen></iframe>`;
+                  }
+              }
+
+              if (!iframeHTML) return;
+
+              hoverTimer = setTimeout(() => {
+                  if (!el.querySelector('.iframe-container')) {
+                      el.insertAdjacentHTML('beforeend', `<div class="iframe-container">${iframeHTML}</div>`);
+                  }
+              }, 600); // Ootab 0.6 sek enne laadimist
+          });
+
+          el.addEventListener('mouseleave', () => {
+              clearTimeout(hoverTimer);
+              const iframe = el.querySelector('.iframe-container');
+              if (iframe) iframe.remove();
+          });
+      });
+  }
+
+  // --- UUS: SPOTLIGHT KUVAMINE ---
+  function renderSpotlight() {
+      const sl = $("#spotlightTarget");
+      if (!sl) return;
+      
+      const live = streamers.filter(s => s.is_live);
+      if (live.length === 0) { sl.innerHTML = ""; return; }
+      
+      // Valib suurima vaatajaskonnaga LIVE striimeri
+      const top = live.sort((a,b) => (b.viewers||0) - (a.viewers||0))[0];
+      const img = top.thumbnail_url || top.avatar_url || gameArt(top.game || "Fortnite");
+
+      sl.innerHTML = `
+          <div class="spotlight-card reveal">
+              <div class="spotlight-img preview" data-platform="${esc(top.platform)}" data-url="${esc(top.channel_url)}">
+                  <img src="${esc(img)}" alt="${esc(top.name)} thumbnail" loading="lazy">
+                  <span class="badge"><span class='live-dot'></span>LIVE</span>
+              </div>
+              <div class="spotlight-info">
+                  <div class="eyebrow" style="color: #ff3b30; margin-bottom: 5px;">🔥 NÄDALA STRIIMER</div>
+                  <h3>${esc(top.name)}</h3>
+                  <div class="meta">${esc(top.game || "Streaming")} · ${esc(top.platform)}</div>
+                  <p style="margin: 15px 0; color: #a0a0b0;">Hetkel vaatab seda kanalit otse <b>${Number(top.viewers || 0).toLocaleString("et-EE")}</b> inimest!</p>
+                  <a class="primary btn" href="${esc(top.channel_url)}" target="_blank" rel="noopener">MINE ELAMUST SAAMA →</a>
+              </div>
+          </div>
+      `;
+  }
+
   function render() {
     const rows=filtered(), live=rows.filter(s=>s.is_live);
     const liveGrid = $("#liveGrid");
@@ -161,42 +239,36 @@
     if ($("#heroLiveCount")) $("#heroLiveCount").textContent=streamers.filter(s=>s.is_live).length.toLocaleString("et-EE");
     if ($("#heroStreamerCount")) $("#heroStreamerCount").textContent=streamers.length.toLocaleString("et-EE");
     
-    // --- FORCE BACKGROUND CHANGER (Kasutame !important, et see raudselt töötaks) ---
-    document.body.style.transition = "background-image 0.4s ease-in-out";
-    if (activeGame) {
-        document.body.style.setProperty('background-image', `linear-gradient(to bottom, rgba(7, 7, 12, 0.85) 0%, rgba(7, 7, 12, 1) 100%), url('${gameArt(activeGame)}')`, 'important');
-        document.body.style.setProperty('background-size', 'cover', 'important');
-        document.body.style.setProperty('background-position', 'center top', 'important');
-        document.body.style.setProperty('background-attachment', 'fixed', 'important');
-    } else {
-        // Taastame algse seisu (laseme style.css-i tüdrukuga taustal uuesti mõjuda)
-        document.body.style.removeProperty('background-image');
-        document.body.style.removeProperty('background-size');
-        document.body.style.removeProperty('background-position');
-        document.body.style.removeProperty('background-attachment');
+    const dynBg = $("#dynamic-bg");
+    if (dynBg) {
+        if (activeGame) {
+            dynBg.style.backgroundImage = `linear-gradient(to bottom, rgba(7, 7, 12, 0.85) 0%, rgba(7, 7, 12, 1) 100%), url('${gameArt(activeGame)}')`;
+            dynBg.classList.add("show");
+        } else {
+            dynBg.classList.remove("show");
+        }
     }
-    // ------------------------------------------
 
+    renderSpotlight();
     wireImageFallbacks(); 
     renderGames();
+    
+    initReveal(); 
+    setupHoverPreviews();
   }
 
   function renderGames() {
     const strip=$("#gameStrip"),results=$("#gameResults"); if(!strip||!results)return;
     strip.innerHTML=games.map(g=>{
       const count=streamers.filter(s=>String(s.game||"").trim().toLowerCase()===g.name.toLowerCase()&&s.is_live).length;
-      return `<button type="button" class="game-tile ${activeGame===g.name?"active":""}" data-game="${esc(g.name)}">
+      return `<button type="button" class="game-tile reveal ${activeGame===g.name?"active":""}" data-game="${esc(g.name)}">
         <img class="game-art" src="${esc(g.art)}" data-game-art-fallback="${esc(g.name)}" alt="${esc(g.name)}" loading="lazy">
         <span class="game-name">${esc(g.name)}</span><span class="game-count">${count} LIVE</span></button>`;
     }).join("");
     
     strip.querySelectorAll("[data-game]").forEach(b=>b.onclick=()=>{
-      // Kui vajutad juba valitud mängule, võtab filtri maha
-      if (activeGame === b.dataset.game) {
-          activeGame = null;
-      } else {
-          activeGame = b.dataset.game;
-      }
+      if (activeGame === b.dataset.game) { activeGame = null; } 
+      else { activeGame = b.dataset.game; }
       render();
     });
     
@@ -209,7 +281,7 @@
     if(!activeGame){results.classList.add("hidden");results.innerHTML="";return;}
     const found=streamers.filter(s=>String(s.game||"").trim().toLowerCase()===activeGame.toLowerCase());
     results.classList.remove("hidden");
-    results.innerHTML=`<div class="game-results-title">${esc(activeGame)} — ${found.length} striimerit</div><div class="game-results-grid">${found.length?found.map(card).join(""):`<div class="empty">Selle mängu all pole veel striimereid.</div>`}</div>`;
+    results.innerHTML=`<div class="game-results-title reveal">${esc(activeGame)} — ${found.length} striimerit</div><div class="game-results-grid">${found.length?found.map(card).join(""):`<div class="empty">Selle mängu all pole veel striimereid.</div>`}</div>`;
     wireImageFallbacks();
   }
 
@@ -553,7 +625,22 @@
   function setup(){
     if($("#userBtn")) { $("#userBtn").replaceWith($("#userBtn").cloneNode(true)); $("#userBtn").addEventListener("click",e=>{e.preventDefault();currentUser?userModal():accountModal("login");}); }
     if($("#adminBtn")) { $("#adminBtn").replaceWith($("#adminBtn").cloneNode(true)); $("#adminBtn").addEventListener("click", e => { e.preventDefault(); window.location.href = "/admin.html"; }); } 
-    if($("#search")) $("#search").addEventListener("input",render);
+    
+    // --- UUS: DEBOUNCE OTSING ---
+    let searchTimeout;
+    const searchInput = $("#search");
+    if(searchInput) {
+        searchInput.addEventListener("input", () => {
+            const spinner = $("#searchSpinner");
+            if(spinner) spinner.classList.add("active"); // Näitab spinnerit
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                render();
+                if(spinner) spinner.classList.remove("active"); // Peidab spinneri
+            }, 400); // Ootab enne filtreerimist 400ms
+        });
+    }
+
     if($("#clearGameFilter")) $("#clearGameFilter").addEventListener("click",()=>{activeGame=null;render();});
     document.querySelectorAll("[data-scroll='#live']").forEach(el => el.addEventListener("click",e=>{e.preventDefault();$("#live")?.scrollIntoView({behavior:"smooth"});}));
     document.querySelectorAll("[data-scroll='#streamers']").forEach(el => el.addEventListener("click",e=>{e.preventDefault();$("#streamers")?.scrollIntoView({behavior:"smooth"});}));

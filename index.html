@@ -10,23 +10,87 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<!-- Lisasin v=2, et brauser tõmbaks kindlasti värske CSSi -->
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=4">
 
 <style>
+    /* ANDROID LAG FIX */
     body, html { overscroll-behavior-y: none; min-height: 100dvh; }
-    .card, .hero, .modal, .game-tile, .section-head { 
-        transform: translateZ(0); 
-        will-change: transform, opacity; 
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
+    
+    /* DÜNAAMILINE TAUST */
+    #dynamic-bg {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        z-index: -1; background-size: cover; background-position: center top;
+        transition: opacity 0.5s ease-in-out; opacity: 0; pointer-events: none;
     }
+    #dynamic-bg.show { opacity: 1; }
+
+    /* 1. KLAASEFEKT (GLASSMORPHISM) */
+    .topbar {
+        background: rgba(10, 10, 15, 0.65) !important;
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .card, .game-tile, .spotlight-card {
+        background: rgba(20, 20, 25, 0.5) !important;
+        backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover, .game-tile:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    /* 2. PULSEERIV LIVE TÄPP */
+    .live-dot {
+        display: inline-block; width: 8px; height: 8px;
+        background-color: #ff3b30; border-radius: 50%;
+        margin-right: 6px; margin-bottom: 1px;
+        box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7);
+        animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); }
+        70% { box-shadow: 0 0 0 6px rgba(255, 59, 48, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+    }
+
+    /* 3. KERIMISANIMATSIOONID (SCROLL REVEAL) */
+    .reveal { opacity: 0; transform: translateY(25px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+
+    /* 4. SPOTLIGHT (HETKEL KUUM) */
+    .spotlight-card { display: flex; gap: 2rem; border-radius: 16px; padding: 1.5rem; align-items: center; margin-top: 2rem; }
+    .spotlight-img { flex: 0 0 320px; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; aspect-ratio: 16/9; }
+    .spotlight-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .spotlight-info h3 { font-size: 2.2rem; margin: 0 0 0.5rem; letter-spacing: -0.5px; }
+    @media (max-width: 768px) { .spotlight-card { flex-direction: column; gap: 1rem; } .spotlight-img { flex: 1; width: 100%;} }
+
+    /* 5. OTSINGU LAADIMISIKOON */
+    .search-wrapper { position: relative; width: 100%; max-width: 300px; display: flex; align-items: center; }
+    .search-wrapper input { width: 100%; }
+    .search-spinner {
+        position: absolute; right: 15px; width: 16px; height: 16px;
+        border: 2px solid rgba(255,255,255,0.2); border-top-color: #fff;
+        border-radius: 50%; animation: spin 0.8s linear infinite;
+        opacity: 0; transition: opacity 0.2s; pointer-events: none;
+    }
+    .search-spinner.active { opacity: 1; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* 6. HOVER IFRAME (VIDEO EELVAADE) */
+    .iframe-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 5; animation: fadeIn 0.4s ease-in; }
+    .iframe-container iframe { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 </head>
 <body>
+<div id="dynamic-bg"></div>
+
 <header class="topbar">
 <a class="brand" href="#"><img src="https://cdn.phototourl.com/free/2026-08-20-416aa20b-acbe-4325-9e61-566645e3254c.png" alt="Streaming Hub logo" style="height: 200px; width: auto;"></a>
 <nav class="nav"><a href="#games">MÄNGUD</a><a href="#live">LIVE</a><a href="#streamers">STRIIMERID</a><a href="#about">INFO</a></nav>
@@ -34,41 +98,42 @@
 </header>
 
 <main>
-<!-- 1. FEATURED GAMES ON NÜÜD ABSOLUUTSELT KÕIGE ÜLEVAL -->
-<section id="games" class="section" style="padding-top: 2rem;">
+<section id="games" class="section reveal" style="padding-top: 2rem;">
 <div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Featured <span>Games</span></h2></div><button class="btn" id="clearGameFilter">Kõik mängud</button></div>
 <div id="gameStrip" class="game-strip"></div>
 <div id="gameResults" class="game-results hidden"></div>
 </section>
 
-<!-- 2. HERO TEKST TULEB PÄRAST MÄNGE -->
-<section class="hero" style="padding-top: 1rem;">
+<section class="hero reveal" style="padding-top: 1rem;">
 <div class="eyebrow">● EESTI STRIIMERID ÜHES KOHAS</div>
 <h1>Kes on<br><span>praegu LIVE ? </span></h1>
 <p>Leia oma lemmik striimer ja mine ela talle kaasa.</p>
 <div class="hero-actions"><a class="primary" href="#live">🔴 Vaata LIVE striime</a><a class="btn" href="#streamers">Kõik striimerid →</a></div><div class="hero-stats"><div class="stat"><strong id="heroLiveCount">0</strong><span>LIVE striimi</span></div><div class="stat"><strong id="heroStreamerCount">0</strong><span>striimerit</span></div><div class="stat"><strong>10</strong><span>featured mängu</span></div></div>
+
+<!-- UUS: SPOTLIGHT SEKTSIOON -->
+<div id="spotlightTarget"></div>
 </section>
 
-<!-- 3. LIVE SEKTSIOON -->
-<section id="live" class="section">
+<section id="live" class="section reveal">
 <div class="section-head"><div><div class="eyebrow">NOW PLAYING</div><h2>LIVE <span>praegu</span></h2></div>
 <div class="filters" id="platformFilters"></div></div>
 <div id="liveGrid" class="live-grid"></div>
 </section>
 
-<!-- 4. KÕIK STRIIMERID -->
-<section id="streamers" class="section">
-<div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Kõik <span>striimerid</span></h2></div><input id="search" class="search" type="search" placeholder="Otsi striimerit..."></div>
+<section id="streamers" class="section reveal">
+<div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Kõik <span>striimerid</span></h2></div>
+<!-- UUS: OTSINGU MÄHIKS (WRAPPER) KOOS SPINNERIGA -->
+<div class="search-wrapper"><input id="search" class="search" type="search" placeholder="Otsi striimerit..."><div id="searchSpinner" class="search-spinner"></div></div>
+</div>
 <div id="streamerGrid" class="streamer-grid"></div>
 </section>
 
-<section id="about" class="section info"><div><div class="eyebrow">STREAMHUB.EE</div><h2>Eesti striimerid.<br><span>Ühes kohas.</span></h2></div><p>StreamHub on uus platvorm, mis koondab kõik Eesti striimerid ühele lehele. </p></section>
+<section id="about" class="section info reveal"><div><div class="eyebrow">STREAMHUB.EE</div><h2>Eesti striimerid.<br><span>Ühes kohas.</span></h2></div><p>StreamHub on uus platvorm, mis koondab kõik Eesti striimerid ühele lehele. </p></section>
 </main>
 <footer>© 2026 StreamHub Eesti</footer>
 
 <div id="modalRoot"></div>
 <div id="toast" class="toast"></div>
 <noscript><div class="noscript notice error">StreamHub vajab JavaScripti, et sisselogimine ja Supabase toimiksid.</div></noscript>
-<!-- Muudetud versiooninumber (42.0), et vältida brauseri vahemälu -->
-<script src="app.js?v=42.0"></script>
+<script src="app.js?v=44.0"></script>
 </body></html>
