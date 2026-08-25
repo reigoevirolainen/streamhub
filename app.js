@@ -16,6 +16,10 @@
   let currentProfile = null;
   let activeGame = null;
   let activePlatform = "Kõik";
+  
+  // UUS: Juhusliku Spotlight striimeri muutujad
+  let currentFeaturedId = null;
+  let featuredExpiresAt = 0;
 
   const GAME_ART_URLS = {
     "Fortnite": "https://cdn1.epicgames.com/offer/fn/FNECO_36-10_ForbiddenFruit_EGS_Launcher_KeyArt_Blade_2560x1440_2560x1440-abce17aa0386b48069aa42c1ebf7b864",
@@ -26,7 +30,7 @@
     "VALORANT": "https://images.squarespace-cdn.com/content/v1/5f031aa98cea4c639ef3f14f/1628022926456-P2ZU0NTSDBH1VXQKB5EO/riot%2Bnew%2Bheader.jpg",
     "Counter-Strike 2": "https://cdn.akamai.steamstatic.com/steam/apps/730/capsule_616x353.jpg",
     "PUBG": "https://cdn.akamai.steamstatic.com/steam/apps/578080/capsule_616x353.jpg",
-    "League of Legends": "https://img.sanishtech.com/u/fc55bc44ab5b7ce3b7aa0b88274bfcab.jpg",
+    "League of Legends": "https://img.sanishtech.com/u/3abea92d7d2a00af08a137ec7b3d3608.jpeg",
     "Dota 2": "https://cdn.akamai.steamstatic.com/steam/apps/570/capsule_616x353.jpg"
   };
 
@@ -61,7 +65,6 @@
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
   }[c]));
 
-  // UUS: Nutikas funktsioon mängude nimede sobitamiseks (nt. CS:GO -> Counter-Strike 2)
   function matchGame(streamerGame, targetGame) {
       const s = String(streamerGame || "").trim().toLowerCase();
       const t = targetGame.toLowerCase();
@@ -207,6 +210,7 @@
       });
   }
 
+  // --- UUS DÜNAAMILINE (JUHUSLIK) SPOTLIGHT ---
   function renderSpotlight() {
       const sl = $("#spotlightTarget");
       if (!sl) return;
@@ -214,17 +218,28 @@
       const live = streamers.filter(s => s.is_live);
       if (live.length === 0) { sl.innerHTML = ""; return; }
       
-      const top = live.sort((a,b) => (b.viewers||0) - (a.viewers||0))[0];
+      const now = Date.now();
+      let top = live.find(s => s.id === currentFeaturedId);
+
+      // Kui meil pole veel kedagi valitud, valitud isik pole enam LIVE, 
+      // või 5 minutit on täis saanud, siis valime uue JUHUSLIKU striimeri!
+      if (!top || now > featuredExpiresAt) {
+          top = live[Math.floor(Math.random() * live.length)];
+          currentFeaturedId = top.id;
+          featuredExpiresAt = now + 5 * 60 * 1000; // 5 minutit millisekundites
+      }
+
       const img = top.thumbnail_url || top.avatar_url || gameArt(top.game || "Fortnite");
 
+      // reveal active klass lisatakse kohe, et lehe automaatsel re-renderdamisel see ära ei kaoks
       sl.innerHTML = `
-          <div class="spotlight-card reveal">
+          <div class="spotlight-card reveal active">
               <div class="spotlight-img preview" data-platform="${esc(top.platform)}" data-url="${esc(top.channel_url)}">
                   <img src="${esc(img)}" alt="${esc(top.name)} thumbnail" loading="lazy">
                   <span class="badge"><span class='live-dot'></span>LIVE</span>
               </div>
               <div class="spotlight-info">
-                  <div class="eyebrow" style="color: #ff3b30; margin-bottom: 5px;">🔥 NÄDALA STRIIMER</div>
+                  <div class="eyebrow" style="color: #ff3b30; margin-bottom: 5px;">✨ ESILETÕSTETUD STRIIMER</div>
                   <h3>${esc(top.name)}</h3>
                   <div class="meta">${esc(top.game || "Streaming")} · ${esc(top.platform)}</div>
                   <p style="margin: 15px 0; color: #a0a0b0;">Hetkel vaatab seda kanalit otse <b>${Number(top.viewers || 0).toLocaleString("et-EE")}</b> inimest!</p>
@@ -267,11 +282,9 @@
     const strip=$("#gameStrip"),results=$("#gameResults"); if(!strip||!results)return;
     
     strip.innerHTML=games.map(g=>{
-      // UUS LOOGIKA: Otsime üles kõik striimerid, kes seda mängivad (live või mitte)
       const gameStreamers = streamers.filter(s => matchGame(s.game, g.name));
       const liveCount = gameStreamers.filter(s => s.is_live).length;
       
-      // Kui LIVE striime pole, näitame, mitu striimerit seda mängu üldse mängib
       let countText = "";
       if (liveCount > 0) {
           countText = `<span class="live-dot"></span>${liveCount} LIVE`;
@@ -299,7 +312,6 @@
     
     if(!activeGame){results.classList.add("hidden");results.innerHTML="";return;}
     
-    // Siin kasutame ka uut tarka lühendite leidjat (matchGame)
     const found=streamers.filter(s => matchGame(s.game, activeGame));
     
     results.classList.remove("hidden");
@@ -665,6 +677,14 @@
     if($("#clearGameFilter")) $("#clearGameFilter").addEventListener("click",()=>{activeGame=null;render();});
     document.querySelectorAll("[data-scroll='#live']").forEach(el => el.addEventListener("click",e=>{e.preventDefault();$("#live")?.scrollIntoView({behavior:"smooth"});}));
     document.querySelectorAll("[data-scroll='#streamers']").forEach(el => el.addEventListener("click",e=>{e.preventDefault();$("#streamers")?.scrollIntoView({behavior:"smooth"});}));
+    
+    // UUS: Kontrollib iga 10 sekundi tagant, kas 5 minutit on täis saanud, ja värskendab esilehe striimerit
+    setInterval(() => {
+        if (Date.now() > featuredExpiresAt && streamers.length > 0) {
+            render();
+        }
+    }, 10000);
+
     boot();
   }
   
