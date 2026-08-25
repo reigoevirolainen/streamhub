@@ -26,7 +26,7 @@
     "VALORANT": "https://images.squarespace-cdn.com/content/v1/5f031aa98cea4c639ef3f14f/1628022926456-P2ZU0NTSDBH1VXQKB5EO/riot%2Bnew%2Bheader.jpg",
     "Counter-Strike 2": "https://cdn.akamai.steamstatic.com/steam/apps/730/capsule_616x353.jpg",
     "PUBG": "https://cdn.akamai.steamstatic.com/steam/apps/578080/capsule_616x353.jpg",
-    "League of Legends": "https://images.contentstack.io/v3/assets/blt731acb42bb3d1659/blt420f188ce609c1fa/5f79178f7e71920cf2df8416/LoL_Key_Art_03.jpg",
+    "League of Legends": "https://img.sanishtech.com/u/4a549466ca579a2f6037743d918afd3f.jpg",
     "Dota 2": "https://cdn.akamai.steamstatic.com/steam/apps/570/capsule_616x353.jpg"
   };
 
@@ -161,18 +161,19 @@
     if ($("#heroLiveCount")) $("#heroLiveCount").textContent=streamers.filter(s=>s.is_live).length.toLocaleString("et-EE");
     if ($("#heroStreamerCount")) $("#heroStreamerCount").textContent=streamers.length.toLocaleString("et-EE");
     
-    // --- DÜNAAMILISE TAUSTA KOOD ON TAGASI! ---
+    // --- FORCE BACKGROUND CHANGER (Kasutame !important, et see raudselt töötaks) ---
     document.body.style.transition = "background-image 0.4s ease-in-out";
     if (activeGame) {
-        document.body.style.backgroundImage = `linear-gradient(to bottom, rgba(7, 7, 12, 0.85) 0%, rgba(7, 7, 12, 1) 100%), url('${gameArt(activeGame)}')`;
-        document.body.style.backgroundSize = "cover";
-        document.body.style.backgroundPosition = "center top";
-        document.body.style.backgroundAttachment = "fixed";
+        document.body.style.setProperty('background-image', `linear-gradient(to bottom, rgba(7, 7, 12, 0.85) 0%, rgba(7, 7, 12, 1) 100%), url('${gameArt(activeGame)}')`, 'important');
+        document.body.style.setProperty('background-size', 'cover', 'important');
+        document.body.style.setProperty('background-position', 'center top', 'important');
+        document.body.style.setProperty('background-attachment', 'fixed', 'important');
     } else {
-        document.body.style.backgroundImage = "";
-        document.body.style.backgroundSize = "";
-        document.body.style.backgroundPosition = "";
-        document.body.style.backgroundAttachment = "";
+        // Taastame algse seisu (laseme style.css-i tüdrukuga taustal uuesti mõjuda)
+        document.body.style.removeProperty('background-image');
+        document.body.style.removeProperty('background-size');
+        document.body.style.removeProperty('background-position');
+        document.body.style.removeProperty('background-attachment');
     }
     // ------------------------------------------
 
@@ -190,9 +191,13 @@
     }).join("");
     
     strip.querySelectorAll("[data-game]").forEach(b=>b.onclick=()=>{
-      activeGame=b.dataset.game;
+      // Kui vajutad juba valitud mängule, võtab filtri maha
+      if (activeGame === b.dataset.game) {
+          activeGame = null;
+      } else {
+          activeGame = b.dataset.game;
+      }
       render();
-      $("#games")?.scrollIntoView({behavior:"smooth",block:"start"});
     });
     
     strip.querySelectorAll("img[data-game-art-fallback]").forEach(img=>{

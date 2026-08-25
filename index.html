@@ -6,14 +6,13 @@
 <title>StreamHub Eesti — Eesti striimerid</title>
 <meta name="description" content="Leia Eesti striimerid, vaata LIVE kanaleid ja filtreeri mängu järgi.">
 
-<!-- Uus tab-logo (Favicon) -->
 <link rel="icon" type="image/png" href="https://cdn.phototourl.com/member/2026-08-20-ab6e8157-85d2-41f1-9fec-7253e8261e59.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<!-- Lisasin v=2, et brauser tõmbaks kindlasti värske CSSi -->
+<link rel="stylesheet" href="style.css?v=2">
 
-<!-- ANDROID LAG FIX -->
 <style>
     body, html { overscroll-behavior-y: none; min-height: 100dvh; }
     .card, .hero, .modal, .game-tile, .section-head { 
@@ -29,34 +28,35 @@
 </head>
 <body>
 <header class="topbar">
-
 <a class="brand" href="#"><img src="https://cdn.phototourl.com/free/2026-08-20-416aa20b-acbe-4325-9e61-566645e3254c.png" alt="Streaming Hub logo" style="height: 200px; width: auto;"></a>
 <nav class="nav"><a href="#games">MÄNGUD</a><a href="#live">LIVE</a><a href="#streamers">STRIIMERID</a><a href="#about">INFO</a></nav>
 <div class="actions"><button class="btn" id="userBtn">KASUTAJA</button><button class="primary" id="adminBtn">ADMIN</button></div>
 </header>
 
 <main>
-<section class="hero">
+<!-- 1. FEATURED GAMES ON NÜÜD ABSOLUUTSELT KÕIGE ÜLEVAL -->
+<section id="games" class="section" style="padding-top: 2rem;">
+<div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Featured <span>Games</span></h2></div><button class="btn" id="clearGameFilter">Kõik mängud</button></div>
+<div id="gameStrip" class="game-strip"></div>
+<div id="gameResults" class="game-results hidden"></div>
+</section>
+
+<!-- 2. HERO TEKST TULEB PÄRAST MÄNGE -->
+<section class="hero" style="padding-top: 1rem;">
 <div class="eyebrow">● EESTI STRIIMERID ÜHES KOHAS</div>
 <h1>Kes on<br><span>praegu LIVE ? </span></h1>
 <p>Leia oma lemmik striimer ja mine ela talle kaasa.</p>
 <div class="hero-actions"><a class="primary" href="#live">🔴 Vaata LIVE striime</a><a class="btn" href="#streamers">Kõik striimerid →</a></div><div class="hero-stats"><div class="stat"><strong id="heroLiveCount">0</strong><span>LIVE striimi</span></div><div class="stat"><strong id="heroStreamerCount">0</strong><span>striimerit</span></div><div class="stat"><strong>10</strong><span>featured mängu</span></div></div>
 </section>
 
-<!-- MÄNGUD -->
-<section id="games" class="section">
-<div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Featured <span>Games</span></h2></div><button class="btn" id="clearGameFilter">Kõik mängud</button></div>
-<div id="gameStrip" class="game-strip"></div>
-<div id="gameResults" class="game-results hidden"></div>
-</section>
-
-<!-- LIVE -->
+<!-- 3. LIVE SEKTSIOON -->
 <section id="live" class="section">
 <div class="section-head"><div><div class="eyebrow">NOW PLAYING</div><h2>LIVE <span>praegu</span></h2></div>
 <div class="filters" id="platformFilters"></div></div>
 <div id="liveGrid" class="live-grid"></div>
 </section>
 
+<!-- 4. KÕIK STRIIMERID -->
 <section id="streamers" class="section">
 <div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Kõik <span>striimerid</span></h2></div><input id="search" class="search" type="search" placeholder="Otsi striimerit..."></div>
 <div id="streamerGrid" class="streamer-grid"></div>
@@ -69,5 +69,6 @@
 <div id="modalRoot"></div>
 <div id="toast" class="toast"></div>
 <noscript><div class="noscript notice error">StreamHub vajab JavaScripti, et sisselogimine ja Supabase toimiksid.</div></noscript>
-<script src="app.js?v=41.0"></script>
+<!-- Muudetud versiooninumber (42.0), et vältida brauseri vahemälu -->
+<script src="app.js?v=42.0"></script>
 </body></html>
