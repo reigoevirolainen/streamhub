@@ -13,7 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 
-<!-- ANDROID LAG FIX: Sunnib telefoni kasutama GPU-d ja parandab kõrguse hüppamise -->
+<!-- ANDROID LAG FIX -->
 <style>
     body, html { overscroll-behavior-y: none; min-height: 100dvh; }
     .card, .hero, .modal, .game-tile, .section-head { 
@@ -31,7 +31,7 @@
 <header class="topbar">
 
 <a class="brand" href="#"><img src="https://cdn.phototourl.com/free/2026-08-20-416aa20b-acbe-4325-9e61-566645e3254c.png" alt="Streaming Hub logo" style="height: 200px; width: auto;"></a>
-<nav class="nav"><a href="#live">LIVE</a><a href="#games">MÄNGUD</a><a href="#streamers">STRIIMERID</a><a href="#about">INFO</a></nav>
+<nav class="nav"><a href="#games">MÄNGUD</a><a href="#live">LIVE</a><a href="#streamers">STRIIMERID</a><a href="#about">INFO</a></nav>
 <div class="actions"><button class="btn" id="userBtn">KASUTAJA</button><button class="primary" id="adminBtn">ADMIN</button></div>
 </header>
 
@@ -43,16 +43,18 @@
 <div class="hero-actions"><a class="primary" href="#live">🔴 Vaata LIVE striime</a><a class="btn" href="#streamers">Kõik striimerid →</a></div><div class="hero-stats"><div class="stat"><strong id="heroLiveCount">0</strong><span>LIVE striimi</span></div><div class="stat"><strong id="heroStreamerCount">0</strong><span>striimerit</span></div><div class="stat"><strong>10</strong><span>featured mängu</span></div></div>
 </section>
 
-<section id="live" class="section">
-<div class="section-head"><div><div class="eyebrow">NOW PLAYING</div><h2>LIVE <span>praegu</span></h2></div>
-<div class="filters" id="platformFilters"></div></div>
-<div id="liveGrid" class="live-grid"></div>
-</section>
-
+<!-- MÄNGUD -->
 <section id="games" class="section">
 <div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Featured <span>Games</span></h2></div><button class="btn" id="clearGameFilter">Kõik mängud</button></div>
 <div id="gameStrip" class="game-strip"></div>
 <div id="gameResults" class="game-results hidden"></div>
+</section>
+
+<!-- LIVE -->
+<section id="live" class="section">
+<div class="section-head"><div><div class="eyebrow">NOW PLAYING</div><h2>LIVE <span>praegu</span></h2></div>
+<div class="filters" id="platformFilters"></div></div>
+<div id="liveGrid" class="live-grid"></div>
 </section>
 
 <section id="streamers" class="section">
@@ -67,5 +69,5 @@
 <div id="modalRoot"></div>
 <div id="toast" class="toast"></div>
 <noscript><div class="noscript notice error">StreamHub vajab JavaScripti, et sisselogimine ja Supabase toimiksid.</div></noscript>
-<script src="app.js?v=39.0"></script>
+<script src="app.js?v=41.0"></script>
 </body></html>
