@@ -30,7 +30,7 @@
     "VALORANT": "https://images.squarespace-cdn.com/content/v1/5f031aa98cea4c639ef3f14f/1628022926456-P2ZU0NTSDBH1VXQKB5EO/riot%2Bnew%2Bheader.jpg",
     "Counter-Strike 2": "https://cdn.akamai.steamstatic.com/steam/apps/730/capsule_616x353.jpg",
     "PUBG": "https://cdn.akamai.steamstatic.com/steam/apps/578080/capsule_616x353.jpg",
-    "League of Legends": "https://img.sanishtech.com/u/3abea92d7d2a00af08a137ec7b3d3608.jpeg",
+    "League of Legends": "https://img.sanishtech.com/u/277c555e5022531c7910dfc10418bcfa.jpg",
     "Dota 2": "https://cdn.akamai.steamstatic.com/steam/apps/570/capsule_616x353.jpg"
   };
 
