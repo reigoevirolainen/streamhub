@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800;900&display=swap');
 
 :root {
   --bg: #07070c;
@@ -108,28 +108,31 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none!important; 
 
 .brand { display: flex; align-items: center; font-weight: 900; letter-spacing: -.04em; }
 
-/* LOGO: Suurendatud optiliselt */
+/* LOGO: BRUTAALNE SUURENDAMINE */
 .brand img { 
-    height: 44px !important; 
-    width: auto !important; 
+    width: 240px !important; 
+    height: auto !important; 
+    max-height: none !important;
     display: block; 
     object-fit: contain;
-    transform: scale(1.4); 
+    transform: scale(1.8) !important; /* SUURENDUS ARVUTIS */
     transform-origin: left center;
 } 
 .brandmark { display: none; } 
 
-/* UUS UHKEM MENÜÜFONT */
+/* UHKEM MENÜÜ (SPACE GROTESK FONT) */
 .nav { 
     display: flex; gap: 32px; margin: auto; 
-    font-family: 'Space Grotesk', sans-serif; /* Parem ja erilisem font */
-    font-size: 13px; 
-    font-weight: 700; 
-    letter-spacing: 0.08em; /* Pisike tähevahe annab premium tunde */
+}
+.nav a { 
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-size: 15px !important; /* Suurem tekst */
+    font-weight: 800 !important; /* Paks tekst nagu hero tiitlil */
+    letter-spacing: -0.03em !important; /* Cool kokkusurutud välimus */
     text-transform: uppercase;
     color: #9e9cb3; 
+    transition: color .2s ease; 
 }
-.nav a { transition: color .2s ease; }
 .nav a:hover { color: #fff; }
 .actions { display: flex; gap: 8px; }
 
@@ -299,10 +302,10 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
 
   .topbar { padding: 15px 16px !important; height: auto !important; flex-wrap: wrap; }
   
-  /* MOBIILI LOGO KORDA TEHTUD - Proportsioonid paigas */
+  /* SUUR LOGO MOBIILIS */
   .brand img { 
-      height: 38px !important; 
-      transform: scale(1.4); 
+      width: 180px !important; 
+      transform: scale(1.7) !important; 
       transform-origin: left center; 
   }
   
@@ -313,23 +316,23 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
       order: 3; width: 100%; display: flex; overflow-x: auto; 
       padding: 15px 0 5px 0; margin-top: 12px; 
       border-top: 1px solid rgba(255,255,255,0.1);
-      justify-content: flex-start; gap: 24px; /* Suurem vahe linkide vahel */
+      justify-content: flex-start; gap: 24px; 
       scrollbar-width: none; 
       -ms-overflow-style: none;
       -webkit-overflow-scrolling: touch;
   }
   .nav::-webkit-scrollbar { display: none; }
   
-  /* Menüü font mobiilis sama ilus kui arvutis */
+  /* Menüü font mobiilis (Space Grotesk, paks) */
   .nav a {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: 'Space Grotesk', sans-serif !important;
       white-space: nowrap; 
       flex-shrink: 0; 
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 14px !important;
+      font-weight: 800 !important;
       color: #9e9cb3;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: -0.03em !important;
   }
   .nav a:hover, .nav a:active { color: #fff; }
 }
@@ -339,8 +342,12 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
   .brand span:nth-child(2) { display: none; }
   
   .topbar { padding: 12px 14px !important; gap: 10px; }
-  /* Pisikestes telefonides lükkame logo veelgi rohkem fookusesse */
-  .brand img { height: 34px !important; transform: scale(1.5); }
+  
+  /* Veelgi suurem logo pisikestes telefonides */
+  .brand img { 
+      width: 150px !important; 
+      transform: scale(1.8) !important; 
+  }
   
   .actions .btn, .actions .primary { padding: 9px 12px; font-size: 12px; }
   
