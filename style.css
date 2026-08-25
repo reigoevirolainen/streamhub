@@ -108,14 +108,14 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none!important; 
 
 .brand { display: flex; align-items: center; font-weight: 900; letter-spacing: -.04em; }
 
-/* LOGO: VEEL SUUREM SUUM SEST PILT ON LÄBIPAISTVAT ALA TÄIS */
+/* ARVUTI LOGO: Mõistlik laius ja suum */
 .brand img { 
-    width: 250px !important; 
+    width: 140px !important; 
     height: auto !important; 
     max-height: none !important;
     display: block; 
     object-fit: contain;
-    transform: scale(2.6) !important; /* 260% suum */
+    transform: scale(2.2) !important; 
     transform-origin: left center;
 } 
 .brandmark { display: none; } 
@@ -124,11 +124,11 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none!important; 
     display: flex; gap: 32px; margin: auto; 
 }
 
-/* PARANDUS: Oige Space Grotesk font (paksus 700!) */
+/* SPACE GROTESK FONT MENÜÜS */
 .nav a { 
     font-family: 'Space Grotesk', sans-serif !important;
     font-size: 16px !important;
-    font-weight: 700 !important; /* 700 on maksimum, siis töötab font õigesti */
+    font-weight: 700 !important;
     letter-spacing: -0.02em !important;
     text-transform: uppercase;
     color: #9e9cb3; 
@@ -300,10 +300,10 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
 
   .topbar { padding: 15px 16px !important; height: auto !important; flex-wrap: wrap; }
   
-  /* MOBIILIS LOGO SUURENDATUD 3x KORDA! */
+  /* PARANDATUD MOBIILI LOGO MÕÕDUD - Füüsiline kast väike, visuaal suur */
   .brand img { 
-      width: 160px !important; 
-      transform: scale(3.2) !important; 
+      width: 100px !important; 
+      transform: scale(1.8) !important; 
       transform-origin: left center; 
   }
   
@@ -321,13 +321,12 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
   }
   .nav::-webkit-scrollbar { display: none; }
   
-  /* MOBIILIS ÕIGE SPACE GROTESK FONT */
   .nav a {
       font-family: 'Space Grotesk', sans-serif !important;
       white-space: nowrap; 
       flex-shrink: 0; 
       font-size: 14px !important;
-      font-weight: 700 !important; /* Jällegi 700, mitte rohkem! */
+      font-weight: 700 !important; 
       color: #9e9cb3;
       text-transform: uppercase;
       letter-spacing: -0.02em !important;
@@ -339,10 +338,10 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
   .brand span:nth-child(2) { display: none; }
   .topbar { padding: 12px 14px !important; gap: 10px; }
   
-  /* PISIKESTES TELEFONIDES SAMUTI HIIGELSUUR SUUM */
+  /* PISIKESES TELEFONIS (Kitsas ekraan) */
   .brand img { 
-      width: 140px !important; 
-      transform: scale(3.5) !important; 
+      width: 90px !important; 
+      transform: scale(1.8) !important; 
   }
   
   .actions .btn, .actions .primary { padding: 9px 12px; font-size: 12px; }
