@@ -3,7 +3,6 @@
 
   const C = window.STREAMHUB_CONFIG || {};
   const ADMIN_UID = "56a4036e-b37d-4928-abf2-8f49d709f5b7";
-  // Kaitse: Kui SUPABASE_URL on vigane/puudu, ei jookse kood Edge URl-i kokkupanemisel katki.
   const EDGE_URL = (C.SUPABASE_URL) ? `${String(C.SUPABASE_URL).replace(/\/+$/, "")}/functions/v1/streamer-workflow` : "";
 
   const db = (window.supabase && C.SUPABASE_URL && C.SUPABASE_PUBLISHABLE_KEY)
@@ -24,7 +23,11 @@
     "Call of Duty: Warzone": "https://image.api.playstation.com/vulcan/ap/rnd/202312/0123/978efa66c9645e4692ac7036a31aa002a49d0efb4b88b45c.png",
     "Apex Legends": "https://cdn.shopify.com/s/files/1/0556/5795/5430/articles/unnamed_40671e72-d1c1-4847-a527-d6a28c25e36b.jpg?v=1706891100",
     "Grand Theft Auto V": "https://media.vandal.net/m/15192/grand-theft-auto-v-2015413122229_1.jpg",
-    "VALORANT": "https://images.squarespace-cdn.com/content/v1/5f031aa98cea4c639ef3f14f/1628022926456-P2ZU0NTSDBH1VXQKB5EO/riot%2Bnew%2Bheader.jpg"
+    "VALORANT": "https://images.squarespace-cdn.com/content/v1/5f031aa98cea4c639ef3f14f/1628022926456-P2ZU0NTSDBH1VXQKB5EO/riot%2Bnew%2Bheader.jpg",
+    "Counter-Strike 2": "https://cdn.akamai.steamstatic.com/steam/apps/730/capsule_616x353.jpg",
+    "PUBG": "https://cdn.akamai.steamstatic.com/steam/apps/578080/capsule_616x353.jpg",
+    "League of Legends": "https://images.contentstack.io/v3/assets/blt731acb42bb3d1659/blt420f188ce609c1fa/5f79178f7e71920cf2df8416/LoL_Key_Art_03.jpg",
+    "Dota 2": "https://cdn.akamai.steamstatic.com/steam/apps/570/capsule_616x353.jpg"
   };
 
   function fallbackGameArt(name) {
@@ -34,7 +37,11 @@
       "Call of Duty: Warzone": ["#7d7d7d","#171717","WARZONE","◈"],
       "Apex Legends": ["#c94c62","#210d13","APEX LEGENDS","△"],
       "Grand Theft Auto V": ["#7f9d43","#171b10","GRAND THEFT AUTO V","V"],
-      "VALORANT": ["#d54b66","#250c12","VALORANT","◇"]
+      "VALORANT": ["#d54b66","#250c12","VALORANT","◇"],
+      "Counter-Strike 2": ["#e5a022","#2e2213","CS2","🔫"],
+      "PUBG": ["#f2a900","#1b1404","PUBG","🪂"],
+      "League of Legends": ["#005a82","#0a1428","LEAGUE OF LEGENDS","L"],
+      "Dota 2": ["#a83827","#231210","DOTA 2","⚔"]
     }[name] || ["#7c4dff","#171225",name,"✦"];
     const [a,b,title,mark] = cfg;
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="900" height="500" fill="url(#bg)"/><circle cx="120" cy="80" r="190" fill="#fff" opacity=".10"/><circle cx="790" cy="420" r="280" fill="#000" opacity=".20"/><path d="M0 410 L180 250 L320 335 L470 185 L610 315 L760 175 L900 300 V500 H0Z" fill="#000" opacity=".20"/><text x="450" y="245" text-anchor="middle" fill="#fff" font-family="Arial Black,Arial,sans-serif" font-size="58" font-weight="900">${title}</text><text x="450" y="315" text-anchor="middle" fill="#fff" opacity=".9" font-family="Arial,sans-serif" font-size="72" font-weight="900">${mark}</text></svg>`;
@@ -42,8 +49,12 @@
   }
 
   const gameArt = name => GAME_ART_URLS[name] || fallbackGameArt(name);
-  const games = ["Fortnite","Minecraft","Call of Duty: Warzone","Apex Legends","Grand Theft Auto V","VALORANT"]
-    .map(name => ({ name, art: gameArt(name) }));
+  
+  const games = [
+      "Fortnite", "Minecraft", "Call of Duty: Warzone", 
+      "Apex Legends", "Grand Theft Auto V", "VALORANT", 
+      "Counter-Strike 2", "PUBG", "League of Legends", "Dota 2"
+  ].map(name => ({ name, art: gameArt(name) }));
 
   const $ = s => document.querySelector(s);
   const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({
@@ -150,6 +161,23 @@
     if ($("#heroLiveCount")) $("#heroLiveCount").textContent=streamers.filter(s=>s.is_live).length.toLocaleString("et-EE");
     if ($("#heroStreamerCount")) $("#heroStreamerCount").textContent=streamers.length.toLocaleString("et-EE");
     
+    // --- DÜNAAMILISE TAUSTA KOOD ---
+    document.body.style.transition = "background-image 0.4s ease-in-out";
+    if (activeGame) {
+        // Lisab taustapildi tumeda poolläbipaistva maskiga (85% tume), et leht jääks loetavaks
+        document.body.style.backgroundImage = `linear-gradient(to bottom, rgba(7, 7, 12, 0.85) 0%, rgba(7, 7, 12, 1) 100%), url('${gameArt(activeGame)}')`;
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundPosition = "center top";
+        document.body.style.backgroundAttachment = "fixed";
+    } else {
+        // Eemaldab taustapildi ja taastab esialgse tumeda ilme
+        document.body.style.backgroundImage = "";
+        document.body.style.backgroundSize = "";
+        document.body.style.backgroundPosition = "";
+        document.body.style.backgroundAttachment = "";
+    }
+    // -------------------------------
+
     wireImageFallbacks(); 
     renderGames();
   }
@@ -186,28 +214,12 @@
     const filters = $("#platformFilters");
     if (!filters) return;
     
-    // Ikoonid on nüüd iga platvormi brändivärvides!
     const ps = [
-      { 
-        name: "Kõik", 
-        icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M10 3H3v7h7V3zm0 11H3v7h7v-7zm11-11h-7v7h7V3zm0 11h-7v7h7v-7z"/></svg>` 
-      },
-      { 
-        name: "Twitch", 
-        icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="#9146FF"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>` 
-      },
-      { 
-        name: "YouTube", 
-        icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>` 
-      },
-      { 
-        name: "Kick", 
-        icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="#53FC18"><path d="M2.666 0h5.334v5.333H10.666v2.667h2.667V5.333h5.334V0h2.666v5.333h-2.666v2.667h-2.667v5.333h2.667v2.667h2.666v8h-2.666v-5.333h-5.334v-2.667h-2.667v2.667H10.666v5.333H2.666z"/></svg>` 
-      },
-      { 
-        name: "TikTok", 
-        icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="#25F4EE"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>` 
-      }
+      { name: "Kõik", icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M10 3H3v7h7V3zm0 11H3v7h7v-7zm11-11h-7v7h7V3zm0 11h-7v7h7v-7z"/></svg>` },
+      { name: "Twitch", icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="#9146FF"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>` },
+      { name: "YouTube", icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>` },
+      { name: "Kick", icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="#53FC18"><path d="M2.666 0h5.334v5.333H10.666v2.667h2.667V5.333h5.334V0h2.666v5.333h-2.666v2.667h-2.667v5.333h2.667v2.667h2.666v8h-2.666v-5.333h-5.334v-2.667h-2.667v2.667H10.666v5.333H2.666z"/></svg>` },
+      { name: "TikTok", icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="#25F4EE"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>` }
     ];
 
     filters.innerHTML = ps.map((p, i) => `
@@ -310,44 +322,30 @@
         let finalThumbnailUrl = null;
         const fileInput = document.getElementById("thumbFile");
         
-        // PILDI ÜLESLAADIMISE LOOGIKA (Maksimaalselt 2MB)
         if (fileInput && fileInput.files.length > 0) {
             const file = fileInput.files[0];
-            
             if (file.size > 2 * 1024 * 1024) {
                 showError("#joinError", "Pilt on liiga suur! Maksimaalne lubatud suurus on 2MB.");
                 setBusy(form, false);
                 return;
             }
-            
             const fileExt = file.name.split('.').pop();
             const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-            
             toast("Laen pilti üles...");
             const { error: uploadError } = await db.storage.from('thumbnails').upload(fileName, file);
-            
             if (uploadError) {
                 showError("#joinError", "Viga pildi üleslaadimisel: " + uploadError.message);
                 setBusy(form, false);
                 return;
             }
-            
             const { data: publicUrlData } = db.storage.from('thumbnails').getPublicUrl(fileName);
             finalThumbnailUrl = publicUrlData.publicUrl;
         }
 
-        // Taotluse saatmine API kaudu
         await edge("submit", {
-            name: d.name,
-            email: d.email,
-            password: d.password,
-            password2: d.password2,
-            platform: d.platform,
-            channel_url: d.channel_url,
-            game: d.game,
-            thumbnail_url: finalThumbnailUrl, // Uus URL Supabasest!
-            avatar_url: d.avatar_url,
-            message: d.message
+            name: d.name, email: d.email, password: d.password, password2: d.password2,
+            platform: d.platform, channel_url: d.channel_url, game: d.game,
+            thumbnail_url: finalThumbnailUrl, avatar_url: d.avatar_url, message: d.message
         });
         
         closeModal();
@@ -363,10 +361,7 @@
   async function userModal(){
     if(!currentUser){accountModal("login");return;}
     await loadProfile();
-    
-    // Parem turvakontroll nime kuvamisel
     const displayName = currentProfile?.display_name || currentProfile?.username || (currentUser.email ? currentUser.email.split("@")[0] : "Kasutaja");
-    
     openModal(`<button class="close-btn" id="closeModal">×</button><div class="eyebrow">MINU KONTO</div>
       <h2>${esc(displayName)}</h2><div id="userPanel"><div class="notice">Laen kontot...</div></div>`);
     await loadUserPanel();
@@ -375,10 +370,8 @@
   async function loadUserPanel(){
     const p=$("#userPanel");if(!p||!currentUser)return;
     const {data:s,error}=await db.from("streamers").select("id,name,platform,channel_url,game,is_live,viewers,thumbnail_url,avatar_url,owner_id,owner_email").eq("owner_id",currentUser.id).maybeSingle();
-    
     if(error){p.innerHTML=`<div class="notice error">${esc(supaError(error))}</div>`;return;}
     
-    // Parandatud: turvaline email parameetri lugemine
     const userEmail = currentUser.email || "";
     const {data:a}=await db.from("streamer_applications").select("id,name,email,platform,game,status,created_at").ilike("email",userEmail).order("created_at",{ascending:false}).limit(1).maybeSingle();
     
@@ -411,13 +404,7 @@
   async function toggleLive(s){
     const {error}=await db.rpc("set_my_stream_live",{p_is_live:!s.is_live});
     if(error){toast(supaError(error),true);return;}
-    
-    // UUS LOGI SALVESTAMINE: Striimer muudab ise oma staatust
-    await db.from("streamer_logs").insert({
-        streamer_id: s.id,
-        action: !s.is_live ? 'STREAMER_SET_ONLINE' : 'STREAMER_SET_OFFLINE'
-    });
-
+    await db.from("streamer_logs").insert({ streamer_id: s.id, action: !s.is_live ? 'STREAMER_SET_ONLINE' : 'STREAMER_SET_OFFLINE' });
     toast(!s.is_live?"Oled nüüd märgitud ONLINE.":"Oled nüüd märgitud OFFLINE.");
     await loadStreamers();
     await loadUserPanel();
@@ -435,10 +422,8 @@
   function adminModal(){
     openModal(`<button class="close-btn" id="closeModal">×</button><div class="eyebrow">ADMIN PANEL</div><h2>Striimerid & taotlused</h2>
       <div class="account-tabs"><button type="button" class="btn primary" id="adminStreamsTab">Striimerid</button><button type="button" class="btn" id="adminAppsTab">Taotlused</button></div><div id="adminBody"></div>`);
-    
     if($("#adminStreamsTab")) $("#adminStreamsTab").onclick=loadAdminStreams;
     if($("#adminAppsTab")) $("#adminAppsTab").onclick=loadAdminApps;
-    
     loadAdminStreams();
   }
 
@@ -452,44 +437,30 @@
       const form=e.currentTarget;
       if(!form.reportValidity())return;
       setBusy(form,true,"LOGIM SISSE…");
-      
       try{
         const d=Object.fromEntries(new FormData(form));
         await db.auth.signOut();
-        
         const {data,error}=await db.auth.signInWithPassword({email:d.email.trim().toLowerCase(),password:d.password});
         if(error)throw error;
-        if(data.user.id!==ADMIN_UID){
-            await db.auth.signOut();
-            throw new Error("See konto ei oma StreamHubi administraatori õigusi.");
-        }
-        
+        if(data.user.id!==ADMIN_UID){ await db.auth.signOut(); throw new Error("See konto ei oma StreamHubi administraatori õigusi."); }
         currentUser=data.user;closeModal();toast("Edukas. Adminina sisse logitud.");adminModal();
-      }catch(err){
-          showError("#adminLoginError",supaError(err));
-      }finally{
-          setBusy(form,false);
-      }
+      }catch(err){ showError("#adminLoginError",supaError(err)); }finally{ setBusy(form,false); }
     };
     
     $("#adminResetBtn").onclick=async()=>{
       const email=$("#adminLoginForm")?.elements.email?.value?.trim().toLowerCase();
       if(!email){showError("#adminLoginError","Palun sisesta esmalt oma admini e-posti aadress ülemisele väljale.");return;}
-      
       const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:`${window.location.origin}/`});
       if(error){showError("#adminLoginError",supaError(error));return;}
-      
       const x=$("#adminLoginError");
       x.textContent="Kui sisestasid õige e-posti, saadeti sinna parooli lähtestamise link.";
       x.classList.remove("hidden","error");x.classList.add("success");
     };
   }
 
-  // UUENDATUD SAMM 2 KOOD: Adminil on kohene võimalus staatust muuta.
   async function loadAdminStreams(){
     const b=$("#adminBody");if(!b)return;
     const {data,error}=await db.from("streamers").select("*").order("name");
-    
     if(error){b.innerHTML=`<div class="notice error">${esc(supaError(error))}</div>`;return;}
     
     b.innerHTML=`<div class="notice">Olemasolevad striimerid andmebaasis</div>${(data||[]).map(s=>`<div class="app-row"><b>${esc(s.name)}</b><div class="meta">${esc(s.platform)}</div><div class="meta">${esc(s.game||"Määramata mäng")}</div><div class="meta">${s.is_live?"🔴 LIVE":"Offline"}</div><div class="admin-actions">
@@ -498,21 +469,12 @@
     
     b.querySelectorAll("[data-admin-delete]").forEach(x=>x.onclick=()=>adminDelete(x.dataset.adminDelete));
     b.querySelectorAll("[data-admin-edit]").forEach(x=>x.onclick=()=>adminEdit(x.dataset.adminEdit));
-    
-    // Event listener staatuse muutmise nuppudele
     b.querySelectorAll("[data-admin-status]").forEach(x=>x.onclick=async()=>{
       const id = x.dataset.adminStatus;
       const isLiveCurrently = x.dataset.live === "true";
-      
       const {error} = await db.from("streamers").update({ is_live: !isLiveCurrently }).eq("id", id);
       if(error){toast("Viga: " + supaError(error),true);return;}
-      
-      // Salvestame logi uude tabelisse
-      await db.from("streamer_logs").insert({
-          streamer_id: id,
-          action: !isLiveCurrently ? 'ADMIN_SET_ONLINE' : 'ADMIN_SET_OFFLINE'
-      });
-      
+      await db.from("streamer_logs").insert({ streamer_id: id, action: !isLiveCurrently ? 'ADMIN_SET_ONLINE' : 'ADMIN_SET_OFFLINE' });
       toast(`Staatus muudetud: ${!isLiveCurrently ? 'ONLINE' : 'OFFLINE'}`);
       await loadAdminStreams();
       await loadStreamers();
@@ -522,43 +484,27 @@
   async function loadAdminApps(){
     const b=$("#adminBody");if(!b)return;
     const {data,error}=await db.from("streamer_applications").select("*").order("created_at",{ascending:false});
-    
     if(error){b.innerHTML=`<div class="notice error">${esc(supaError(error))}</div>`;return;}
-    
     b.innerHTML=(data||[]).map(a=>`<div class="app-row">${a.thumbnail_url?`<img class="admin-thumb" src="${esc(a.thumbnail_url)}" alt="">`:""}<b>${esc(a.name)}</b><div class="meta">${esc(a.email)}</div><div class="meta">${esc(a.platform)} · ${esc(a.game||"Määramata")}</div><div class="meta"><a href="${esc(a.channel_url)}" target="_blank" rel="noopener">${esc(a.channel_url)}</a></div><div class="meta">Staatus: <b>${esc(a.status)}</b></div>${a.status==="pending"?`<div class="admin-actions"><button type="button" class="primary" data-approve="${a.id}">AKSEPTEERI</button><button type="button" class="danger" data-reject="${a.id}">KEELDU</button></div>`:""}</div>`).join("")||`<div class="empty">Ootel taotlusi ei ole.</div>`;
-    
     b.querySelectorAll("[data-approve]").forEach(x=>x.onclick=()=>approveApp(x.dataset.approve));
     b.querySelectorAll("[data-reject]").forEach(x=>x.onclick=()=>rejectApp(x.dataset.reject));
   }
 
   async function approveApp(id){
-    try{
-        toast("Kinnitan...");
-        await edge("approve",{application_id:id});
-        toast("Edukalt kinnitatud. Striimer on lehele lisatud.");
-        await loadStreamers();
-        await loadAdminApps();
-    }
+    try{ toast("Kinnitan..."); await edge("approve",{application_id:id}); toast("Edukalt kinnitatud. Striimer on lehele lisatud."); await loadStreamers(); await loadAdminApps(); }
     catch(err){toast(err.message||String(err),true);}
   }
   
   async function rejectApp(id){
     const reason=prompt("Kas soovid lisada tagasilükkamise põhjuse? (Võid jätta tühjaks):","") ?? "";
-    try{
-        toast("Lükkan tagasi...");
-        await edge("reject",{application_id:id,reason});
-        toast("Taotlus edukalt tagasi lükatud.");
-        await loadAdminApps();
-    }
+    try{ toast("Lükkan tagasi..."); await edge("reject",{application_id:id,reason}); toast("Taotlus edukalt tagasi lükatud."); await loadAdminApps(); }
     catch(err){toast(err.message||String(err),true);}
   }
 
   async function adminDelete(id){
     if(!confirm("Oled sa kindel, et soovid selle striimeri andmebaasist kustutada? Seda tegevust ei saa tagasi võtta."))return;
-    
     const {error}=await db.from("streamers").delete().eq("id",id);
     if(error){toast("Viga kustutamisel: " + supaError(error),true);return;}
-    
     toast("Striimer edukalt kustutatud.");
     await loadStreamers();
     await loadAdminStreams();
@@ -568,17 +514,9 @@
     const s=streamers.find(x=>x.id===id);if(!s)return;
     const b=$("#adminBody");
     b.innerHTML=`<div class="field"><label>NIMI</label><input id="aName" value="${esc(s.name)}"></div><div class="field"><label>MÄNG</label><input id="aGame" value="${esc(s.game||"")}"></div><div class="field"><label>THUMBNAIL URL</label><input id="aThumb" value="${esc(s.thumbnail_url||"")}"></div><div class="field"><label>KANALI URL</label><input id="aUrl" value="${esc(s.channel_url)}"></div><div class="modal-actions"><button type="button" class="btn" id="backAdmin">Tagasi</button><button type="button" class="primary" id="saveAdmin">Salvesta muudatused</button></div>`;
-    
     $("#backAdmin").onclick=loadAdminStreams;
     $("#saveAdmin").onclick=async()=>{
-      const {error}=await db.from("streamers").update({
-          name:$("#aName").value.trim(),
-          game:$("#aGame").value.trim()||null,
-          thumbnail_url:$("#aThumb").value.trim()||null,
-          channel_url:$("#aUrl").value.trim(),
-          updated_at:new Date().toISOString()
-      }).eq("id",id);
-      
+      const {error}=await db.from("streamers").update({ name:$("#aName").value.trim(), game:$("#aGame").value.trim()||null, thumbnail_url:$("#aThumb").value.trim()||null, channel_url:$("#aUrl").value.trim(), updated_at:new Date().toISOString() }).eq("id",id);
       if(error){toast("Viga salvestamisel: " + supaError(error),true);return;}
       toast("Muudatused salvestatud.");
       await loadStreamers();
@@ -589,7 +527,6 @@
   async function loadStreamers(){
     if(!dbReady())return;
     const {data,error}=await db.from("streamers").select("*").eq("enabled",true).order("is_live",{ascending:false}).order("viewers",{ascending:false}).order("name");
-    
     if(error){toast("Ei õnnestunud laadida striimereid: "+supaError(error),true);return;}
     streamers=data||[];
     render();
@@ -597,84 +534,36 @@
 
   async function boot(){
     if(!dbReady())return;
-    
-    // Puhastab URL-ist inetud Supabase sisselogimise tokenid
     if (window.location.hash.includes('access_token=')) {
-        setTimeout(() => {
-            window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-        }, 100);
+        setTimeout(() => { window.history.replaceState({}, document.title, window.location.pathname + window.location.search); }, 100);
     }
-
     const {data,error}=await db.auth.getSession();
-    if(error){console.warn("Session error:", error);} // Ära karju kasutajale näkku, kui vana sessioon aegus
-    
+    if(error){console.warn("Session error:", error);} 
     currentUser=data.session?.user||null;
     if(currentUser) await loadProfile();
-    
     setupFilters();
     renderGames();
     await loadStreamers();
-    
-    db.auth.onAuthStateChange((_event,session)=>{
-        currentUser=session?.user||null;
-        if(currentUser) loadProfile();
-        else currentProfile=null;
-    });
+    db.auth.onAuthStateChange((_event,session)=>{ currentUser=session?.user||null; if(currentUser) loadProfile(); else currentProfile=null; });
   }
 
   function setup(){
-    if($("#userBtn")) {
-        // Eemaldab vanad event listenerid (hea tava)
-        $("#userBtn").replaceWith($("#userBtn").cloneNode(true)); 
-        $("#userBtn").addEventListener("click",e=>{e.preventDefault();currentUser?userModal():accountModal("login");});
-    }
-    
-    if($("#adminBtn")) {
-        $("#adminBtn").replaceWith($("#adminBtn").cloneNode(true));
-        // Suuname adminLogin() asemel uuele lehele:
-        $("#adminBtn").addEventListener("click", e => {
-            e.preventDefault();
-            window.location.href = "/admin.html";
-        }); 
-    } 
-    
+    if($("#userBtn")) { $("#userBtn").replaceWith($("#userBtn").cloneNode(true)); $("#userBtn").addEventListener("click",e=>{e.preventDefault();currentUser?userModal():accountModal("login");}); }
+    if($("#adminBtn")) { $("#adminBtn").replaceWith($("#adminBtn").cloneNode(true)); $("#adminBtn").addEventListener("click", e => { e.preventDefault(); window.location.href = "/admin.html"; }); } 
     if($("#search")) $("#search").addEventListener("input",render);
     if($("#clearGameFilter")) $("#clearGameFilter").addEventListener("click",()=>{activeGame=null;render();});
-    
     document.querySelectorAll("[data-scroll='#live']").forEach(el => el.addEventListener("click",e=>{e.preventDefault();$("#live")?.scrollIntoView({behavior:"smooth"});}));
     document.querySelectorAll("[data-scroll='#streamers']").forEach(el => el.addEventListener("click",e=>{e.preventDefault();$("#streamers")?.scrollIntoView({behavior:"smooth"});}));
-    
     boot();
   }
   
   document.addEventListener("DOMContentLoaded",setup);
 
-  // --- KOODI KAITSE (Keelab paremkliki, F12 ja Ctrl+U) ---
-  document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-  });
-
+  document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
   document.addEventListener('keydown', function(e) {
-    // Keela F12
-    if (e.key === 'F12' || e.keyCode === 123) {
-      e.preventDefault();
-      return false;
-    }
-    // Keela Ctrl+Shift+I (Avab DevTools)
-    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) {
-      e.preventDefault();
-      return false;
-    }
-    // Keela Ctrl+Shift+J (Avab Console)
-    if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j')) {
-      e.preventDefault();
-      return false;
-    }
-    // Keela Ctrl+U (Avab Page Source)
-    if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) {
-      e.preventDefault();
-      return false;
-    }
+    if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j')) { e.preventDefault(); return false; }
+    if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) { e.preventDefault(); return false; }
   });
-  // --------------------------------------------------------
 })();
