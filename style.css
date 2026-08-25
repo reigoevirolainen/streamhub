@@ -98,7 +98,7 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none!important; 
 /* --- NAVIGATSIOON (UUS KITSAS KUJU) --- */
 .topbar {
   position: fixed !important; top: 0 !important; left: 0; width: 100%; z-index: 999 !important; 
-  height: 70px !important; /* Sunnitud kitsas kõrgus arvutis */
+  height: 70px !important; 
   padding: 0 clamp(18px, 5vw, 70px);
   display: flex; align-items: center; gap: 34px;
   background: rgba(7,7,12,.72);
@@ -107,7 +107,9 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none!important; 
 }
 
 .brand { display: flex; align-items: center; gap: 9px; font-weight: 900; letter-spacing: -.04em; }
-.brand img { height: 32px !important; width: auto !important; display: block; } /* Väike elegantne logo */
+
+/* PARANDUS: Logo tagasi normaalsesse suurusesse (46px) */
+.brand img { height: 46px !important; width: auto !important; display: block; } 
 .brandmark { display: none; } 
 
 .brand b { font-size: 8px; letter-spacing: .08em; color: #a7a4b6; border: 1px solid #3a3948; border-radius: 5px; padding: 2px 4px; }
@@ -279,11 +281,12 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
 
 /* Suuremad telefonid (kuni 768px) */
 @media(max-width: 768px) {
-  /* Mobiilis on menüüriba paksus dünaamiline, lükkame sisu allapoole 115px */
   main { padding-top: 115px; }
 
   .topbar { padding: 12px 15px !important; height: auto !important; flex-wrap: wrap; }
-  .brand img { height: 32px !important; }
+  
+  /* PARANDUS MOBIILIS: Samuti natuke suurem logo */
+  .brand img { height: 35px !important; }
   
   .actions { order: 2; display: flex; gap: 8px; }
   .actions button { padding: 8px 12px; font-size: 13px; }
