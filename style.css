@@ -97,11 +97,12 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none!important; 
 
 /* --- NAVIGATSIOON --- */
 .topbar {
-  position: sticky; top: 0; z-index: 50; height: 70px;
+  position: sticky; top: 0; z-index: 50; 
+  min-height: 70px; /* Muudetud height -> min-height */
   padding: 0 clamp(18px, 5vw, 70px);
   display: flex; align-items: center; gap: 34px;
   background: rgba(7,7,12,.72);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255,255,255,.06);
 }
 
@@ -263,9 +264,11 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
 .info h2 { font-family: 'Space Grotesk'; font-size: clamp(36px,5vw,62px); line-height: .95; letter-spacing: -.06em; margin: 10px 0; }
 .info p { color: #9694a5; line-height: 1.8; font-size: 16px; max-width: 620px; }
 
+
 /* --- RESPONSIVSUS (MOBIIL & TAHVEL) --- */
+
+/* Tahvelarvutid (kuni 1000px) */
 @media(max-width: 1000px) {
-  .nav { display: none; }
   .live-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .info { grid-template-columns: 1fr; }
   .hero { min-height: 500px; }
@@ -273,8 +276,38 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
   .streamer-grid { grid-auto-columns: 280px; }
 }
 
+/* Suuremad telefonid (kuni 768px) - MENÜÜ PARANDUS */
+@media(max-width: 768px) {
+  .topbar { padding: 12px 15px; height: auto; flex-wrap: wrap; }
+  .brand img { height: 40px; }
+  
+  .actions { order: 2; display: flex; gap: 8px; }
+  .actions button { padding: 8px 12px; font-size: 13px; }
+  
+  .nav { 
+      order: 3; width: 100%; display: flex; overflow-x: auto; 
+      padding: 15px 0 5px 0; margin-top: 12px; 
+      border-top: 1px solid rgba(255,255,255,0.1);
+      justify-content: flex-start; gap: 20px; 
+      scrollbar-width: none; 
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  
+  .nav a {
+      white-space: nowrap; 
+      flex-shrink: 0; 
+      font-size: 13px;
+      font-weight: 600;
+      color: #a0a0b0;
+      text-transform: uppercase;
+  }
+  .nav a:hover, .nav a:active { color: #fff; }
+}
+
+/* Väikesed telefonid (kuni 620px) */
 @media(max-width: 620px) {
-  .topbar { padding: 0 14px; gap: 10px; justify-content: space-between; }
   .brand span:nth-child(2) { display: none; }
   .actions .btn, .actions .primary { padding: 9px 10px; font-size: 12px; }
   
