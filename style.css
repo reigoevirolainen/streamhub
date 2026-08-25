@@ -20,7 +20,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 90px; 
+  scroll-padding-top: 100px; 
 }
 
 /* --- ILUSAD KERIMISRIBAD KOGU LEHELE --- */
@@ -95,10 +95,10 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none!important; 
   border-color: #ff7590;
 }
 
-/* --- NAVIGATSIOON (UUS KITSAS KUJU) --- */
+/* --- NAVIGATSIOON --- */
 .topbar {
   position: fixed !important; top: 0 !important; left: 0; width: 100%; z-index: 999 !important; 
-  height: 70px !important; 
+  height: 80px !important; 
   padding: 0 clamp(18px, 5vw, 70px);
   display: flex; align-items: center; gap: 34px;
   background: rgba(7,7,12,.72);
@@ -108,8 +108,8 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none!important; 
 
 .brand { display: flex; align-items: center; gap: 9px; font-weight: 900; letter-spacing: -.04em; }
 
-/* PARANDUS: Logo tagasi normaalsesse suurusesse (46px) */
-.brand img { height: 46px !important; width: auto !important; display: block; } 
+/* TÄHTIS: Logo kõrgus pandud 44px (sama mis nupud) */
+.brand img { height: 44px !important; width: auto !important; display: block; object-fit: contain; } 
 .brandmark { display: none; } 
 
 .brand b { font-size: 8px; letter-spacing: .08em; color: #a7a4b6; border: 1px solid #3a3948; border-radius: 5px; padding: 2px 4px; }
@@ -118,8 +118,7 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none!important; 
 .nav a:hover { color: #fff; }
 .actions { display: flex; gap: 8px; }
 
-/* Lükkame sisu allapoole täpselt riba kõrguse (70px) võrra */
-main { overflow: hidden; padding-top: 70px; }
+main { overflow: hidden; padding-top: 80px; }
 
 /* --- KANGELASALAD (HERO) --- */
 .hero {
@@ -281,12 +280,12 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
 
 /* Suuremad telefonid (kuni 768px) */
 @media(max-width: 768px) {
-  main { padding-top: 115px; }
+  main { padding-top: 125px; }
 
   .topbar { padding: 12px 15px !important; height: auto !important; flex-wrap: wrap; }
   
-  /* PARANDUS MOBIILIS: Samuti natuke suurem logo */
-  .brand img { height: 35px !important; }
+  /* MOBIILIS ON LOGO VEIDI VÄIKSEM ET KÕIK ÄRA MAHUKS */
+  .brand img { height: 32px !important; }
   
   .actions { order: 2; display: flex; gap: 8px; }
   .actions button { padding: 8px 12px; font-size: 13px; }
