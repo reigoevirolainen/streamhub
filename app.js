@@ -26,7 +26,7 @@
     "VALORANT": "https://images.squarespace-cdn.com/content/v1/5f031aa98cea4c639ef3f14f/1628022926456-P2ZU0NTSDBH1VXQKB5EO/riot%2Bnew%2Bheader.jpg",
     "Counter-Strike 2": "https://cdn.akamai.steamstatic.com/steam/apps/730/capsule_616x353.jpg",
     "PUBG": "https://cdn.akamai.steamstatic.com/steam/apps/578080/capsule_616x353.jpg",
-    "League of Legends": "https://images.contentstack.io/v3/assets/blt731acb42bb3d1659/blt420f188ce609c1fa/5f79178f7e71920cf2df8416/LoL_Key_Art_03.jpg",
+    "League of Legends": "https://img.sanishtech.com/u/fc55bc44ab5b7ce3b7aa0b88274bfcab.jpg",
     "Dota 2": "https://cdn.akamai.steamstatic.com/steam/apps/570/capsule_616x353.jpg"
   };
 
@@ -60,6 +60,18 @@
   const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
   }[c]));
+
+  // UUS: Nutikas funktsioon mängude nimede sobitamiseks (nt. CS:GO -> Counter-Strike 2)
+  function matchGame(streamerGame, targetGame) {
+      const s = String(streamerGame || "").trim().toLowerCase();
+      const t = targetGame.toLowerCase();
+      if (!s) return false;
+      if (t === "grand theft auto v" && (s === "gta v" || s === "gta 5" || s === "gtav" || s === "gta5")) return true;
+      if (t === "counter-strike 2" && (s === "cs2" || s === "csgo" || s === "cs:go" || s === "counter strike")) return true;
+      if (t === "call of duty: warzone" && s.includes("warzone")) return true;
+      if (t === "league of legends" && (s === "lol" || s === "league")) return true;
+      return s === t;
+  }
 
   function toast(message, bad = false) {
     const t = $("#toast"); if (!t) return;
@@ -138,7 +150,7 @@
     const q = ($("#search")?.value || "").trim().toLowerCase();
     return streamers.filter(s =>
       (activePlatform === "Kõik" || s.platform === activePlatform) &&
-      (!activeGame || String(s.game || "").trim().toLowerCase() === activeGame.toLowerCase()) &&
+      (!activeGame || matchGame(s.game, activeGame)) &&
       (`${s.name} ${s.game || ""}`).toLowerCase().includes(q)
     );
   }
@@ -174,7 +186,6 @@
                   const match = url.match(/twitch\.tv\/([^/?]+)/);
                   if (match && match[1]) {
                       const parent = window.location.hostname || "streamhub.ee";
-                      // LISATUD LUBAMINE: allow="autoplay; encrypted-media" sunnib brauserit autoplayd lubama
                       iframeHTML = `<iframe src="https://player.twitch.tv/?channel=${match[1]}&parent=${parent}&muted=true&autoplay=true" frameborder="0" scrolling="no" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
                   }
               }
@@ -254,11 +265,24 @@
 
   function renderGames() {
     const strip=$("#gameStrip"),results=$("#gameResults"); if(!strip||!results)return;
+    
     strip.innerHTML=games.map(g=>{
-      const count=streamers.filter(s=>String(s.game||"").trim().toLowerCase()===g.name.toLowerCase()&&s.is_live).length;
+      // UUS LOOGIKA: Otsime üles kõik striimerid, kes seda mängivad (live või mitte)
+      const gameStreamers = streamers.filter(s => matchGame(s.game, g.name));
+      const liveCount = gameStreamers.filter(s => s.is_live).length;
+      
+      // Kui LIVE striime pole, näitame, mitu striimerit seda mängu üldse mängib
+      let countText = "";
+      if (liveCount > 0) {
+          countText = `<span class="live-dot"></span>${liveCount} LIVE`;
+      } else {
+          countText = `${gameStreamers.length} STRIIMERIT`;
+      }
+
       return `<button type="button" class="game-tile reveal ${activeGame===g.name?"active":""}" data-game="${esc(g.name)}">
         <img class="game-art" src="${esc(g.art)}" data-game-art-fallback="${esc(g.name)}" alt="${esc(g.name)}" loading="lazy">
-        <span class="game-name">${esc(g.name)}</span><span class="game-count">${count} LIVE</span></button>`;
+        <span class="game-name">${esc(g.name)}</span>
+        <span class="game-count">${countText}</span></button>`;
     }).join("");
     
     strip.querySelectorAll("[data-game]").forEach(b=>b.onclick=()=>{
@@ -274,7 +298,10 @@
     });
     
     if(!activeGame){results.classList.add("hidden");results.innerHTML="";return;}
-    const found=streamers.filter(s=>String(s.game||"").trim().toLowerCase()===activeGame.toLowerCase());
+    
+    // Siin kasutame ka uut tarka lühendite leidjat (matchGame)
+    const found=streamers.filter(s => matchGame(s.game, activeGame));
+    
     results.classList.remove("hidden");
     results.innerHTML=`<div class="game-results-title reveal">${esc(activeGame)} — ${found.length} striimerit</div><div class="game-results-grid">${found.length?found.map(card).join(""):`<div class="empty">Selle mängu all pole veel striimereid.</div>`}</div>`;
     wireImageFallbacks();
