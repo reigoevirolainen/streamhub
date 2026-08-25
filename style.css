@@ -20,8 +20,7 @@
 
 html {
   scroll-behavior: smooth;
-  /* UUS: Kaitseb ankrute (nt #live või #games) menüü taha kadumise eest */
-  scroll-padding-top: 110px; 
+  scroll-padding-top: 90px; 
 }
 
 /* --- ILUSAD KERIMISRIBAD KOGU LEHELE --- */
@@ -96,11 +95,10 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none!important; 
   border-color: #ff7590;
 }
 
-/* --- NAVIGATSIOON --- */
+/* --- NAVIGATSIOON (UUS KITSAS KUJU) --- */
 .topbar {
-  /* UUS: fixed positsioon sunnib riba ALATI kaasa ujuma, !important üle kirjutab vanad stiilid */
   position: fixed !important; top: 0 !important; left: 0; width: 100%; z-index: 999 !important; 
-  min-height: 70px;
+  height: 70px !important; /* Sunnitud kitsas kõrgus arvutis */
   padding: 0 clamp(18px, 5vw, 70px);
   display: flex; align-items: center; gap: 34px;
   background: rgba(7,7,12,.72);
@@ -109,7 +107,7 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none!important; 
 }
 
 .brand { display: flex; align-items: center; gap: 9px; font-weight: 900; letter-spacing: -.04em; }
-.brand img { width: 138px; height: auto; display: block; }
+.brand img { height: 32px !important; width: auto !important; display: block; } /* Väike elegantne logo */
 .brandmark { display: none; } 
 
 .brand b { font-size: 8px; letter-spacing: .08em; color: #a7a4b6; border: 1px solid #3a3948; border-radius: 5px; padding: 2px 4px; }
@@ -118,8 +116,8 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none!important; 
 .nav a:hover { color: #fff; }
 .actions { display: flex; gap: 8px; }
 
-/* UUS: Lükkame sisu allapoole, et fixed menüü seda ära ei kataks */
-main { overflow: hidden; padding-top: 75px; }
+/* Lükkame sisu allapoole täpselt riba kõrguse (70px) võrra */
+main { overflow: hidden; padding-top: 70px; }
 
 /* --- KANGELASALAD (HERO) --- */
 .hero {
@@ -279,13 +277,13 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
   .streamer-grid { grid-auto-columns: 280px; }
 }
 
-/* Suuremad telefonid (kuni 768px) - MENÜÜ PARANDUS */
+/* Suuremad telefonid (kuni 768px) */
 @media(max-width: 768px) {
-  /* UUS: Lükkame mobiilis sisu veel allapoole, sest menüü on kõrgem */
-  main { padding-top: 135px; }
+  /* Mobiilis on menüüriba paksus dünaamiline, lükkame sisu allapoole 115px */
+  main { padding-top: 115px; }
 
-  .topbar { padding: 12px 15px; height: auto; flex-wrap: wrap; }
-  .brand img { height: 40px; }
+  .topbar { padding: 12px 15px !important; height: auto !important; flex-wrap: wrap; }
+  .brand img { height: 32px !important; }
   
   .actions { order: 2; display: flex; gap: 8px; }
   .actions button { padding: 8px 12px; font-size: 13px; }
