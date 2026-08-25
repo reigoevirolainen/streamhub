@@ -34,7 +34,7 @@ body {
   margin: 0;
   /* UUS PÜSIV TAUSTAPILT ON SIIN! */
   background: linear-gradient(90deg, rgba(7,7,12,.97) 0%, rgba(7,7,12,.92) 38%, rgba(7,7,12,.58) 68%, rgba(7,7,12,.76) 100%),
-              url("https://cdn.phototourl.com/free/2026-08-20-88319d53-44c1-488e-98ef-f64f2daad229.png") center top/cover fixed no-repeat,
+              url("https://img.sanishtech.com/u/3c681c138966e329629d11eee054249d.jpg") center top/cover fixed no-repeat,
               radial-gradient(900px 500px at 15% -10%, rgba(137,75,255,.16), transparent 60%),
               radial-gradient(700px 420px at 90% 8%, rgba(224,60,164,.10), transparent 60%),
               var(--bg);
