@@ -102,12 +102,44 @@ function setupEvents() {
         $("#editStreamerForm").onsubmit = async (e) => {
             e.preventDefault();
             const id = $("#editId").value;
+            const platform = $("#editPlatform").value;
+            const channel_url = $("#editUrl").value.trim();
+            let thumbnail_url = $("#editThumb").value.trim();
+
+            // -------------------------------------------------------------
+            // AUTO-THUMBNAIL LOOGIKA (Kui pilt kustutati, püüab uue leida)
+            // -------------------------------------------------------------
+            if (!thumbnail_url && channel_url) {
+                try {
+                    const urlObj = new URL(channel_url);
+                    const pathParts = urlObj.pathname.split('/').filter(Boolean);
+                    let username = "";
+
+                    if (platform === 'TikTok' || platform === 'YouTube') {
+                        const userPart = pathParts.find(p => p.startsWith('@'));
+                        username = userPart ? userPart.replace('@', '') : pathParts[0];
+                    } else {
+                        username = pathParts[0]; 
+                    }
+
+                    if (username) {
+                        if (platform === 'Twitch') thumbnail_url = `https://unavatar.io/twitch/${username}`;
+                        else if (platform === 'YouTube') thumbnail_url = `https://unavatar.io/youtube/${username}`;
+                        else if (platform === 'TikTok') thumbnail_url = `https://unavatar.io/tiktok/${username}`;
+                        else thumbnail_url = `https://ui-avatars.com/api/?name=${username}&background=9655ff&color=fff&size=256`;
+                    }
+                } catch (err) {
+                    console.log("Viga auto-pildi loomisel:", err);
+                }
+            }
+            // -------------------------------------------------------------
+
             const updates = {
                 name: $("#editName").value.trim(),
-                platform: $("#editPlatform").value,
+                platform: platform,
                 game: $("#editGame").value.trim() || null,
-                channel_url: $("#editUrl").value.trim(),
-                thumbnail_url: $("#editThumb").value.trim() || null,
+                channel_url: channel_url,
+                thumbnail_url: thumbnail_url || null,
                 updated_at: new Date().toISOString()
             };
 
@@ -150,9 +182,15 @@ async function fetchStreamers() {
         return;
     }
 
-    container.innerHTML = currentStreamers.map(s => `
-        <div class="data-row">
-            <div class="data-info">
+    container.innerHTML = currentStreamers.map(s => {
+        // Fallback pilt, kui päris pilti pole
+        const fallbackImage = `https://ui-avatars.com/api/?name=${s.name}&background=1a1a24&color=fff`;
+        const avatar = s.thumbnail_url || fallbackImage;
+
+        return `
+        <div class="data-row" style="display: flex; align-items: center;">
+            <img src="${avatar}" loading="lazy" alt="${s.name}" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; margin-right: 15px; border: 1px solid #333;">
+            <div class="data-info" style="flex: 1;">
                 <strong>${s.name} ${s.is_live ? "🔴 LIVE" : "⚫ OFFLINE"}</strong>
                 <span class="data-meta">${s.platform} | Mäng: ${s.game || "Määramata"}</span>
             </div>
@@ -164,7 +202,8 @@ async function fetchStreamers() {
                 <button class="action-btn danger" onclick="deleteStreamer('${s.id}')">Kustuta</button>
             </div>
         </div>
-    `).join("");
+        `;
+    }).join("");
 }
 
 // --- MODAALI JUHTIMINE ---

@@ -124,8 +124,8 @@
                 <label style="font-size: 12px; color: #aaa;">KANALI URL</label>
                 <input type="url" id="addUrl" class="modal-input" placeholder="https://www.tiktok.com/@kasutaja" required>
                 
-                <label style="font-size: 12px; color: #aaa;">PILT / THUMBNAIL URL (Valikuline)</label>
-                <input type="url" id="addThumb" class="modal-input" placeholder="https://...">
+                <label style="font-size: 12px; color: #aaa;">PILT / THUMBNAIL URL (Valikuline - leiab ise!)</label>
+                <input type="url" id="addThumb" class="modal-input" placeholder="Jäta tühjaks automaatse pildi jaoks...">
                 
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
                     <button type="submit" class="primary-btn" style="flex: 1;">LISA</button>
@@ -196,19 +196,55 @@
                 addForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
 
-                    // Loome andmebaasi ühenduse kasutades sinu config.js muutujaid
-                    const supabaseClient = supabase.createClient(
-                        window.STREAMHUB_CONFIG.SUPABASE_URL,
-                        window.STREAMHUB_CONFIG.SUPABASE_PUBLISHABLE_KEY
-                    );
-
                     const name = document.getElementById('addName').value.trim();
                     const platform = document.getElementById('addPlatform').value;
                     const game = document.getElementById('addGame').value.trim();
                     const channel_url = document.getElementById('addUrl').value.trim();
-                    const thumbnail_url = document.getElementById('addThumb').value.trim();
+                    let thumbnail_url = document.getElementById('addThumb').value.trim();
+
+                    // -------------------------------------------------------------
+                    // AUTO-THUMBNAIL LOOGIKA
+                    // -------------------------------------------------------------
+                    if (!thumbnail_url && channel_url) {
+                        try {
+                            const urlObj = new URL(channel_url);
+                            const pathParts = urlObj.pathname.split('/').filter(Boolean);
+                            let username = "";
+
+                            // TikTok ja YouTube kasutavad sageli @-märki urlis
+                            if (platform === 'TikTok' || platform === 'YouTube') {
+                                const userPart = pathParts.find(p => p.startsWith('@'));
+                                username = userPart ? userPart.replace('@', '') : pathParts[0];
+                            } else {
+                                // Twitch ja Kick
+                                username = pathParts[0]; 
+                            }
+
+                            if (username) {
+                                if (platform === 'Twitch') {
+                                    thumbnail_url = `https://unavatar.io/twitch/${username}`;
+                                } else if (platform === 'YouTube') {
+                                    thumbnail_url = `https://unavatar.io/youtube/${username}`;
+                                } else if (platform === 'TikTok') {
+                                    thumbnail_url = `https://unavatar.io/tiktok/${username}`;
+                                } else {
+                                    // Kick või muu (teeme esitähtedega placeholderi)
+                                    thumbnail_url = `https://ui-avatars.com/api/?name=${username}&background=9655ff&color=fff&size=256`;
+                                }
+                            }
+                        } catch (err) {
+                            console.log("Viga auto-pildi loomisel:", err);
+                        }
+                    }
+                    // -------------------------------------------------------------
 
                     try {
+                        // Loome andmebaasi ühenduse otse siin sees
+                        const supabaseClient = supabase.createClient(
+                            window.STREAMHUB_CONFIG.SUPABASE_URL,
+                            window.STREAMHUB_CONFIG.SUPABASE_PUBLISHABLE_KEY
+                        );
+
                         // Salvestame andmebaasi
                         const { error } = await supabaseClient
                             .from('streamers')
@@ -224,14 +260,14 @@
 
                         if (error) {
                             alert('Viga andmebaasi lisamisel! Veateade: ' + error.message);
-                            console.error(error);
+                            console.error("Supabase viga:", error);
                         } else {
                             alert('Striimer edukalt lisatud!');
                             closeAddModal();
                             location.reload();
                         }
                     } catch (err) {
-                        alert('Süsteemne viga lisamisel: ' + err.message);
+                        alert('Päris viga on: ' + err.message);
                         console.error(err);
                     }
                 });
