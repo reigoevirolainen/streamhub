@@ -121,7 +121,6 @@
 
   function card(s) {
     const img = s.thumbnail_url || s.avatar_url || gameArt(s.game || "Fortnite");
-    // LISATUD: reveal klass ja andmed hover video jaoks
     return `<article class="card reveal">
       <div class="preview" data-platform="${esc(s.platform)}" data-url="${esc(s.channel_url)}">
         <img src="${esc(img)}" data-game-fallback="${esc(s.game || "Fortnite")}" alt="${esc(s.name)} thumbnail" loading="lazy">
@@ -152,7 +151,6 @@
     });
   }
 
-  // --- UUS: SCROLL REVEAL INIT ---
   function initReveal() {
       const observer = new IntersectionObserver((entries) => {
           entries.forEach(entry => {
@@ -164,7 +162,6 @@
       document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   }
 
-  // --- UUS: HOVER VIDEO PREVIEW ---
   function setupHoverPreviews() {
       document.querySelectorAll('.card .preview, .spotlight-img').forEach(el => {
           let hoverTimer;
@@ -173,12 +170,12 @@
               const url = el.dataset.url;
               let iframeHTML = "";
 
-              // Toetame praegu Twitchi (kõige kergem uputada)
               if (String(platform).toLowerCase() === "twitch") {
                   const match = url.match(/twitch\.tv\/([^/?]+)/);
                   if (match && match[1]) {
-                      const parent = window.location.hostname || "streamhub.ee"; // Nõuab domeeni nime
-                      iframeHTML = `<iframe src="https://player.twitch.tv/?channel=${match[1]}&parent=${parent}&muted=true&autoplay=true" frameborder="0" scrolling="no" allowfullscreen></iframe>`;
+                      const parent = window.location.hostname || "streamhub.ee";
+                      // LISATUD LUBAMINE: allow="autoplay; encrypted-media" sunnib brauserit autoplayd lubama
+                      iframeHTML = `<iframe src="https://player.twitch.tv/?channel=${match[1]}&parent=${parent}&muted=true&autoplay=true" frameborder="0" scrolling="no" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
                   }
               }
 
@@ -188,7 +185,7 @@
                   if (!el.querySelector('.iframe-container')) {
                       el.insertAdjacentHTML('beforeend', `<div class="iframe-container">${iframeHTML}</div>`);
                   }
-              }, 600); // Ootab 0.6 sek enne laadimist
+              }, 600);
           });
 
           el.addEventListener('mouseleave', () => {
@@ -199,7 +196,6 @@
       });
   }
 
-  // --- UUS: SPOTLIGHT KUVAMINE ---
   function renderSpotlight() {
       const sl = $("#spotlightTarget");
       if (!sl) return;
@@ -207,7 +203,6 @@
       const live = streamers.filter(s => s.is_live);
       if (live.length === 0) { sl.innerHTML = ""; return; }
       
-      // Valib suurima vaatajaskonnaga LIVE striimeri
       const top = live.sort((a,b) => (b.viewers||0) - (a.viewers||0))[0];
       const img = top.thumbnail_url || top.avatar_url || gameArt(top.game || "Fortnite");
 
@@ -218,7 +213,7 @@
                   <span class="badge"><span class='live-dot'></span>LIVE</span>
               </div>
               <div class="spotlight-info">
-                  <div class="eyebrow" style="color: #ff3b30; margin-bottom: 5px;">🔥 PÄEVA STRIIMER</div>
+                  <div class="eyebrow" style="color: #ff3b30; margin-bottom: 5px;">🔥 NÄDALA STRIIMER</div>
                   <h3>${esc(top.name)}</h3>
                   <div class="meta">${esc(top.game || "Streaming")} · ${esc(top.platform)}</div>
                   <p style="margin: 15px 0; color: #a0a0b0;">Hetkel vaatab seda kanalit otse <b>${Number(top.viewers || 0).toLocaleString("et-EE")}</b> inimest!</p>
@@ -626,18 +621,17 @@
     if($("#userBtn")) { $("#userBtn").replaceWith($("#userBtn").cloneNode(true)); $("#userBtn").addEventListener("click",e=>{e.preventDefault();currentUser?userModal():accountModal("login");}); }
     if($("#adminBtn")) { $("#adminBtn").replaceWith($("#adminBtn").cloneNode(true)); $("#adminBtn").addEventListener("click", e => { e.preventDefault(); window.location.href = "/admin.html"; }); } 
     
-    // --- UUS: DEBOUNCE OTSING ---
     let searchTimeout;
     const searchInput = $("#search");
     if(searchInput) {
         searchInput.addEventListener("input", () => {
             const spinner = $("#searchSpinner");
-            if(spinner) spinner.classList.add("active"); // Näitab spinnerit
+            if(spinner) spinner.classList.add("active");
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 render();
-                if(spinner) spinner.classList.remove("active"); // Peidab spinneri
-            }, 400); // Ootab enne filtreerimist 400ms
+                if(spinner) spinner.classList.remove("active");
+            }, 400); 
         });
     }
 
