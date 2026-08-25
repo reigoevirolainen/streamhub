@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 :root {
   --bg: #07070c;
@@ -108,27 +108,28 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none!important; 
 
 .brand { display: flex; align-items: center; font-weight: 900; letter-spacing: -.04em; }
 
-/* LOGO: BRUTAALNE SUURENDAMINE */
+/* LOGO: VEEL SUUREM SUUM SEST PILT ON LÄBIPAISTVAT ALA TÄIS */
 .brand img { 
-    width: 240px !important; 
+    width: 250px !important; 
     height: auto !important; 
     max-height: none !important;
     display: block; 
     object-fit: contain;
-    transform: scale(1.8) !important; /* SUURENDUS ARVUTIS */
+    transform: scale(2.6) !important; /* 260% suum */
     transform-origin: left center;
 } 
 .brandmark { display: none; } 
 
-/* UHKEM MENÜÜ (SPACE GROTESK FONT) */
 .nav { 
     display: flex; gap: 32px; margin: auto; 
 }
+
+/* PARANDUS: Oige Space Grotesk font (paksus 700!) */
 .nav a { 
     font-family: 'Space Grotesk', sans-serif !important;
-    font-size: 15px !important; /* Suurem tekst */
-    font-weight: 800 !important; /* Paks tekst nagu hero tiitlil */
-    letter-spacing: -0.03em !important; /* Cool kokkusurutud välimus */
+    font-size: 16px !important;
+    font-weight: 700 !important; /* 700 on maksimum, siis töötab font õigesti */
+    letter-spacing: -0.02em !important;
     text-transform: uppercase;
     color: #9e9cb3; 
     transition: color .2s ease; 
@@ -284,10 +285,8 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
 .info h2 { font-family: 'Space Grotesk'; font-size: clamp(36px,5vw,62px); line-height: .95; letter-spacing: -.06em; margin: 10px 0; }
 .info p { color: #9694a5; line-height: 1.8; font-size: 16px; max-width: 620px; }
 
-
 /* --- RESPONSIVSUS (MOBIIL & TAHVEL) --- */
 
-/* Tahvelarvutid (kuni 1000px) */
 @media(max-width: 1000px) {
   .live-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .info { grid-template-columns: 1fr; }
@@ -296,16 +295,15 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
   .streamer-grid { grid-auto-columns: 280px; }
 }
 
-/* Suuremad telefonid (kuni 768px) */
 @media(max-width: 768px) {
   main { padding-top: 125px; }
 
   .topbar { padding: 15px 16px !important; height: auto !important; flex-wrap: wrap; }
   
-  /* SUUR LOGO MOBIILIS */
+  /* MOBIILIS LOGO SUURENDATUD 3x KORDA! */
   .brand img { 
-      width: 180px !important; 
-      transform: scale(1.7) !important; 
+      width: 160px !important; 
+      transform: scale(3.2) !important; 
       transform-origin: left center; 
   }
   
@@ -323,52 +321,45 @@ footer { text-align: center; color: #5f5e6b; padding: 40px 20px; border-top: 1px
   }
   .nav::-webkit-scrollbar { display: none; }
   
-  /* Menüü font mobiilis (Space Grotesk, paks) */
+  /* MOBIILIS ÕIGE SPACE GROTESK FONT */
   .nav a {
       font-family: 'Space Grotesk', sans-serif !important;
       white-space: nowrap; 
       flex-shrink: 0; 
       font-size: 14px !important;
-      font-weight: 800 !important;
+      font-weight: 700 !important; /* Jällegi 700, mitte rohkem! */
       color: #9e9cb3;
       text-transform: uppercase;
-      letter-spacing: -0.03em !important;
+      letter-spacing: -0.02em !important;
   }
   .nav a:hover, .nav a:active { color: #fff; }
 }
 
-/* Väikesed telefonid (kuni 620px) */
 @media(max-width: 620px) {
   .brand span:nth-child(2) { display: none; }
-  
   .topbar { padding: 12px 14px !important; gap: 10px; }
   
-  /* Veelgi suurem logo pisikestes telefonides */
+  /* PISIKESTES TELEFONIDES SAMUTI HIIGELSUUR SUUM */
   .brand img { 
-      width: 150px !important; 
-      transform: scale(1.8) !important; 
+      width: 140px !important; 
+      transform: scale(3.5) !important; 
   }
   
   .actions .btn, .actions .primary { padding: 9px 12px; font-size: 12px; }
-  
   .hero { padding: 80px 18px 65px; }
   .hero h1 { font-size: 48px; }
   .hero p { font-size: 15px; }
   .hero-actions { flex-direction: column; align-items: stretch; }
-  
   .section { padding: 58px 18px; }
   .section-head { align-items: flex-start; flex-direction: column; gap: 12px; }
   .search { width: 100%; }
-  
   .live-grid, .game-results-grid { grid-template-columns: 1fr; }
   .game-strip { grid-auto-columns: 235px; }
   .streamer-grid { grid-auto-columns: 260px; }
   .game-tile { height: 150px; }
-  
   .modal { width: 95%; padding: 20px; margin: 10px; }
   .account-tabs { flex-wrap: wrap; flex-direction: column; }
   .account-tabs button { flex: 1 1 100%; width: 100%; }
-  
   .app-row { flex-direction: column; align-items: flex-start; gap: 10px; }
   .app-row .meta, .app-row b { width: 100%; word-break: break-word; }
   .admin-actions { width: 100%; flex-direction: column; gap: 8px; }
