@@ -218,7 +218,7 @@
                   <span class="badge"><span class='live-dot'></span>LIVE</span>
               </div>
               <div class="spotlight-info">
-                  <div class="eyebrow" style="color: #ff3b30; margin-bottom: 5px;">🔥 NÄDALA STRIIMER</div>
+                  <div class="eyebrow" style="color: #ff3b30; margin-bottom: 5px;">🔥 PÄEVA STRIIMER</div>
                   <h3>${esc(top.name)}</h3>
                   <div class="meta">${esc(top.game || "Streaming")} · ${esc(top.platform)}</div>
                   <p style="margin: 15px 0; color: #a0a0b0;">Hetkel vaatab seda kanalit otse <b>${Number(top.viewers || 0).toLocaleString("et-EE")}</b> inimest!</p>

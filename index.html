@@ -10,11 +10,25 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 
 <style>
-    /* ANDROID LAG FIX */
-    body, html { overscroll-behavior-y: none; min-height: 100dvh; }
+    /* 1. LÄÄGI JA UJUMISE (SCROLL) FIX */
+    html, body { 
+        overscroll-behavior-y: none; 
+        min-height: 100dvh; 
+        overflow-x: hidden; /* SEE KEELAB PAREMALE/VASAKULE UJUMISE */
+        width: 100%; 
+        margin: 0; padding: 0;
+    }
+    * { box-sizing: border-box; } /* Hoiab elemendid alati ekraani raamides */
+    
+    .card, .hero, .modal, .game-tile, .section-head, .spotlight-card { 
+        transform: translateZ(0); 
+        will-change: transform, opacity; 
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+    }
     
     /* DÜNAAMILINE TAUST */
     #dynamic-bg {
@@ -24,12 +38,19 @@
     }
     #dynamic-bg.show { opacity: 1; }
 
-    /* 1. KLAASEFEKT (GLASSMORPHISM) */
+    /* MENÜÜRIBA KLAASEFEKT JA PAIGUTUS */
     .topbar {
-        background: rgba(10, 10, 15, 0.65) !important;
+        position: sticky; top: 0; z-index: 100; /* Jääb kerides ekraani ülaossa */
+        background: rgba(10, 10, 15, 0.75) !important;
         backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+        padding: 10px 20px;
     }
+    
+    /* LOGO SUURUSE FIX */
+    .brand img { height: 45px; width: auto; display: block; } /* Asendas 200px hiiglase */
+
     .card, .game-tile, .spotlight-card {
         background: rgba(20, 20, 25, 0.5) !important;
         backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -42,7 +63,32 @@
         box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
 
-    /* 2. PULSEERIV LIVE TÄPP */
+    /* MOBIILI OPTIMEERIMINE (UI paigutus ja läägi eemaldamine) */
+    @media (max-width: 768px) {
+        .topbar { padding: 10px 15px; }
+        
+        /* Tõstab Kasutaja ja Admin valikud logo kõrvale */
+        .actions { order: 2; display: flex; gap: 8px; }
+        .actions button { padding: 8px 12px; font-size: 13px; }
+        
+        /* Viib menüü (Live, Mängud jne) omaette reale */
+        .nav { 
+            order: 3; width: 100%; display: flex; overflow-x: auto; 
+            padding: 12px 0 5px 0; margin-top: 10px; 
+            border-top: 1px solid rgba(255,255,255,0.08);
+            justify-content: flex-start; gap: 15px; 
+        }
+        
+        /* JÕUDLUSE FIX: Telefonides vähendame bluri drastiliselt, et hoida 60FPS kerimist */
+        .topbar, .card, .game-tile, .spotlight-card {
+            backdrop-filter: blur(4px) !important;
+            -webkit-backdrop-filter: blur(4px) !important;
+        }
+        .spotlight-card { flex-direction: column; gap: 1rem; } 
+        .spotlight-img { width: 100%; }
+    }
+
+    /* PULSEERIV LIVE TÄPP */
     .live-dot {
         display: inline-block; width: 8px; height: 8px;
         background-color: #ff3b30; border-radius: 50%;
@@ -56,18 +102,17 @@
         100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
     }
 
-    /* 3. KERIMISANIMATSIOONID (SCROLL REVEAL) */
+    /* KERIMISANIMATSIOONID (SCROLL REVEAL) */
     .reveal { opacity: 0; transform: translateY(25px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
     .reveal.active { opacity: 1; transform: translateY(0); }
 
-    /* 4. SPOTLIGHT (HETKEL KUUM) */
+    /* SPOTLIGHT */
     .spotlight-card { display: flex; gap: 2rem; border-radius: 16px; padding: 1.5rem; align-items: center; margin-top: 2rem; }
     .spotlight-img { flex: 0 0 320px; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; aspect-ratio: 16/9; }
     .spotlight-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .spotlight-info h3 { font-size: 2.2rem; margin: 0 0 0.5rem; letter-spacing: -0.5px; }
-    @media (max-width: 768px) { .spotlight-card { flex-direction: column; gap: 1rem; } .spotlight-img { flex: 1; width: 100%;} }
 
-    /* 5. OTSINGU LAADIMISIKOON */
+    /* OTSINGU LAADIMISIKOON */
     .search-wrapper { position: relative; width: 100%; max-width: 300px; display: flex; align-items: center; }
     .search-wrapper input { width: 100%; }
     .search-spinner {
@@ -79,7 +124,7 @@
     .search-spinner.active { opacity: 1; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* 6. HOVER IFRAME (VIDEO EELVAADE) */
+    /* HOVER IFRAME (VIDEO EELVAADE) */
     .iframe-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 5; animation: fadeIn 0.4s ease-in; }
     .iframe-container iframe { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -92,7 +137,7 @@
 <div id="dynamic-bg"></div>
 
 <header class="topbar">
-<a class="brand" href="#"><img src="https://cdn.phototourl.com/free/2026-08-20-416aa20b-acbe-4325-9e61-566645e3254c.png" alt="Streaming Hub logo" style="height: 200px; width: auto;"></a>
+<a class="brand" href="#"><img src="https://cdn.phototourl.com/free/2026-08-20-416aa20b-acbe-4325-9e61-566645e3254c.png" alt="Streaming Hub logo"></a>
 <nav class="nav"><a href="#games">MÄNGUD</a><a href="#live">LIVE</a><a href="#streamers">STRIIMERID</a><a href="#about">INFO</a></nav>
 <div class="actions"><button class="btn" id="userBtn">KASUTAJA</button><button class="primary" id="adminBtn">ADMIN</button></div>
 </header>
@@ -110,7 +155,6 @@
 <p>Leia oma lemmik striimer ja mine ela talle kaasa.</p>
 <div class="hero-actions"><a class="primary" href="#live">🔴 Vaata LIVE striime</a><a class="btn" href="#streamers">Kõik striimerid →</a></div><div class="hero-stats"><div class="stat"><strong id="heroLiveCount">0</strong><span>LIVE striimi</span></div><div class="stat"><strong id="heroStreamerCount">0</strong><span>striimerit</span></div><div class="stat"><strong>10</strong><span>featured mängu</span></div></div>
 
-<!-- UUS: SPOTLIGHT SEKTSIOON -->
 <div id="spotlightTarget"></div>
 </section>
 
@@ -122,7 +166,6 @@
 
 <section id="streamers" class="section reveal">
 <div class="section-head"><div><div class="eyebrow">DISCOVER</div><h2>Kõik <span>striimerid</span></h2></div>
-<!-- UUS: OTSINGU MÄHIKS (WRAPPER) KOOS SPINNERIGA -->
 <div class="search-wrapper"><input id="search" class="search" type="search" placeholder="Otsi striimerit..."><div id="searchSpinner" class="search-spinner"></div></div>
 </div>
 <div id="streamerGrid" class="streamer-grid"></div>
@@ -135,5 +178,5 @@
 <div id="modalRoot"></div>
 <div id="toast" class="toast"></div>
 <noscript><div class="noscript notice error">StreamHub vajab JavaScripti, et sisselogimine ja Supabase toimiksid.</div></noscript>
-<script src="app.js?v=44.0"></script>
+<script src="app.js?v=45.0"></script>
 </body></html>
