@@ -161,22 +161,20 @@
     if ($("#heroLiveCount")) $("#heroLiveCount").textContent=streamers.filter(s=>s.is_live).length.toLocaleString("et-EE");
     if ($("#heroStreamerCount")) $("#heroStreamerCount").textContent=streamers.length.toLocaleString("et-EE");
     
-    // --- DÜNAAMILISE TAUSTA KOOD ---
+    // --- DÜNAAMILISE TAUSTA KOOD ON TAGASI! ---
     document.body.style.transition = "background-image 0.4s ease-in-out";
     if (activeGame) {
-        // Lisab taustapildi tumeda poolläbipaistva maskiga (85% tume), et leht jääks loetavaks
         document.body.style.backgroundImage = `linear-gradient(to bottom, rgba(7, 7, 12, 0.85) 0%, rgba(7, 7, 12, 1) 100%), url('${gameArt(activeGame)}')`;
         document.body.style.backgroundSize = "cover";
         document.body.style.backgroundPosition = "center top";
         document.body.style.backgroundAttachment = "fixed";
     } else {
-        // Eemaldab taustapildi ja taastab esialgse tumeda ilme
         document.body.style.backgroundImage = "";
         document.body.style.backgroundSize = "";
         document.body.style.backgroundPosition = "";
         document.body.style.backgroundAttachment = "";
     }
-    // -------------------------------
+    // ------------------------------------------
 
     wireImageFallbacks(); 
     renderGames();
