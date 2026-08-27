@@ -24,10 +24,10 @@
     .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 42px; font-weight: 900; color: #fff; }
     #timer { color: #59e0a8; }
     
-    /* The Big Click Button - LISATUD MOBIILI SUUMIMISE KAITSE */
+    /* The Big Click Button - MOBIILI SUUMIMISE KAITSE */
     .click-area { 
       position: relative; margin: 40px auto; width: 200px; height: 200px; 
-      touch-action: manipulation; /* Keelab suumimise nupu ümbert */
+      touch-action: manipulation; 
     }
     .click-btn { 
       width: 100%; height: 100%; border-radius: 50%; border: none;
@@ -37,7 +37,7 @@
       cursor: pointer; transition: transform 0.05s ease, box-shadow 0.05s ease;
       display: flex; align-items: center; justify-content: center;
       user-select: none; -webkit-user-select: none;
-      touch-action: manipulation; /* SEE PARANDAB TOPELTVAJUTUSE SUUMIMISE! */
+      touch-action: manipulation; 
     }
     .click-btn:active { transform: scale(0.92); box-shadow: 0 0 15px rgba(224,60,164,0.6); }
     .click-btn:disabled { filter: grayscale(100%); opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -55,16 +55,20 @@
     
     #message-box { margin-top: 20px; height: 40px; font-weight: 700; font-size: 18px; color: #9e9cb3; }
 
-    /* Scoreboard styles */
-    .scoreboard { background: var(--panel); border: 1px solid rgba(255,255,255,.06); border-radius: 24px; padding: 30px; }
-    .scoreboard h3 { font-family: 'Space Grotesk', sans-serif; margin-top: 0; margin-bottom: 20px; font-size: 24px; }
-    .score-list { display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; padding-right: 8px; }
+    /* Scoreboards */
+    .side-panel { display: flex; flex-direction: column; gap: 20px; }
+    .scoreboard { background: var(--panel); border: 1px solid rgba(255,255,255,.06); border-radius: 24px; padding: 25px; }
+    .scoreboard h3 { font-family: 'Space Grotesk', sans-serif; margin-top: 0; margin-bottom: 20px; font-size: 20px; }
+    
+    .score-list { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; padding-right: 8px; }
     .score-list::-webkit-scrollbar { width: 6px; }
     .score-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
     .score-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 10px; }
-    .score-item { display: flex; justify-content: space-between; padding: 12px 16px; background: #151521; border-radius: 10px; border: 1px solid var(--line); font-weight: 600; }
+    .score-item { display: flex; justify-content: space-between; padding: 10px 14px; background: #151521; border-radius: 8px; border: 1px solid var(--line); font-weight: 600; font-size: 14px; }
+    
     .score-name { color: #fff; }
     .score-value { color: var(--green); font-family: 'Space Grotesk'; font-weight: 800; }
+    .score-clicks { color: #e03ca4; font-family: 'Space Grotesk'; font-weight: 800; }
 
     @media(max-width: 900px) { .game-layout { grid-template-columns: 1fr; } .controls { flex-direction: column; align-items: center; } .name-input { width: 100%; max-width: 300px; } .action-btn { width: 100%; max-width: 300px; } }
   </style>
@@ -93,6 +97,7 @@
 
   <main>
     <div class="game-layout">
+      <!-- MÄNGUALA -->
       <div class="game-container">
         <h2 class="game-title">Hype-O-Meter</h2>
         <p style="color: var(--muted); margin-top: 0;">Sul on 10 sekundit. Kliki nuppu nii kiiresti kui suudad!</p>
@@ -120,10 +125,23 @@
         <div id="message-box">Tõesta, et oled kiireim! (1 klikk = 2 punkti)</div>
       </div>
 
-      <div class="scoreboard">
-        <h3>Globaalne Edetabel 🏆</h3>
-        <p style="font-size: 12px; color: var(--muted); margin-top: -15px;"></p>
-        <div class="score-list" id="scoreList"></div>
+      <!-- KAKS EDETABELIT -->
+      <div class="side-panel">
+        
+        <!-- KLIKKIDE TOP 10 -->
+        <div class="scoreboard">
+          <h3>Top 10 Hype ⚡</h3>
+          <p style="font-size: 12px; color: var(--muted); margin-top: -15px;">(Parim klikkide arv 10 sek jooksul)</p>
+          <div class="score-list" id="clickerScoreList"></div>
+        </div>
+
+        <!-- ÜLDINE PUNKTI TOP -->
+        <div class="scoreboard">
+          <h3>Globaalne 🏆</h3>
+          <p style="font-size: 12px; color: var(--muted); margin-top: -15px;"></p>
+          <div class="score-list" id="globalScoreList"></div>
+        </div>
+
       </div>
     </div>
   </main>
@@ -148,14 +166,17 @@
     let isPlaying = false;
     const badWords = ["türa", "putsi", "vitt", "munn", "pede", "lits", "hoor", "kurat", "pask", "nuss"];
 
-    let scores = JSON.parse(localStorage.getItem('streamingHubScores')) || [];
+    // KAKS ERINEVAT MÄLU: Üldpunktid ja Spetsiifiline klikkide Top
+    let globalScores = JSON.parse(localStorage.getItem('streamingHubScores')) || [];
+    let clickerScores = JSON.parse(localStorage.getItem('sh_clicker_top')) || [];
+    
     let myRegisteredName = localStorage.getItem('sh_my_name');
 
     if (myRegisteredName) { 
       nameInput.value = myRegisteredName; 
       nameInput.readOnly = true; 
     }
-    renderScoreboard();
+    renderScoreboards();
 
     startBtn.addEventListener('click', () => {
       if (isPlaying) return;
@@ -165,7 +186,7 @@
         if(playerName.length < 2) { msgBox.innerHTML = `<span style="color: var(--red)">Palun sisesta pikkem nimi!</span>`; return; }
         const isBad = badWords.some(word => playerName.toLowerCase().includes(word));
         if(isBad) { msgBox.innerHTML = `<span style="color: var(--red)">Selline nimi pole lubatud!</span>`; return; }
-        const existingUser = scores.find(s => s.name.toLowerCase() === playerName.toLowerCase());
+        const existingUser = globalScores.find(s => s.name.toLowerCase() === playerName.toLowerCase());
         if (existingUser) { msgBox.innerHTML = `<span style="color: var(--red)">❌ Nimi on juba võetud!</span>`; return; }
 
         myRegisteredName = playerName;
@@ -192,14 +213,8 @@
       gameInterval = setInterval(() => {
         timeLeft -= 0.1;
         timerDisplay.textContent = timeLeft.toFixed(1);
-
-        if (timeLeft <= 3.0) {
-          timerDisplay.style.color = '#ff5d7a';
-        }
-
-        if (timeLeft <= 0.01) { // 0.0 asemel on täpsem panna 0.01 JS komakoha matemaatika tõttu
-          endGame();
-        }
+        if (timeLeft <= 3.0) { timerDisplay.style.color = '#ff5d7a'; }
+        if (timeLeft <= 0.01) { endGame(); }
       }, 100);
     }
 
@@ -245,46 +260,83 @@
 
       msgBox.innerHTML = `<span style="color: var(--green)">Aeg läbi! Tegid ${score} klikki.<br>Teenisid +${pointsWon} punkti. ${feedback}</span>`;
 
-      if (pointsWon > 0) {
-        saveScore(myRegisteredName, pointsWon);
+      if (score > 0) {
+        saveScores(myRegisteredName, score, pointsWon);
       }
     }
 
-    function saveScore(name, amount) {
-      const existingUser = scores.find(s => s.name.toLowerCase() === name.toLowerCase());
-      if(existingUser) {
-        existingUser.score += amount;
-      } else {
-        scores.push({ name: name, score: amount });
-      }
-      scores.sort((a, b) => b.score - a.score);
-      localStorage.setItem('streamingHubScores', JSON.stringify(scores));
-      renderScoreboard();
-    }
-
-    function renderScoreboard() {
-      const list = document.getElementById('scoreList');
-      list.innerHTML = '';
-      const top50 = scores.slice(0, 50);
+    // SALVESTAB MÕLEMASSE TABELISSE KORRAGA
+    function saveScores(name, clicks, pointsWon) {
       
-      if(top50.length === 0) {
-        list.innerHTML = '<div style="color: var(--muted); padding: 20px;">Edetabel on tühi.</div>';
-        return;
+      // 1. Uuenda globaalset punktide tabelit (Liidetakse eelmisele summale)
+      const existingGlobal = globalScores.find(s => s.name.toLowerCase() === name.toLowerCase());
+      if(existingGlobal) {
+        existingGlobal.score += pointsWon;
+      } else {
+        globalScores.push({ name: name, score: pointsWon });
+      }
+      globalScores.sort((a, b) => b.score - a.score);
+      localStorage.setItem('streamingHubScores', JSON.stringify(globalScores));
+
+      // 2. Uuenda klikkide Top 10 (Salvestatakse ainult siis, kui on isiklik rekord)
+      const existingClicker = clickerScores.find(s => s.name.toLowerCase() === name.toLowerCase());
+      if(existingClicker) {
+        if(clicks > existingClicker.clicks) {
+          existingClicker.clicks = clicks; // Uus isiklik rekord
+        }
+      } else {
+        clickerScores.push({ name: name, clicks: clicks });
+      }
+      clickerScores.sort((a, b) => b.clicks - a.clicks);
+      localStorage.setItem('sh_clicker_top', JSON.stringify(clickerScores));
+
+      renderScoreboards();
+    }
+
+    function renderScoreboards() {
+      const globalList = document.getElementById('globalScoreList');
+      const clickerList = document.getElementById('clickerScoreList');
+      
+      globalList.innerHTML = '';
+      clickerList.innerHTML = '';
+
+      // --- KLIKKIDE TOP 10 RENDERDAMINE ---
+      const top10Clickers = clickerScores.slice(0, 10);
+      if(top10Clickers.length === 0) {
+        clickerList.innerHTML = '<div style="color: var(--muted); padding: 15px; font-size: 14px;">Edetabel on tühi.</div>';
+      } else {
+        top10Clickers.forEach((player, index) => {
+          let rankStr = `${index + 1}.`;
+          if(index === 0) rankStr = '🥇';
+          if(index === 1) rankStr = '🥈';
+          if(index === 2) rankStr = '🥉';
+          clickerList.innerHTML += `
+            <div class="score-item">
+              <span class="score-name">${rankStr} ${player.name}</span>
+              <span class="score-clicks">${player.clicks} klk</span>
+            </div>
+          `;
+        });
       }
 
-      top50.forEach((player, index) => {
-        let rankStr = `${index + 1}.`;
-        if(index === 0) rankStr = '🥇';
-        if(index === 1) rankStr = '🥈';
-        if(index === 2) rankStr = '🥉';
-
-        list.innerHTML += `
-          <div class="score-item">
-            <span class="score-name">${rankStr} ${player.name}</span>
-            <span class="score-value">${player.score}</span>
-          </div>
-        `;
-      });
+      // --- GLOBAALSE EDETABELI RENDERDAMINE ---
+      const top50Global = globalScores.slice(0, 50);
+      if(top50Global.length === 0) {
+        globalList.innerHTML = '<div style="color: var(--muted); padding: 15px; font-size: 14px;">Edetabel on tühi.</div>';
+      } else {
+        top50Global.forEach((player, index) => {
+          let rankStr = `${index + 1}.`;
+          if(index === 0) rankStr = '🥇';
+          if(index === 1) rankStr = '🥈';
+          if(index === 2) rankStr = '🥉';
+          globalList.innerHTML += `
+            <div class="score-item">
+              <span class="score-name">${rankStr} ${player.name}</span>
+              <span class="score-value">${player.score}</span>
+            </div>
+          `;
+        });
+      }
     }
   </script>
 </body>
