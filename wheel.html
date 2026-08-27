@@ -2,219 +2,74 @@
 <html lang="et">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Streaming Hub -SPINNIGWHEEL</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>StreamHub Eesti — Õnneratas</title>
+  
+  <link rel="icon" type="image/png" href="https://cdn.phototourl.com/member/2026-08-20-ab6e8157-85d2-41f1-9fec-7253e8261e59.png">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=6">
+  
   <style>
-    .wheel-layout {
-      max-width: 1200px;
-      margin: 40px auto;
-      padding: 0 clamp(20px, 5vw, 40px);
-      display: grid;
-      grid-template-columns: 1fr 350px;
-      gap: 40px;
-      align-items: start;
-    }
-
-    .game-container {
-      background: linear-gradient(180deg, var(--panel), #0a0a11);
-      border: 1px solid rgba(255,255,255,.06);
-      border-radius: 24px;
-      padding: 40px;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,.3);
-    }
-
-    .game-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 36px;
-      margin-top: 0;
-      margin-bottom: 10px;
-      background: linear-gradient(90deg, var(--green), var(--purple));
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-
-    .wheel-box {
-      position: relative;
-      width: 400px;
-      height: 400px;
-      margin: 40px auto;
-    }
-
-    .wheel {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: 6px solid var(--panel2);
-      box-shadow: 0 0 40px rgba(150, 85, 255, 0.4), inset 0 0 20px rgba(0,0,0,0.8);
-      position: relative;
-      overflow: hidden;
-      transition: transform 9s cubic-bezier(0.1, 0.9, 0.2, 1);
-      background: #111;
-    }
-
-    .pointer {
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 40px;
-      height: 50px;
-      background: var(--red);
-      clip-path: polygon(50% 100%, 0 0, 100% 0);
-      z-index: 10;
-      filter: drop-shadow(0 5px 10px rgba(255,0,0,0.5));
-    }
-
-    .wheel-slice {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 50%;
-      height: 40px;
-      margin-top: -20px;
-      transform-origin: 0% 50%;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding-right: 25px;
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 20px;
-      font-weight: 800;
-      color: white;
-      text-shadow: 1px 1px 4px black;
-    }
-
-    .controls {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-top: 30px;
-    }
-    
-    .name-input {
-      background: #0d0d15;
-      border: 1px solid var(--line);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-family: 'Inter', sans-serif;
-      font-size: 16px;
-      width: 250px;
-      outline: none;
-      transition: 0.3s;
-    }
+    .wheel-layout { max-width: 1200px; margin: 40px auto; padding: 0 clamp(20px, 5vw, 40px); display: grid; grid-template-columns: 1fr 350px; gap: 40px; align-items: start; }
+    .game-container { background: linear-gradient(180deg, var(--panel), #0a0a11); border: 1px solid rgba(255,255,255,.06); border-radius: 24px; padding: 40px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+    .game-title { font-family: 'Space Grotesk', sans-serif; font-size: 36px; margin-top: 0; margin-bottom: 10px; background: linear-gradient(90deg, var(--green), var(--purple)); -webkit-background-clip: text; color: transparent; }
+    .wheel-box { position: relative; width: 400px; height: 400px; margin: 40px auto; }
+    .wheel { width: 100%; height: 100%; border-radius: 50%; border: 6px solid var(--panel2); box-shadow: 0 0 40px rgba(150, 85, 255, 0.4), inset 0 0 20px rgba(0,0,0,0.8); position: relative; overflow: hidden; transition: transform 9s cubic-bezier(0.1, 0.9, 0.2, 1); background: #111; }
+    .pointer { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 40px; height: 50px; background: var(--red); clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; filter: drop-shadow(0 5px 10px rgba(255,0,0,0.5)); }
+    .wheel-slice { position: absolute; top: 50%; left: 50%; width: 50%; height: 40px; margin-top: -20px; transform-origin: 0% 50%; display: flex; align-items: center; justify-content: flex-end; padding-right: 25px; font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 800; color: white; text-shadow: 1px 1px 4px black; }
+    .controls { display: flex; gap: 10px; justify-content: center; margin-top: 30px; }
+    .name-input { background: #0d0d15; border: 1px solid var(--line); color: white; padding: 12px 20px; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 16px; width: 250px; outline: none; transition: 0.3s; }
     .name-input:focus { border-color: var(--purple); }
-    
-    .name-input:read-only {
-      opacity: 0.6;
-      cursor: not-allowed;
-      border-color: var(--line);
-    }
-
-    .spin-btn {
-      padding: 12px 30px;
-      font-size: 16px;
-      letter-spacing: 1px;
-    }
-
-    .scoreboard {
-      background: var(--panel);
-      border: 1px solid rgba(255,255,255,.06);
-      border-radius: 24px;
-      padding: 30px;
-    }
-    
-    .scoreboard h3 {
-      font-family: 'Space Grotesk', sans-serif;
-      margin-top: 0;
-      margin-bottom: 20px;
-      font-size: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .score-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-height: 520px; 
-      overflow-y: auto;  
-      padding-right: 8px; 
-    }
-
+    .name-input:read-only { opacity: 0.6; cursor: not-allowed; border-color: var(--line); }
+    .spin-btn { padding: 12px 30px; font-size: 16px; letter-spacing: 1px; }
+    .scoreboard { background: var(--panel); border: 1px solid rgba(255,255,255,.06); border-radius: 24px; padding: 30px; }
+    .scoreboard h3 { font-family: 'Space Grotesk', sans-serif; margin-top: 0; margin-bottom: 20px; font-size: 24px; display: flex; justify-content: space-between; align-items: center; }
+    .score-list { display: flex; flex-direction: column; gap: 10px; max-height: 520px; overflow-y: auto; padding-right: 8px; }
     .score-list::-webkit-scrollbar { width: 6px; }
     .score-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
     .score-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 10px; }
-
-    .score-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 12px 16px;
-      background: #151521;
-      border-radius: 10px;
-      border: 1px solid var(--line);
-      font-weight: 600;
-    }
-
+    .score-item { display: flex; justify-content: space-between; padding: 12px 16px; background: #151521; border-radius: 10px; border: 1px solid var(--line); font-weight: 600; }
     .score-item:nth-child(1) { border-color: #ffd700; background: rgba(255, 215, 0, 0.1); }
     .score-item:nth-child(2) { border-color: #c0c0c0; background: rgba(192, 192, 192, 0.1); }
     .score-item:nth-child(3) { border-color: #cd7f32; background: rgba(205, 127, 50, 0.1); }
-
     .score-name { color: #fff; }
     .score-value { color: var(--green); font-family: 'Space Grotesk'; font-weight: 800; }
-    
-    #message-box {
-      margin-top: 20px;
-      height: 24px;
-      font-weight: 700;
-      color: var(--pink);
-    }
-
-    @media(max-width: 900px) {
-      .wheel-layout { grid-template-columns: 1fr; }
-      .wheel-box { width: 300px; height: 300px; }
-      .controls { flex-direction: column; align-items: center; }
-      .name-input { width: 100%; max-width: 300px; }
-      .spin-btn { width: 100%; max-width: 300px; }
-    }
+    #message-box { margin-top: 20px; height: 24px; font-weight: 700; color: var(--pink); }
+    @media(max-width: 900px) { .wheel-layout { grid-template-columns: 1fr; } .wheel-box { width: 300px; height: 300px; } .controls { flex-direction: column; align-items: center; } .name-input { width: 100%; max-width: 300px; } .spin-btn { width: 100%; max-width: 300px; } }
   </style>
 </head>
 <body>
 
-  <!-- TOPBAR -->
   <header class="topbar">
     <a class="brand" href="index.html">
-      <img src="https://img.sanishtech.com/u/ec3943d9d910796bc36bb722533aac70.png" alt="Streaming Hub logo">
+      <img src="https://cdn.phototourl.com/free/2026-08-20-416aa20b-acbe-4325-9e61-566645e3254c.png" alt="Streaming Hub logo">
     </a>
-    <div class="nav">
-      <a href="index.html">MÄNGUD</a>
-      <a href="#">LIVE</a>
-      <a href="#">STRIIMERID</a>
-      <a href="#">INFO</a>
-      <a href="#">UUDISED</a>
-      <a href="wheel.html" style="color: var(--pink); text-shadow: 0 0 10px rgba(224,60,164,0.5);">SPINNIGWHEEL</a>
-    </div>
+    <nav class="nav">
+      <a href="index.html#games">MÄNGUD</a>
+      <a href="index.html#live">LIVE</a>
+      <a href="index.html#streamers">STRIIMERID</a>
+      <a href="index.html#about">INFO</a>
+      <a href="uudised.html">UUDISED</a>
+      <a href="wheel.html" style="color: var(--pink); text-shadow: 0 0 10px rgba(224,60,164,0.5);">SPINNINGWHEEL</a>
+      <a href="fishing.html" style="color: #00bfff; text-shadow: 0 0 10px rgba(0,191,255,0.5);">KALAPÜÜK</a>
+    </nav>
     <div class="actions">
-      <button class="btn">KASUTAJA</button>
-      <button class="primary">ADMIN</button>
+      <button class="btn" id="userBtn">KASUTAJA</button>
+      <button class="primary" id="adminBtn">ADMIN</button>
     </div>
   </header>
 
   <main>
     <div class="wheel-layout">
-      <!-- MÄNGUALA -->
       <div class="game-container">
-        <h2 class="game-title">Igapäevane SPINNIGWHEEL</h2>
-        <p style="color: var(--muted); margin-top: 0;">Keeruta ja vaata, mitu punkti sa edetabelisse saad! </p>
-        <p style="color: var(--muted); margin-top: 0;"> NB:Tegemist on lihtsalt mini mänguga!!!</p>
+        <h2 class="game-title">SPINNINGWHEEL</h2>
+        <p style="color: var(--muted); margin-top: 0;">Keeruta ja vaata, mitu punkti sa edetabelisse saad!</p>
+        <p style="color: var(--muted); margin-top: 0;">NB:Tegemist on lihtsalt mini mänguga!!!</p>
         <div class="wheel-box">
           <div class="pointer"></div>
-          <div class="wheel" id="wheel">
-            <!-- Dünaamiliselt loodud -->
-          </div>
+          <div class="wheel" id="wheel"></div>
         </div>
 
         <div class="controls">
@@ -224,54 +79,35 @@
         <div id="message-box"></div>
       </div>
 
-      <!-- EDETABEL -->
       <div class="scoreboard">
         <h3>Top 50 Mängijad 🏆</h3>
-        <div class="score-list" id="scoreList">
-          <!-- Dünaamiliselt loodud -->
-        </div>
+        <div class="score-list" id="scoreList"></div>
       </div>
     </div>
   </main>
 
   <script>
-    // --- HELID ---
-    // Päris MP3 klõksu heli, mis meenutab füüsilise ratta plastik/puit pulka
-    const tickSoundURL = 'https://www.myinstants.com/en/instant/wheels-on-the-bus-68297/?utm_source=copy&utm_medium=share';
+    const tickSoundURL = 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3';
     const tickAudio = new Audio(tickSoundURL);
     tickAudio.preload = "auto";
-    
-    const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2015/2015-preview.mp3');
-    winSound.volume = 0.3; 
-    
-    const jackpotSound = new Audio('https://assets.mixkit.co/active_storage/sfx/1929/1929-preview.mp3');
-    jackpotSound.volume = 0.4;
-
+    const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2015/2015-preview.mp3'); winSound.volume = 0.3; 
+    const jackpotSound = new Audio('https://assets.mixkit.co/active_storage/sfx/1929/1929-preview.mp3'); jackpotSound.volume = 0.4;
     let tickTimer;
     let currentTickDelay = 30;
     
-    // Funktisoon mängib helifaili klooni, et helid saaksid vajadusel üksteise peale kattuda ilma hakkimata
     function playTickSound() {
       let clickNode = tickAudio.cloneNode();
-      clickNode.volume = 0.2; // Meeldivalt vaikne helitugevus
+      clickNode.volume = 0.2; 
       clickNode.play().catch(e => console.log(e));
-
-      // Tiksumine aeglustub igal sammul
       currentTickDelay += 15; 
-      
-      // Kui delay läheb üle 700ms, tähendab et ratas on peaaegu peatunud
-      if (isSpinning && currentTickDelay < 700) { 
-        tickTimer = setTimeout(playTickSound, currentTickDelay);
-      }
+      if (isSpinning && currentTickDelay < 700) { tickTimer = setTimeout(playTickSound, currentTickDelay); }
     }
 
-    // --- SEADED ---
     const baseValues = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 150]; 
     const jackpot = 5000;
     const spinDuration = 9000; 
     const badWords = ["türa", "putsi", "vitt", "munn", "pede", "lits", "hoor", "kurat", "pask", "nuss"];
     
-    // --- RATTA EHITAMINE ---
     let wheelValues = [...baseValues].sort(() => Math.random() - 0.5);
     const jackpotIndex = Math.floor(Math.random() * wheelValues.length);
     wheelValues.splice(jackpotIndex, 0, jackpot);
@@ -279,7 +115,6 @@
     const wheel = document.getElementById('wheel');
     const totalSlices = wheelValues.length;
     const sliceAngle = 360 / totalSlices;
-
     const colors = ["#9655ff", "#0f0f18", "#e03ca4", "#0f0f18", "#59e0a8", "#0f0f18"];
     let gradientParts = [];
 
@@ -292,10 +127,8 @@
         slice.style.color = "#ffd700";
         slice.style.textShadow = "0 0 10px #ff0, 1px 1px 2px #000";
       }
-      
       slice.innerHTML = val;
       wheel.appendChild(slice);
-
       let color = colors[i % colors.length];
       if(val === 5000) color = "#ff5d7a";
       gradientParts.push(`${color} ${i * sliceAngle}deg ${(i + 1) * sliceAngle}deg`);
@@ -303,131 +136,74 @@
 
     wheel.style.background = `conic-gradient(from ${-sliceAngle/2}deg, ${gradientParts.join(', ')})`;
 
-    // --- MÄNGU JA KASUTAJA LOOGIKA ---
     let currentRotation = 0;
     let isSpinning = false;
     const spinBtn = document.getElementById('spinBtn');
     const nameInput = document.getElementById('playerName');
     const msgBox = document.getElementById('message-box');
-
     let scores = JSON.parse(localStorage.getItem('streamingHubScores')) || [];
     let myRegisteredName = localStorage.getItem('sh_my_name');
 
-    if (myRegisteredName) {
-      nameInput.value = myRegisteredName;
-      nameInput.readOnly = true;
-    }
-
+    if (myRegisteredName) { nameInput.value = myRegisteredName; nameInput.readOnly = true; }
     renderScoreboard();
 
     spinBtn.addEventListener('click', () => {
       if(isSpinning) return;
-
       const playerName = nameInput.value.trim();
-      
-      if(playerName.length < 2) {
-        msgBox.textContent = "Palun sisesta pikkem nimi!";
-        return;
-      }
-      
+      if(playerName.length < 2) { msgBox.textContent = "Palun sisesta pikkem nimi!"; return; }
       const isBad = badWords.some(word => playerName.toLowerCase().includes(word));
-      if(isBad) {
-        msgBox.textContent = "Selline nimi pole lubatud! Ole viisakas.";
-        return;
-      }
-
+      if(isBad) { msgBox.textContent = "Selline nimi pole lubatud! Ole viisakas."; return; }
       const existingUser = scores.find(s => s.name.toLowerCase() === playerName.toLowerCase());
-      
-      if (existingUser && (!myRegisteredName || myRegisteredName.toLowerCase() !== playerName.toLowerCase())) {
-        msgBox.textContent = "❌ See nimi on juba võetud! Palun vali teine.";
-        return;
-      }
+      if (existingUser && (!myRegisteredName || myRegisteredName.toLowerCase() !== playerName.toLowerCase())) { msgBox.textContent = "❌ See nimi on juba võetud! Palun vali teine."; return; }
 
       msgBox.textContent = "Keerutab...";
-      isSpinning = true;
-      spinBtn.disabled = true;
-
-      // Alustame uue, puhta heliga
-      clearTimeout(tickTimer);
-      currentTickDelay = 30; // Alustame kiirest tiksumisest
-      playTickSound();
-
-      if (!myRegisteredName) {
-        nameInput.disabled = true;
-      }
+      isSpinning = true; spinBtn.disabled = true;
+      clearTimeout(tickTimer); currentTickDelay = 30; playTickSound();
+      if (!myRegisteredName) { nameInput.disabled = true; }
 
       const randomSpin = Math.floor(Math.random() * 1080) + 3600; 
       currentRotation += randomSpin;
-      
       wheel.style.transform = `rotate(${currentRotation}deg)`;
 
       setTimeout(() => {
-        isSpinning = false;
-        spinBtn.disabled = false;
-
+        isSpinning = false; spinBtn.disabled = false;
         if (!myRegisteredName) {
-          myRegisteredName = playerName;
-          localStorage.setItem('sh_my_name', myRegisteredName);
-          nameInput.disabled = false;
-          nameInput.readOnly = true;
+          myRegisteredName = playerName; localStorage.setItem('sh_my_name', myRegisteredName);
+          nameInput.disabled = false; nameInput.readOnly = true;
         }
         
         const actualDeg = currentRotation % 360;
         let winningIndex = Math.round((360 - actualDeg) / sliceAngle) % totalSlices;
         if (winningIndex === totalSlices) winningIndex = 0; 
-        
         const wonAmount = wheelValues[winningIndex];
         
         if(wonAmount === 5000) {
           msgBox.textContent = `JACKPOT! 🎉 ${playerName} võitis ${wonAmount} punkti!`;
-          jackpotSound.currentTime = 0;
-          jackpotSound.play().catch(e => console.log(e));
+          jackpotSound.currentTime = 0; jackpotSound.play().catch(e => console.log(e));
         } else {
           msgBox.textContent = `Palju õnne! ${playerName} võitis ${wonAmount} punkti.`;
-          winSound.currentTime = 0;
-          winSound.play().catch(e => console.log(e));
+          winSound.currentTime = 0; winSound.play().catch(e => console.log(e));
         }
-
         saveScore(playerName, wonAmount);
       }, spinDuration); 
     });
 
     function saveScore(name, amount) {
       const existingUser = scores.find(s => s.name.toLowerCase() === name.toLowerCase());
-      if(existingUser) {
-        existingUser.score += amount;
-      } else {
-        scores.push({ name: name, score: amount });
-      }
-      
+      if(existingUser) { existingUser.score += amount; } else { scores.push({ name: name, score: amount }); }
       scores.sort((a, b) => b.score - a.score);
       localStorage.setItem('streamingHubScores', JSON.stringify(scores));
       renderScoreboard();
     }
 
     function renderScoreboard() {
-      const list = document.getElementById('scoreList');
-      list.innerHTML = '';
-      
+      const list = document.getElementById('scoreList'); list.innerHTML = '';
       const top50 = scores.slice(0, 50);
-      
-      if(top50.length === 0) {
-        list.innerHTML = '<div style="color: var(--muted); text-align:center; padding: 20px;">Edetabel on veel tühi. Ole esimene!</div>';
-        return;
-      }
-
+      if(top50.length === 0) { list.innerHTML = '<div style="color: var(--muted); text-align:center; padding: 20px;">Edetabel on veel tühi. Ole esimene!</div>'; return; }
       top50.forEach((player, index) => {
         let rankStr = `${index + 1}.`;
-        if(index === 0) rankStr = '🥇';
-        if(index === 1) rankStr = '🥈';
-        if(index === 2) rankStr = '🥉';
-
-        list.innerHTML += `
-          <div class="score-item">
-            <span class="score-name">${rankStr} ${player.name}</span>
-            <span class="score-value">${player.score}</span>
-          </div>
-        `;
+        if(index === 0) rankStr = '🥇'; if(index === 1) rankStr = '🥈'; if(index === 2) rankStr = '🥉';
+        list.innerHTML += `<div class="score-item"><span class="score-name">${rankStr} ${player.name}</span><span class="score-value">${player.score}</span></div>`;
       });
     }
   </script>
