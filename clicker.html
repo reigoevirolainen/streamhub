@@ -11,6 +11,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css?v=6">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
   
   <style>
     .game-layout { max-width: 1200px; margin: 40px auto; padding: 0 clamp(20px, 5vw, 40px); display: grid; grid-template-columns: 1fr 350px; gap: 40px; align-items: start; }
@@ -24,7 +27,7 @@
     .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 42px; font-weight: 900; color: #fff; }
     #timer { color: #59e0a8; }
     
-    /* The Big Click Button - MOBIILI SUUMIMISE KAITSE */
+    /* The Big Click Button - MOBIILI SUUMIMISE KAITSE JÄÄB ALLES! */
     .click-area { 
       position: relative; margin: 40px auto; width: 200px; height: 200px; 
       touch-action: manipulation; 
@@ -97,7 +100,6 @@
 
   <main>
     <div class="game-layout">
-      <!-- MÄNGUALA -->
       <div class="game-container">
         <h2 class="game-title">Hype-O-Meter</h2>
         <p style="color: var(--muted); margin-top: 0;">Sul on 10 sekundit. Kliki nuppu nii kiiresti kui suudad!</p>
@@ -125,21 +127,18 @@
         <div id="message-box">Tõesta, et oled kiireim! (1 klikk = 2 punkti)</div>
       </div>
 
-      <!-- KAKS EDETABELIT -->
       <div class="side-panel">
         
-        <!-- KLIKKIDE TOP 10 -->
         <div class="scoreboard">
           <h3>Top 10 Hype ⚡</h3>
           <p style="font-size: 12px; color: var(--muted); margin-top: -15px;">(Parim klikkide arv 10 sek jooksul)</p>
-          <div class="score-list" id="clickerScoreList"></div>
+          <div class="score-list" id="clickerScoreList">Laen andmeid...</div>
         </div>
 
-        <!-- ÜLDINE PUNKTI TOP -->
         <div class="scoreboard">
           <h3>Globaalne 🏆</h3>
-          <p style="font-size: 12px; color: var(--muted); margin-top: -15px;"></p>
-          <div class="score-list" id="globalScoreList"></div>
+          <p style="font-size: 12px; color: var(--muted); margin-top: -15px;">(Kõik punktid kokku)</p>
+          <div class="score-list" id="globalScoreList">Laen andmeid...</div>
         </div>
 
       </div>
@@ -147,6 +146,12 @@
   </main>
 
   <script>
+    // --- SUPABASE ÜHENDUSE INITSIAALISATSIOON ---
+    const { createClient } = window.supabase;
+    const supabaseUrl = window.STREAMHUB_CONFIG.SUPABASE_URL;
+    const supabaseKey = window.STREAMHUB_CONFIG.SUPABASE_PUBLISHABLE_KEY;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
     const clickSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'); 
     clickSound.volume = 0.2;
     const finishSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2015/2015-preview.mp3');
@@ -166,19 +171,39 @@
     let isPlaying = false;
     const badWords = ["türa", "putsi", "vitt", "munn", "pede", "lits", "hoor", "kurat", "pask", "nuss"];
 
-    // KAKS ERINEVAT MÄLU: Üldpunktid ja Spetsiifiline klikkide Top
-    let globalScores = JSON.parse(localStorage.getItem('streamingHubScores')) || [];
-    let clickerScores = JSON.parse(localStorage.getItem('sh_clicker_top')) || [];
+    // Kasutame nüüd andmebaasist tõmmatud andmeid
+    let globalScores = [];
+    let clickerScores = [];
     
+    // Jätame lokaalse mälu meelde ainult selleks, et kasti automaatselt nimi panna
     let myRegisteredName = localStorage.getItem('sh_my_name');
 
     if (myRegisteredName) { 
       nameInput.value = myRegisteredName; 
       nameInput.readOnly = true; 
     }
-    renderScoreboards();
 
-    startBtn.addEventListener('click', () => {
+    // --- ANDMETE LAADIMINE SUPABASE'IST ---
+    async function loadScoresFromDB() {
+      const { data, error } = await supabase.from('scores').select('*');
+      if (error) {
+        console.error("Viga andmete laadimisel:", error);
+        return;
+      }
+      if (data) {
+        globalScores = data.map(d => ({ name: d.name, score: d.score || 0 }));
+        clickerScores = data.map(d => ({ name: d.name, clicks: d.clicks || 0 }));
+        
+        globalScores.sort((a, b) => b.score - a.score);
+        clickerScores.sort((a, b) => b.clicks - a.clicks);
+        
+        renderScoreboards();
+      }
+    }
+    // Laeme kohe alguses tabelid täis
+    loadScoresFromDB();
+
+    startBtn.addEventListener('click', async () => {
       if (isPlaying) return;
 
       if (!myRegisteredName) {
@@ -186,6 +211,8 @@
         if(playerName.length < 2) { msgBox.innerHTML = `<span style="color: var(--red)">Palun sisesta pikkem nimi!</span>`; return; }
         const isBad = badWords.some(word => playerName.toLowerCase().includes(word));
         if(isBad) { msgBox.innerHTML = `<span style="color: var(--red)">Selline nimi pole lubatud!</span>`; return; }
+        
+        // Kontrollime, kas keegi on andmebaasis juba selle nime võtnud
         const existingUser = globalScores.find(s => s.name.toLowerCase() === playerName.toLowerCase());
         if (existingUser) { msgBox.innerHTML = `<span style="color: var(--red)">❌ Nimi on juba võetud!</span>`; return; }
 
@@ -238,7 +265,7 @@
       setTimeout(() => { ripple.remove(); }, 500);
     }
 
-    function endGame() {
+    async function endGame() {
       clearInterval(gameInterval);
       isPlaying = false;
       hypeBtn.disabled = true;
@@ -261,36 +288,40 @@
       msgBox.innerHTML = `<span style="color: var(--green)">Aeg läbi! Tegid ${score} klikki.<br>Teenisid +${pointsWon} punkti. ${feedback}</span>`;
 
       if (score > 0) {
-        saveScores(myRegisteredName, score, pointsWon);
+        // Asendasime vana localStorage funktsiooni uue async funktsiooniga
+        await saveScoresToDB(myRegisteredName, score, pointsWon);
       }
     }
 
-    // SALVESTAB MÕLEMASSE TABELISSE KORRAGA
-    function saveScores(name, clicks, pointsWon) {
+    // --- ANDMETE SALVESTAMINE SUPABASE'I ---
+    async function saveScoresToDB(name, currentClicks, pointsWon) {
+      msgBox.innerHTML += `<br><span style="font-size:12px; color:var(--muted)">Salvestan andmebaasi...</span>`;
       
-      // 1. Uuenda globaalset punktide tabelit (Liidetakse eelmisele summale)
-      const existingGlobal = globalScores.find(s => s.name.toLowerCase() === name.toLowerCase());
-      if(existingGlobal) {
-        existingGlobal.score += pointsWon;
-      } else {
-        globalScores.push({ name: name, score: pointsWon });
-      }
-      globalScores.sort((a, b) => b.score - a.score);
-      localStorage.setItem('streamingHubScores', JSON.stringify(globalScores));
+      // Küsi andmebaasist kasutaja eelmised tulemused
+      const { data: existingUser } = await supabase.from('scores').select('*').eq('name', name).single();
+      
+      let newTotalScore = pointsWon;
+      let newMaxClicks = currentClicks;
 
-      // 2. Uuenda klikkide Top 10 (Salvestatakse ainult siis, kui on isiklik rekord)
-      const existingClicker = clickerScores.find(s => s.name.toLowerCase() === name.toLowerCase());
-      if(existingClicker) {
-        if(clicks > existingClicker.clicks) {
-          existingClicker.clicks = clicks; // Uus isiklik rekord
-        }
-      } else {
-        clickerScores.push({ name: name, clicks: clicks });
+      if (existingUser) {
+        newTotalScore = (existingUser.score || 0) + pointsWon; // Liida punktid varasematele juurde
+        newMaxClicks = Math.max(existingUser.clicks || 0, currentClicks); // Jäta alles suurim klikkide arv
       }
-      clickerScores.sort((a, b) => b.clicks - a.clicks);
-      localStorage.setItem('sh_clicker_top', JSON.stringify(clickerScores));
 
-      renderScoreboards();
+      // Upsert: loob uue rea, kui 'name' puudub, või uuendab olemasolevat
+      const { error } = await supabase.from('scores').upsert({
+        name: name,
+        score: newTotalScore,
+        clicks: newMaxClicks
+      });
+
+      if (error) {
+        console.error("Viga andmete salvestamisel:", error);
+      } else {
+        // Lae uued andmed alla, et kõikide mängijate skoorid oleksid värsked!
+        await loadScoresFromDB();
+        msgBox.innerHTML = `<span style="color: var(--green)">Aeg läbi! Tegid ${currentClicks} klikki.<br>Teenisid +${pointsWon} punkti. Edukalt salvestatud! ⚡</span>`;
+      }
     }
 
     function renderScoreboards() {
@@ -301,7 +332,7 @@
       clickerList.innerHTML = '';
 
       // --- KLIKKIDE TOP 10 RENDERDAMINE ---
-      const top10Clickers = clickerScores.slice(0, 10);
+      const top10Clickers = clickerScores.filter(p => p.clicks > 0).slice(0, 10);
       if(top10Clickers.length === 0) {
         clickerList.innerHTML = '<div style="color: var(--muted); padding: 15px; font-size: 14px;">Edetabel on tühi.</div>';
       } else {
@@ -320,7 +351,7 @@
       }
 
       // --- GLOBAALSE EDETABELI RENDERDAMINE ---
-      const top50Global = globalScores.slice(0, 50);
+      const top50Global = globalScores.filter(p => p.score > 0).slice(0, 50);
       if(top50Global.length === 0) {
         globalList.innerHTML = '<div style="color: var(--muted); padding: 15px; font-size: 14px;">Edetabel on tühi.</div>';
       } else {

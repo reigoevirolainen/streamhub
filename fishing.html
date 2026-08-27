@@ -11,6 +11,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css?v=6">
   
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+
   <style>
     .game-layout { max-width: 1200px; margin: 40px auto; padding: 0 clamp(20px, 5vw, 40px); display: grid; grid-template-columns: 1fr 350px; gap: 40px; align-items: start; }
     .game-container { background: linear-gradient(180deg, var(--panel), #0a0a11); border: 1px solid rgba(255,255,255,.06); border-radius: 24px; padding: 40px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
@@ -84,13 +87,19 @@
 
       <div class="scoreboard">
         <h3>Globaalne Edetabel 🏆</h3>
-        <p style="font-size: 12px; color: var(--muted); margin-top: -15px;"></p>
-        <div class="score-list" id="scoreList"></div>
+        <p style="font-size: 12px; color: var(--muted); margin-top: -15px;">(Kõik punktid kokku)</p>
+        <div class="score-list" id="scoreList">Laen andmeid...</div>
       </div>
     </div>
   </main>
 
   <script>
+    // --- SUPABASE ÜHENDUSE INITSIAALISATSIOON ---
+    const { createClient } = window.supabase;
+    const supabaseUrl = window.STREAMHUB_CONFIG.SUPABASE_URL;
+    const supabaseKey = window.STREAMHUB_CONFIG.SUPABASE_PUBLISHABLE_KEY;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
     const splashSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2443/2443-preview.mp3');
     const biteSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'); 
     const catchSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2015/2015-preview.mp3');
@@ -112,19 +121,34 @@
       { name: "Haruldane Neoon-Lõhe ✨", points: 1000, chance: 10 }
     ];
 
-    let scores = JSON.parse(localStorage.getItem('streamingHubScores')) || [];
+    let globalScores = [];
     let myRegisteredName = localStorage.getItem('sh_my_name');
 
     if (myRegisteredName) { nameInput.value = myRegisteredName; nameInput.readOnly = true; }
-    renderScoreboard();
+    
+    // --- ANDMETE LAADIMINE SUPABASE'IST ---
+    async function loadScoresFromDB() {
+      const { data, error } = await supabase.from('scores').select('*');
+      if (error) {
+        console.error("Viga andmete laadimisel:", error);
+        return;
+      }
+      if (data) {
+        globalScores = data.map(d => ({ name: d.name, score: d.score || 0 }));
+        globalScores.sort((a, b) => b.score - a.score);
+        renderScoreboard();
+      }
+    }
+    loadScoresFromDB();
 
-    castBtn.addEventListener('click', () => {
+    castBtn.addEventListener('click', async () => {
       if (!myRegisteredName) {
         const playerName = nameInput.value.trim();
         if(playerName.length < 2) { msgBox.innerHTML = `<span style="color: var(--red)">Palun sisesta pikkem nimi!</span>`; return; }
-        const isBad = badWords.some(word => playerName.toLowerCase().includes(word));
-        if(isBad) { msgBox.innerHTML = `<span style="color: var(--red)">Selline nimi pole lubatud! Ole viisakas.</span>`; return; }
-        const existingUser = scores.find(s => s.name.toLowerCase() === playerName.toLowerCase());
+        if(badWords.some(word => playerName.toLowerCase().includes(word))) { msgBox.innerHTML = `<span style="color: var(--red)">Selline nimi pole lubatud! Ole viisakas.</span>`; return; }
+        
+        // Kontrollime, kas keegi on andmebaasis juba selle nime võtnud
+        const { data: existingUser } = await supabase.from('scores').select('name').ilike('name', playerName).single();
         if (existingUser) { msgBox.innerHTML = `<span style="color: var(--red)">❌ See nimi on juba võetud! Palun vali teine.</span>`; return; }
 
         myRegisteredName = playerName;
@@ -178,7 +202,7 @@
       msgBox.innerHTML = `<span style="color: var(--green)">Sa püüdsid: ${caughtFish.name}! (+${caughtFish.points}p)</span>`;
       catchSound.currentTime = 0; catchSound.play().catch(e=>console.log(e));
 
-      saveScore(myRegisteredName, caughtFish.points);
+      saveScoreToDB(myRegisteredName, caughtFish.points);
     });
 
     function fishEscaped() {
@@ -186,17 +210,38 @@
       msgBox.innerHTML = `<span style="color: var(--muted)">Oled liiga aeglane! Kala pääses minema.</span>`;
     }
 
-    function saveScore(name, amount) {
-      const existingUser = scores.find(s => s.name.toLowerCase() === name.toLowerCase());
-      if(existingUser) { existingUser.score += amount; } else { scores.push({ name: name, score: amount }); }
-      scores.sort((a, b) => b.score - a.score);
-      localStorage.setItem('streamingHubScores', JSON.stringify(scores));
-      renderScoreboard();
+    // --- ANDMETE SALVESTAMINE SUPABASE'I ---
+    async function saveScoreToDB(name, amount) {
+      msgBox.innerHTML += `<br><span style="font-size:12px; color:var(--muted)">Salvestan andmebaasi...</span>`;
+      
+      // Küsi andmebaasist kasutaja eelmised tulemused
+      const { data: existingUser } = await supabase.from('scores').select('*').eq('name', name).single();
+      
+      let newTotalScore = amount;
+      let existingClicks = 0;
+
+      if (existingUser) {
+        newTotalScore = (existingUser.score || 0) + amount; // Liidame olemasolevale skoorile juurde
+        existingClicks = existingUser.clicks || 0; // Jätame Hype-O-Meteri klikid alles
+      }
+
+      const { error } = await supabase.from('scores').upsert({
+        name: name,
+        score: newTotalScore,
+        clicks: existingClicks
+      });
+
+      if (error) {
+        console.error("Viga andmete salvestamisel:", error);
+      } else {
+        await loadScoresFromDB();
+        // Sõnum on juba pullBtn sündmuses muudetud, andmed on nüüd laetud!
+      }
     }
 
     function renderScoreboard() {
       const list = document.getElementById('scoreList'); list.innerHTML = '';
-      const top50 = scores.slice(0, 50);
+      const top50 = globalScores.filter(p => p.score > 0).slice(0, 50);
       if(top50.length === 0) { list.innerHTML = '<div style="color: var(--muted); padding: 20px;">Edetabel on tühi.</div>'; return; }
       top50.forEach((player, index) => {
         let rankStr = `${index + 1}.`;
