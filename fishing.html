@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Streaming Hub - Kalapüük</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Kalapüügi spetsiifiline disain */
+    .game-layout {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 clamp(20px, 5vw, 40px);
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .game-container {
+      background: linear-gradient(180deg, var(--panel), #0a0a11);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 24px;
+      padding: 40px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    }
+
+    .game-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 36px;
+      margin-top: 0;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #59e0a8, #00bfff);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    /* Tiik / Vesi */
+    .pond {
+      width: 100%;
+      height: 250px;
+      margin: 30px 0;
+      background: linear-gradient(180deg, #0f172a, #020617);
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
+    }
+
+    /* Vee peegeldus/lained */
+    .pond::after {
+      content: "";
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 50%;
+      background: linear-gradient(to top, rgba(89, 224, 168, 0.1), transparent);
+      pointer-events: none;
+    }
+
+    /* Õngekork */
+    .bobber {
+      width: 16px;
+      height: 36px;
+      background: linear-gradient(to bottom, #ff5d7a 50%, #fff 50%);
+      border-radius: 8px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      box-shadow: 0 5px 15px rgba(255,93,122,0.4);
+    }
+
+    /* Animatsioonid korgile */
+    .bobber.floating {
+      display: block;
+      animation: float 2s ease-in-out infinite;
+    }
+
+    .bobber.biting {
+      display: block;
+      animation: bite 0.2s infinite;
+      box-shadow: 0 0 20px #ff5d7a;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(-50%, -50%) rotate(-5deg); }
+      50% { transform: translate(-50%, -35%) rotate(5deg); }
+    }
+
+    @keyframes bite {
+      0% { transform: translate(-50%, -10%); }
+      50% { transform: translate(-50%, 10%); }
+      100% { transform: translate(-50%, -10%); }
+    }
+
+    /* Nimekast ja Nupud */
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    
+    .name-input {
+      background: #0d0d15;
+      border: 1px solid var(--line);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      width: 220px;
+      outline: none;
+      transition: 0.3s;
+    }
+    .name-input:focus { border-color: #00bfff; }
+    
+    .name-input:read-only {
+      opacity: 0.6;
+      cursor: not-allowed;
+      border-color: var(--line);
+    }
+
+    .action-btn {
+      padding: 12px 30px;
+      font-size: 16px;
+      letter-spacing: 1px;
+      font-family: 'Space Grotesk', sans-serif;
+      min-width: 160px;
+    }
+    
+    .btn-pull {
+      background: linear-gradient(135deg, #ff5d7a, #e03ca4);
+      box-shadow: 0 12px 32px rgba(255,93,122,.4);
+      display: none;
+    }
+
+    #message-box {
+      margin-top: 20px;
+      height: 40px;
+      font-weight: 700;
+      font-size: 18px;
+      color: #9e9cb3;
+    }
+
+    /* Edetabel */
+    .scoreboard {
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 24px;
+      padding: 30px;
+    }
+    
+    .scoreboard h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    .score-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 400px; 
+      overflow-y: auto;  
+      padding-right: 8px; 
+    }
+    .score-list::-webkit-scrollbar { width: 6px; }
+    .score-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+    .score-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 10px; }
+
+    .score-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: #151521;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      font-weight: 600;
+    }
+    .score-name { color: #fff; }
+    .score-value { color: var(--green); font-family: 'Space Grotesk'; font-weight: 800; }
+
+    @media(max-width: 900px) {
+      .game-layout { grid-template-columns: 1fr; }
+      .controls { flex-direction: column; align-items: center; }
+      .name-input { width: 100%; max-width: 300px; }
+      .action-btn { width: 100%; max-width: 300px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <img src="https://img.sanishtech.com/u/ec3943d9d910796bc36bb722533aac70.png" alt="Streaming Hub logo">
+    </a>
+    <div class="nav">
+      <a href="index.html">MÄNGUD</a>
+      <a href="#">LIVE</a>
+      <a href="#">STRIIMERID</a>
+      <a href="#">INFO</a>
+      <a href="wheel.html" style="color: var(--pink); text-shadow: 0 0 10px rgba(224,60,164,0.5);">ÕNNERATAS</a>
+      <a href="fishing.html" style="color: #00bfff; text-shadow: 0 0 10px rgba(0,191,255,0.5);">KALAPÜÜK</a>
+    </div>
+    <div class="actions">
+      <button class="btn">KASUTAJA</button>
+      <button class="primary">ADMIN</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="game-layout">
+      <!-- MÄNGUALA -->
+      <div class="game-container">
+        <h2 class="game-title">Kalapüük</h2>
+        <p style="color: var(--muted); margin-top: 0;">Viska õng vette. Kui kork hakkab tõmblema, reageeri kähku!</p>
+        
+        <div class="pond" id="pond">
+          <div class="bobber" id="bobber"></div>
+        </div>
+
+        <!-- UUS: NIME KAST LISAUD SIIA -->
+        <div class="controls">
+          <input type="text" id="playerName" class="name-input" placeholder="Sinu hüüdnimi..." autocomplete="off">
+          <button id="castBtn" class="primary action-btn" style="background: linear-gradient(135deg, #00bfff, #59e0a8); border:none;">VISKA ÕNG</button>
+          <button id="pullBtn" class="primary action-btn btn-pull">TÕMBA!</button>
+        </div>
+        
+        <div id="message-box">Valmis püügiks?</div>
+      </div>
+
+      <!-- EDETABEL -->
+      <div class="scoreboard">
+        <h3>Globaalne Edetabel 🏆</h3>
+        <p style="font-size: 12px; color: var(--muted); margin-top: -15px;">(Õnneratas + Kalapüük)</p>
+        <div class="score-list" id="scoreList"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // HELID
+    const splashSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2443/2443-preview.mp3');
+    const biteSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'); 
+    const catchSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2015/2015-preview.mp3');
+    
+    splashSound.volume = 0.5;
+    biteSound.volume = 0.7;
+    catchSound.volume = 0.4;
+
+    // ELEMENDID
+    const bobber = document.getElementById('bobber');
+    const nameInput = document.getElementById('playerName');
+    const castBtn = document.getElementById('castBtn');
+    const pullBtn = document.getElementById('pullBtn');
+    const msgBox = document.getElementById('message-box');
+
+    // MÄNGU OLEK
+    let state = 'idle'; // idle, fishing, biting
+    let biteTimer = null;
+    let escapeTimer = null;
+
+    const badWords = ["türa", "putsi", "vitt", "munn", "pede", "lits", "hoor", "kurat", "pask", "nuss"];
+
+    // SAAGID
+    const fishes = [
+      { name: "Vana Kummik 👢", points: 10, chance: 30 },
+      { name: "Tavaline Särg 🐟", points: 50, chance: 40 },
+      { name: "Viha Haug 🦈", points: 150, chance: 20 },
+      { name: "Haruldane Neoon-Lõhe ✨", points: 1000, chance: 10 }
+    ];
+
+    // EDETABEL JA KASUTAJA
+    let scores = JSON.parse(localStorage.getItem('streamingHubScores')) || [];
+    let myRegisteredName = localStorage.getItem('sh_my_name');
+
+    // Kui oleme juba kuskil nime pannud, lukusta kast
+    if (myRegisteredName) {
+      nameInput.value = myRegisteredName;
+      nameInput.readOnly = true;
+    }
+
+    renderScoreboard();
+
+    // VISKA ÕNG
+    castBtn.addEventListener('click', () => {
+      // 1. KONTROLLIME NIME, KUI SEDA POLE VEEL REGISTREERITUD
+      if (!myRegisteredName) {
+        const playerName = nameInput.value.trim();
+        
+        if(playerName.length < 2) {
+          msgBox.innerHTML = `<span style="color: var(--red)">Palun sisesta pikkem nimi!</span>`;
+          return;
+        }
+        
+        const isBad = badWords.some(word => playerName.toLowerCase().includes(word));
+        if(isBad) {
+          msgBox.innerHTML = `<span style="color: var(--red)">Selline nimi pole lubatud! Ole viisakas.</span>`;
+          return;
+        }
+
+        const existingUser = scores.find(s => s.name.toLowerCase() === playerName.toLowerCase());
+        if (existingUser) {
+          msgBox.innerHTML = `<span style="color: var(--red)">❌ See nimi on juba võetud! Palun vali teine.</span>`;
+          return;
+        }
+
+        // Edukas registreerimine!
+        myRegisteredName = playerName;
+        localStorage.setItem('sh_my_name', myRegisteredName);
+        nameInput.readOnly = true;
+      }
+
+      // 2. ALUSTAME PÜÜKI
+      state = 'fishing';
+      castBtn.style.display = 'none';
+      pullBtn.style.display = 'inline-block'; // Näitame kohe tõmbamisnuppu, aga mängija ei tohi veel vajutada!
+      pullBtn.style.opacity = '0.5'; // Teeme selle pool-läbipaistvaks
+      msgBox.innerHTML = `<span style="color: var(--muted)">Ootad kala... ära veel tõmba!</span>`;
+      
+      bobber.className = 'bobber floating';
+      splashSound.currentTime = 0;
+      splashSound.play().catch(e=>console.log(e));
+
+      // Kala näkkab 2 kuni 6 sekundi pärast
+      const randomWait = Math.floor(Math.random() * 4000) + 2000;
+      
+      biteTimer = setTimeout(() => {
+        if(state === 'fishing') fishBites();
+      }, randomWait);
+    });
+
+    // KALA NÄKKAB
+    function fishBites() {
+      state = 'biting';
+      bobber.className = 'bobber biting';
+      msgBox.innerHTML = `<span style="color: #ff5d7a; font-size: 22px;">NÄKKAB! TÕMBA!</span>`;
+      
+      pullBtn.style.opacity = '1'; // Teeme nupu kirkaks
+      biteSound.currentTime = 0;
+      biteSound.play().catch(e=>console.log(e));
+
+      // Mängijal on aega 1000ms kuni 1500ms reageerida
+      const reactionTime = Math.floor(Math.random() * 500) + 1000;
+      
+      escapeTimer = setTimeout(() => {
+        if (state === 'biting') {
+          fishEscaped();
+        }
+      }, reactionTime);
+    }
+
+    // TÕMBA ÕNGE (Nupp)
+    pullBtn.addEventListener('click', () => {
+      // Kui tõmbab liiga vara (enne kui näkkab)
+      if (state === 'fishing') {
+        clearTimeout(biteTimer);
+        state = 'idle';
+        bobber.className = 'bobber';
+        pullBtn.style.display = 'none';
+        castBtn.style.display = 'inline-block';
+        msgBox.innerHTML = `<span style="color: var(--red)">Tõmbasid liiga vara! Kala ehmatas ära.</span>`;
+        return;
+      }
+
+      if (state !== 'biting') return;
+      
+      // Õige ajastus!
+      clearTimeout(escapeTimer);
+      state = 'idle';
+      
+      bobber.className = 'bobber';
+      pullBtn.style.display = 'none';
+      castBtn.style.display = 'inline-block';
+
+      // Arvutame saagi (kaalutud juhuslikkus)
+      const rand = Math.random() * 100;
+      let cumulative = 0;
+      let caughtFish = fishes[0];
+
+      for (let fish of fishes) {
+        cumulative += fish.chance;
+        if (rand < cumulative) {
+          caughtFish = fish;
+          break;
+        }
+      }
+
+      msgBox.innerHTML = `<span style="color: var(--green)">Sa püüdsid: ${caughtFish.name}! (+${caughtFish.points}p)</span>`;
+      catchSound.currentTime = 0;
+      catchSound.play().catch(e=>console.log(e));
+
+      saveScore(myRegisteredName, caughtFish.points);
+    });
+
+    // KALA PÕGENEB (Oli liiga aeglane)
+    function fishEscaped() {
+      state = 'idle';
+      bobber.className = 'bobber';
+      pullBtn.style.display = 'none';
+      castBtn.style.display = 'inline-block';
+      msgBox.innerHTML = `<span style="color: var(--muted)">Oled liiga aeglane! Kala pääses minema.</span>`;
+    }
+
+    // EDETABELI SALVESTAMINE
+    function saveScore(name, amount) {
+      const existingUser = scores.find(s => s.name.toLowerCase() === name.toLowerCase());
+      if(existingUser) {
+        existingUser.score += amount;
+      } else {
+        scores.push({ name: name, score: amount });
+      }
+      scores.sort((a, b) => b.score - a.score);
+      localStorage.setItem('streamingHubScores', JSON.stringify(scores));
+      renderScoreboard();
+    }
+
+    function renderScoreboard() {
+      const list = document.getElementById('scoreList');
+      list.innerHTML = '';
+      const top50 = scores.slice(0, 50);
+      
+      if(top50.length === 0) {
+        list.innerHTML = '<div style="color: var(--muted); padding: 20px;">Edetabel on tühi.</div>';
+        return;
+      }
+
+      top50.forEach((player, index) => {
+        let rankStr = `${index + 1}.`;
+        if(index === 0) rankStr = '🥇';
+        if(index === 1) rankStr = '🥈';
+        if(index === 2) rankStr = '🥉';
+
+        list.innerHTML += `
+          <div class="score-item">
+            <span class="score-name">${rankStr} ${player.name}</span>
+            <span class="score-value">${player.score}</span>
+          </div>
+        `;
+      });
+    }
+  </script>
+</body>
+</html>
