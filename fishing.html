@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css?v=6">
   
+  <!-- SUPABASE JA CONFIG -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
 
@@ -94,11 +95,17 @@
   </main>
 
   <script>
-    // --- SUPABASE ÜHENDUSE INITSIAALISATSIOON ---
-    const { createClient } = window.supabase;
-    const supabaseUrl = window.STREAMHUB_CONFIG.SUPABASE_URL;
-    const supabaseKey = window.STREAMHUB_CONFIG.SUPABASE_PUBLISHABLE_KEY;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const msgBox = document.getElementById('message-box');
+    let gameDb = null;
+
+    try {
+      if (!window.STREAMHUB_CONFIG) throw new Error("config.js puudu!");
+      if (!window.supabase) throw new Error("Supabase skripti ei laetud!");
+      gameDb = window.supabase.createClient(window.STREAMHUB_CONFIG.SUPABASE_URL, window.STREAMHUB_CONFIG.SUPABASE_PUBLISHABLE_KEY);
+    } catch (err) {
+      console.error("DB Viga:", err);
+      msgBox.innerHTML = `<span style="color:red">Andmebaasi viga. Palun värskenda lehte!</span>`;
+    }
 
     const splashSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2443/2443-preview.mp3');
     const biteSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'); 
@@ -109,7 +116,6 @@
     const nameInput = document.getElementById('playerName');
     const castBtn = document.getElementById('castBtn');
     const pullBtn = document.getElementById('pullBtn');
-    const msgBox = document.getElementById('message-box');
 
     let state = 'idle'; let biteTimer = null; let escapeTimer = null;
     const badWords = ["türa", "putsi", "vitt", "munn", "pede", "lits", "hoor", "kurat", "pask", "nuss"];
@@ -126,17 +132,18 @@
 
     if (myRegisteredName) { nameInput.value = myRegisteredName; nameInput.readOnly = true; }
     
-    // --- ANDMETE LAADIMINE SUPABASE'IST ---
     async function loadScoresFromDB() {
-      const { data, error } = await supabase.from('scores').select('*');
-      if (error) {
-        console.error("Viga andmete laadimisel:", error);
-        return;
-      }
-      if (data) {
-        globalScores = data.map(d => ({ name: d.name, score: d.score || 0 }));
-        globalScores.sort((a, b) => b.score - a.score);
-        renderScoreboard();
+      if (!gameDb) return;
+      try {
+        const { data, error } = await gameDb.from('scores').select('*');
+        if (error) throw error;
+        if (data) {
+          globalScores = data.map(d => ({ name: d.name, score: d.score || 0 }));
+          globalScores.sort((a, b) => b.score - a.score);
+          renderScoreboard();
+        }
+      } catch(err) {
+        console.error("Viga andmete laadimisel:", err);
       }
     }
     loadScoresFromDB();
@@ -144,12 +151,15 @@
     castBtn.addEventListener('click', async () => {
       if (!myRegisteredName) {
         const playerName = nameInput.value.trim();
-        if(playerName.length < 2) { msgBox.innerHTML = `<span style="color: var(--red)">Palun sisesta pikkem nimi!</span>`; return; }
+        if(playerName.length < 2) { msgBox.innerHTML = `<span style="color: var(--red)">Palun sisesta pikem nimi!</span>`; return; }
         if(badWords.some(word => playerName.toLowerCase().includes(word))) { msgBox.innerHTML = `<span style="color: var(--red)">Selline nimi pole lubatud! Ole viisakas.</span>`; return; }
         
-        // Kontrollime, kas keegi on andmebaasis juba selle nime võtnud
-        const { data: existingUser } = await supabase.from('scores').select('name').ilike('name', playerName).single();
-        if (existingUser) { msgBox.innerHTML = `<span style="color: var(--red)">❌ See nimi on juba võetud! Palun vali teine.</span>`; return; }
+        if (gameDb) {
+            try {
+                const { data: existingUser } = await gameDb.from('scores').select('name').ilike('name', playerName).maybeSingle();
+                if (existingUser) { msgBox.innerHTML = `<span style="color: var(--red)">❌ See nimi on juba võetud! Palun vali teine.</span>`; return; }
+            } catch(err) { console.error(err); }
+        }
 
         myRegisteredName = playerName;
         localStorage.setItem('sh_my_name', myRegisteredName);
@@ -210,32 +220,30 @@
       msgBox.innerHTML = `<span style="color: var(--muted)">Oled liiga aeglane! Kala pääses minema.</span>`;
     }
 
-    // --- ANDMETE SALVESTAMINE SUPABASE'I ---
     async function saveScoreToDB(name, amount) {
+      if (!gameDb) return;
       msgBox.innerHTML += `<br><span style="font-size:12px; color:var(--muted)">Salvestan andmebaasi...</span>`;
       
-      // Küsi andmebaasist kasutaja eelmised tulemused
-      const { data: existingUser } = await supabase.from('scores').select('*').eq('name', name).single();
-      
-      let newTotalScore = amount;
-      let existingClicks = 0;
+      try {
+        const { data: existingUser } = await gameDb.from('scores').select('*').eq('name', name).maybeSingle();
+        
+        let newTotalScore = amount;
+        let existingClicks = 0;
 
-      if (existingUser) {
-        newTotalScore = (existingUser.score || 0) + amount; // Liidame olemasolevale skoorile juurde
-        existingClicks = existingUser.clicks || 0; // Jätame Hype-O-Meteri klikid alles
-      }
+        if (existingUser) {
+          newTotalScore = (existingUser.score || 0) + amount; 
+          existingClicks = existingUser.clicks || 0; 
+        }
 
-      const { error } = await supabase.from('scores').upsert({
-        name: name,
-        score: newTotalScore,
-        clicks: existingClicks
-      });
+        await gameDb.from('scores').upsert({
+          name: name,
+          score: newTotalScore,
+          clicks: existingClicks
+        });
 
-      if (error) {
-        console.error("Viga andmete salvestamisel:", error);
-      } else {
         await loadScoresFromDB();
-        // Sõnum on juba pullBtn sündmuses muudetud, andmed on nüüd laetud!
+      } catch (err) {
+        console.error("Viga andmete salvestamisel:", err);
       }
     }
 

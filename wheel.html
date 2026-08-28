@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css?v=6">
   
-  <!-- LISATUD SUPABASE JA CONFIG -->
+  <!-- SUPABASE JA CONFIG -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
   
@@ -93,11 +93,17 @@
   </main>
 
   <script>
-    // --- SUPABASE ÜHENDUSE INITSIAALISATSIOON ---
-    const { createClient } = window.supabase;
-    const supabaseUrl = window.STREAMHUB_CONFIG.SUPABASE_URL;
-    const supabaseKey = window.STREAMHUB_CONFIG.SUPABASE_PUBLISHABLE_KEY;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const msgBox = document.getElementById('message-box');
+    let gameDb = null;
+
+    try {
+      if (!window.STREAMHUB_CONFIG) throw new Error("config.js puudu!");
+      if (!window.supabase) throw new Error("Supabase skripti ei laetud!");
+      gameDb = window.supabase.createClient(window.STREAMHUB_CONFIG.SUPABASE_URL, window.STREAMHUB_CONFIG.SUPABASE_PUBLISHABLE_KEY);
+    } catch (err) {
+      console.error("DB Viga:", err);
+      msgBox.innerHTML = `<span style="color:red">Andmebaasi viga. Palun värskenda lehte!</span>`;
+    }
 
     const tickSoundURL = 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3';
     const tickAudio = new Audio(tickSoundURL);
@@ -152,24 +158,24 @@
     let isSpinning = false;
     const spinBtn = document.getElementById('spinBtn');
     const nameInput = document.getElementById('playerName');
-    const msgBox = document.getElementById('message-box');
     
     let globalScores = [];
     let myRegisteredName = localStorage.getItem('sh_my_name');
 
     if (myRegisteredName) { nameInput.value = myRegisteredName; nameInput.readOnly = true; }
     
-    // --- ANDMETE LAADIMINE SUPABASE'IST ---
     async function loadScoresFromDB() {
-      const { data, error } = await supabase.from('scores').select('*');
-      if (error) {
-        console.error("Viga andmete laadimisel:", error);
-        return;
-      }
-      if (data) {
-        globalScores = data.map(d => ({ name: d.name, score: d.score || 0 }));
-        globalScores.sort((a, b) => b.score - a.score);
-        renderScoreboard();
+      if (!gameDb) return;
+      try {
+        const { data, error } = await gameDb.from('scores').select('*');
+        if (error) throw error;
+        if (data) {
+          globalScores = data.map(d => ({ name: d.name, score: d.score || 0 }));
+          globalScores.sort((a, b) => b.score - a.score);
+          renderScoreboard();
+        }
+      } catch (err) {
+        console.error("Viga andmete laadimisel:", err);
       }
     }
     loadScoresFromDB();
@@ -183,9 +189,14 @@
         const isBad = badWords.some(word => playerName.toLowerCase().includes(word));
         if(isBad) { msgBox.textContent = "Selline nimi pole lubatud! Ole viisakas."; return; }
         
-        // Kontrollime, kas keegi on andmebaasis juba selle nime võtnud
-        const { data: existingUser } = await supabase.from('scores').select('name').ilike('name', playerName).single();
-        if (existingUser) { msgBox.textContent = "❌ See nimi on juba võetud! Palun vali teine."; return; }
+        if (gameDb) {
+            try {
+                const { data: existingUser } = await gameDb.from('scores').select('name').ilike('name', playerName).maybeSingle();
+                if (existingUser) { msgBox.textContent = "❌ See nimi on juba võetud! Palun vali teine."; return; }
+            } catch (err) {
+                console.error(err);
+            }
+        }
 
         myRegisteredName = playerName;
         localStorage.setItem('sh_my_name', myRegisteredName);
@@ -221,30 +232,30 @@
       }, spinDuration); 
     });
 
-    // --- ANDMETE SALVESTAMINE SUPABASE'I ---
     async function saveScoreToDB(name, amount) {
+      if (!gameDb) return;
       msgBox.innerHTML += `<br><span style="font-size:12px; color:var(--muted)">Salvestan andmebaasi...</span>`;
       
-      const { data: existingUser } = await supabase.from('scores').select('*').eq('name', name).single();
-      
-      let newTotalScore = amount;
-      let existingClicks = 0;
+      try {
+        const { data: existingUser } = await gameDb.from('scores').select('*').eq('name', name).maybeSingle();
+        
+        let newTotalScore = amount;
+        let existingClicks = 0;
 
-      if (existingUser) {
-        newTotalScore = (existingUser.score || 0) + amount; // Liidame vanale skoorile otsa
-        existingClicks = existingUser.clicks || 0; // Jätame klikid alles
-      }
+        if (existingUser) {
+          newTotalScore = (existingUser.score || 0) + amount; 
+          existingClicks = existingUser.clicks || 0; 
+        }
 
-      const { error } = await supabase.from('scores').upsert({
-        name: name,
-        score: newTotalScore,
-        clicks: existingClicks
-      });
+        await gameDb.from('scores').upsert({
+          name: name,
+          score: newTotalScore,
+          clicks: existingClicks
+        });
 
-      if (error) {
-        console.error("Viga andmete salvestamisel:", error);
-      } else {
         await loadScoresFromDB();
+      } catch (err) {
+        console.error("Viga andmete salvestamisel:", err);
       }
     }
 
