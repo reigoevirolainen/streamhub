@@ -17,7 +17,7 @@
   let activeGame = null;
   let activePlatform = "Kõik";
   
-  // UUS: Juhusliku Spotlight striimeri muutujad
+  // Juhusliku Spotlight striimeri muutujad
   let currentFeaturedId = null;
   let featuredExpiresAt = 0;
 
@@ -137,7 +137,7 @@
   function card(s) {
     const img = s.thumbnail_url || s.avatar_url || gameArt(s.game || "Fortnite");
     return `<article class="card reveal">
-      <div class="preview" data-platform="${esc(s.platform)}" data-url="${esc(s.channel_url)}">
+      <div class="preview" data-platform="${esc(s.platform)}" data-url="${esc(s.channel_url)}" data-yt="${esc(s.youtube_channel_id || "")}">
         <img src="${esc(img)}" data-game-fallback="${esc(s.game || "Fortnite")}" alt="${esc(s.name)} thumbnail" loading="lazy">
         <span class="badge ${s.is_live ? "" : "offline"}">${s.is_live ? "<span class='live-dot'></span>LIVE" : "OFFLINE"}</span>
         ${s.is_live ? `<span class="viewers">👁 ${Number(s.viewers || 0).toLocaleString("et-EE")}</span>` : ""}
@@ -183,14 +183,20 @@
           el.addEventListener('mouseenter', () => {
               const platform = el.dataset.platform;
               const url = el.dataset.url;
+              const ytId = el.dataset.yt;
               let iframeHTML = "";
 
+              // Twitch eelvaade
               if (String(platform).toLowerCase() === "twitch") {
                   const match = url.match(/twitch\.tv\/([^/?]+)/);
                   if (match && match[1]) {
                       const parent = window.location.hostname || "streamhub.ee";
                       iframeHTML = `<iframe src="https://player.twitch.tv/?channel=${match[1]}&parent=${parent}&muted=true&autoplay=true" frameborder="0" scrolling="no" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
                   }
+              } 
+              // YouTube eelvaade uue channel ID põhjal
+              else if (String(platform).toLowerCase() === "youtube" && ytId) {
+                  iframeHTML = `<iframe src="https://www.youtube.com/embed/live_stream?channel=${ytId}&autoplay=1&mute=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
               }
 
               if (!iframeHTML) return;
@@ -210,7 +216,6 @@
       });
   }
 
-  // --- UUS DÜNAAMILINE (JUHUSLIK) SPOTLIGHT ---
   function renderSpotlight() {
       const sl = $("#spotlightTarget");
       if (!sl) return;
@@ -221,20 +226,17 @@
       const now = Date.now();
       let top = live.find(s => s.id === currentFeaturedId);
 
-      // Kui meil pole veel kedagi valitud, valitud isik pole enam LIVE, 
-      // või 5 minutit on täis saanud, siis valime uue JUHUSLIKU striimeri!
       if (!top || now > featuredExpiresAt) {
           top = live[Math.floor(Math.random() * live.length)];
           currentFeaturedId = top.id;
-          featuredExpiresAt = now + 5 * 60 * 1000; // 5 minutit millisekundites
+          featuredExpiresAt = now + 5 * 60 * 1000;
       }
 
       const img = top.thumbnail_url || top.avatar_url || gameArt(top.game || "Fortnite");
 
-      // reveal active klass lisatakse kohe, et lehe automaatsel re-renderdamisel see ära ei kaoks
       sl.innerHTML = `
           <div class="spotlight-card reveal active">
-              <div class="spotlight-img preview" data-platform="${esc(top.platform)}" data-url="${esc(top.channel_url)}">
+              <div class="spotlight-img preview" data-platform="${esc(top.platform)}" data-url="${esc(top.channel_url)}" data-yt="${esc(top.youtube_channel_id || "")}">
                   <img src="${esc(img)}" alt="${esc(top.name)} thumbnail" loading="lazy">
                   <span class="badge"><span class='live-dot'></span>LIVE</span>
               </div>
@@ -678,7 +680,6 @@
     document.querySelectorAll("[data-scroll='#live']").forEach(el => el.addEventListener("click",e=>{e.preventDefault();$("#live")?.scrollIntoView({behavior:"smooth"});}));
     document.querySelectorAll("[data-scroll='#streamers']").forEach(el => el.addEventListener("click",e=>{e.preventDefault();$("#streamers")?.scrollIntoView({behavior:"smooth"});}));
     
-    // UUS: Kontrollib iga 10 sekundi tagant, kas 5 minutit on täis saanud, ja värskendab esilehe striimerit
     setInterval(() => {
         if (Date.now() > featuredExpiresAt && streamers.length > 0) {
             render();
