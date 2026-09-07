@@ -17,7 +17,6 @@
   let activeGame = null;
   let activePlatform = "Kõik";
   
-  // Juhusliku Spotlight striimeri muutujad
   let currentFeaturedId = null;
   let featuredExpiresAt = 0;
 
@@ -186,7 +185,6 @@
               const ytId = el.dataset.yt;
               let iframeHTML = "";
 
-              // Twitch eelvaade
               if (String(platform).toLowerCase() === "twitch") {
                   const match = url.match(/twitch\.tv\/([^/?]+)/);
                   if (match && match[1]) {
@@ -194,9 +192,8 @@
                       iframeHTML = `<iframe src="https://player.twitch.tv/?channel=${match[1]}&parent=${parent}&muted=true&autoplay=true" frameborder="0" scrolling="no" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
                   }
               } 
-              // YouTube eelvaade uue channel ID põhjal
               else if (String(platform).toLowerCase() === "youtube" && ytId) {
-                  iframeHTML = `<iframe src="https://www.youtube.com/embed/live_stream?channel=${ytId}&autoplay=1&mute=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+                  iframeHTML = `<iframe src="https://www.youtube.com/embed/live_stream?channel=${ytId}&autoplay=1&mute=1&enablejsapi=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
               }
 
               if (!iframeHTML) return;
@@ -410,7 +407,7 @@
         <div class="field"><label>PAROOL</label><input name="password" type="password" autocomplete="new-password" minlength="6" required></div>
         <div class="field"><label>PAROOL UUESTI</label><input name="password2" type="password" autocomplete="new-password" minlength="6" required></div>
         <div class="field"><label>PLATVORM</label><select name="platform"><option>Twitch</option><option>YouTube</option><option>Kick</option><option>TikTok</option></select></div>
-        <div class="field"><label>KANALI URL</label><input name="channel_url" type="url" required></div>
+        <div class="field"><label>KANALI URL / YOUTUBE ID</label><input name="channel_url" type="text" required placeholder="https://... või kanal ID (UC...)"></div>
         <div class="field"><label>MIDA SA STRIIMID?</label><input name="game" placeholder="Fortnite"></div>
         <div class="field"><label>KANALI PILT / THUMBNAIL (max 2MB, valikuline)</label><input type="file" id="thumbFile" accept="image/png, image/jpeg, image/webp" class="form-input"></div>
         <div class="field"><label>AVATARI URL (valikuline)</label><input name="avatar_url" type="url" placeholder="https://..."></div>
@@ -538,37 +535,6 @@
     loadAdminStreams();
   }
 
-  async function adminLogin(){
-    openModal(`<button class="close-btn" id="closeModal">×</button><div class="eyebrow">STREAMHUB ADMIN</div><h2>Admini sisselogimine</h2><p class="muted">Sisselogimiseks on vaja Supabase administraatori õigusi.</p>
-      <form id="adminLoginForm" class="formgrid"><div class="field"><label>E-POST</label><input name="email" type="email" autocomplete="username" required></div><div class="field"><label>PAROOL</label><input name="password" type="password" autocomplete="current-password" required></div>
-      <button type="submit" class="primary full">LOGI SISSE</button><button type="button" class="btn full" id="adminResetBtn">SAADA PAROOLI LÄHTESTAMISE LINK</button><div id="adminLoginError" class="notice error hidden"></div></form>`);
-    
-    $("#adminLoginForm").onsubmit=async e=>{
-      e.preventDefault();
-      const form=e.currentTarget;
-      if(!form.reportValidity())return;
-      setBusy(form,true,"LOGIM SISSE…");
-      try{
-        const d=Object.fromEntries(new FormData(form));
-        await db.auth.signOut();
-        const {data,error}=await db.auth.signInWithPassword({email:d.email.trim().toLowerCase(),password:d.password});
-        if(error)throw error;
-        if(data.user.id!==ADMIN_UID){ await db.auth.signOut(); throw new Error("See konto ei oma StreamHubi administraatori õigusi."); }
-        currentUser=data.user;closeModal();toast("Edukas. Adminina sisse logitud.");adminModal();
-      }catch(err){ showError("#adminLoginError",supaError(err)); }finally{ setBusy(form,false); }
-    };
-    
-    $("#adminResetBtn").onclick=async()=>{
-      const email=$("#adminLoginForm")?.elements.email?.value?.trim().toLowerCase();
-      if(!email){showError("#adminLoginError","Palun sisesta esmalt oma admini e-posti aadress ülemisele väljale.");return;}
-      const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:`${window.location.origin}/`});
-      if(error){showError("#adminLoginError",supaError(error));return;}
-      const x=$("#adminLoginError");
-      x.textContent="Kui sisestasid õige e-posti, saadeti sinna parooli lähtestamise link.";
-      x.classList.remove("hidden","error");x.classList.add("success");
-    };
-  }
-
   async function loadAdminStreams(){
     const b=$("#adminBody");if(!b)return;
     const {data,error}=await db.from("streamers").select("*").order("name");
@@ -624,7 +590,7 @@
   function adminEdit(id){
     const s=streamers.find(x=>x.id===id);if(!s)return;
     const b=$("#adminBody");
-    b.innerHTML=`<div class="field"><label>NIMI</label><input id="aName" value="${esc(s.name)}"></div><div class="field"><label>MÄNG</label><input id="aGame" value="${esc(s.game||"")}"></div><div class="field"><label>THUMBNAIL URL</label><input id="aThumb" value="${esc(s.thumbnail_url||"")}"></div><div class="field"><label>KANALI URL</label><input id="aUrl" value="${esc(s.channel_url)}"></div><div class="modal-actions"><button type="button" class="btn" id="backAdmin">Tagasi</button><button type="button" class="primary" id="saveAdmin">Salvesta muudatused</button></div>`;
+    b.innerHTML=`<div class="field"><label>NIMI</label><input id="aName" value="${esc(s.name)}"></div><div class="field"><label>MÄNG</label><input id="aGame" value="${esc(s.game||"")}"></div><div class="field"><label>THUMBNAIL URL</label><input id="aThumb" value="${esc(s.thumbnail_url||"")}"></div><div class="field"><label>KANALI URL / YOUTUBE ID</label><input id="aUrl" value="${esc(s.channel_url)}"></div><div class="modal-actions"><button type="button" class="btn" id="backAdmin">Tagasi</button><button type="button" class="primary" id="saveAdmin">Salvesta muudatused</button></div>`;
     $("#backAdmin").onclick=loadAdminStreams;
     $("#saveAdmin").onclick=async()=>{
       const {error}=await db.from("streamers").update({ name:$("#aName").value.trim(), game:$("#aGame").value.trim()||null, thumbnail_url:$("#aThumb").value.trim()||null, channel_url:$("#aUrl").value.trim(), updated_at:new Date().toISOString() }).eq("id",id);
@@ -637,7 +603,7 @@
 
   async function loadStreamers(){
     if(!dbReady())return;
-    const {data,error}=await db.from("streamers").select("*").eq("enabled",true).order("is_live",{ascending:false}).order("viewers",{ascending:false}).order("name");
+    const {data,error}=await db.from("streamers").select("*").order("is_live",{ascending:false}).order("viewers",{ascending:false}).order("name");
     if(error){toast("Ei õnnestunud laadida striimereid: "+supaError(error),true);return;}
     streamers=data||[];
     render();
