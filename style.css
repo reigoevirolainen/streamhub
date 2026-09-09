@@ -135,6 +135,35 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none!important; 
     transition: color .2s ease; 
 }
 .nav a:hover { color: #fff; }
+
+/* --- "UUS" MÄRGIS MENÜÜS --- */
+.nav-badge-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.nav-new-badge {
+    position: absolute;
+    top: -8px;
+    right: -16px;
+    background: #ff3b30;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1px 4px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0 8px rgba(255, 59, 48, 0.6);
+    animation: badgePulse 2s infinite;
+}
+
+@keyframes badgePulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
 .actions { display: flex; gap: 8px; }
 
 main { overflow: hidden; padding-top: 80px; }
