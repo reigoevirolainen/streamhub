@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>StreamHub Eesti — Videod ja klipid</title>
-<meta name="description" content="Vaata Eesti striimerite viimaseid videoid ja klipikesi otse ühest kohast.">
+<meta name="description" content="Vaata Eesti striimerite viimaseid videoid, klipikesi ja TikTokke otse ühest kohast.">
 
 <link rel="icon" type="image/png" href="https://cdn.phototourl.com/member/2026-08-20-ab6e8157-85d2-41f1-9fec-7253e8261e59.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,11 +12,11 @@
 <link rel="stylesheet" href="style.css?v=6">
 
 <style>
-    /* TikTok-i stiilis voo ja videokaartide täiendused */
-    body { background-color: #07070c; color: #fff; font-family: 'Inter', sans-serif; }
+    body { background-color: #07070c; color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; margin: 0; padding: 0; }
+    * { box-sizing: border-box; }
     
     .video-feed-container {
-        max-width: 600kpx;
+        max-width: 600px;
         width: 100%;
         margin: 0 auto;
         padding: 2rem 1rem;
@@ -37,12 +37,11 @@
     .video-player-wrapper {
         position: relative;
         width: 100%;
-        aspect-ratio: 9/16; /* TikToki/Reelsi vertikaalne formaat, või muuda 16/9 horisontaalse jaoks */
+        aspect-ratio: 9/16; /* TikToki / Shorts / vertikaalne formaat */
         background: #000;
     }
 
-    .video-player-wrapper iframe, 
-    .video-player-wrapper video {
+    .video-player-wrapper iframe {
         position: absolute;
         top: 0; left: 0; width: 100%; height: 100%;
         border: none;
@@ -83,15 +82,15 @@
 <header class="topbar">
 <a class="brand" href="index.html"><img src="https://cdn.phototourl.com/free/2026-08-20-416aa20b-acbe-4325-9e61-566645e3254c.png" alt="Streaming Hub logo"></a>
 <nav class="nav">
-    <a href="#games">MÄNGUD</a>
-    <a href="#live">LIVE</a>
-    <a href="#streamers">STRIIMERID</a>
-    <a href="#about">INFO</a>
-    <a href="uudised.html">UUDISED</a>
-    <a href="videod.html" style="color: var(--yellow); text-shadow: 0 0 10px rgb(89, 0, 255);">VIDEOD</a>
-    <a href="wheel.html" style="color: var(--pink); text-shadow: 0 0 10px rgba(224,60,164,0.5);">SPINNINGWHEEL</a>
-    <a href="fishing.html" style="color: #00bfff; text-shadow: 0 0 10px rgba(0,191,255,0.5);">KALAPÜÜK</a>
-    <a href="clicker.html" style="color: #59e0a8; text-shadow: 0 0 10px rgba(89,224,168,0.5);">HYPE-O-METER</a>
+    <a href="index.html#games">MÄNGUD</a>
+      <a href="#live">LIVE</a>
+      <a href="#streamers">STRIIMERID</a>
+      <a href="#about">INFO</a>
+      <a href="uudised.html">UUDISED</a>
+      <a href="videod.html" style="color: var(--yellow); text-shadow: 0 0 10px rgb(89, 0, 255);">VIDEOD</a>
+      <a href="wheel.html" style="color: var(--pink); text-shadow: 0 0 10px rgba(224,60,164,0.5);">SPINNINGWHEEL</a>
+      <a href="fishing.html" style="color: #00bfff; text-shadow: 0 0 10px rgba(0,191,255,0.5);">KALAPÜÜK</a>
+      <a href="clicker.html" style="color: #59e0a8; text-shadow: 0 0 10px rgba(89,224,168,0.5);">HYPE-O-METER</a>
 </nav>
 </header>
 
@@ -113,7 +112,10 @@
 <footer>© 2026 StreamHub Eesti</footer>
 
 <script>
-  // Lihtne loogika videote kuvamiseks videod.html lehel
+  const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[c]));
+
   document.addEventListener("DOMContentLoaded", async () => {
     const C = window.STREAMHUB_CONFIG || {};
     const db = window.supabase && C.SUPABASE_URL && C.SUPABASE_PUBLISHABLE_KEY
@@ -121,12 +123,13 @@
       : null;
 
     const feed = document.getElementById("videoFeed");
+    if (!feed) return;
+
     if (!db) {
-      feed.innerHTML = `<div class="notice error">Andmebaasi ühendus puudub.</div>`;
+      feed.innerHTML = `<div class="notice error">Andmebaasi ühendus puudub. Kontrolli config.js seadeid.</div>`;
       return;
     }
 
-    // Pärime andmebaasist videod koos striimeri infoga
     const { data: videos, error } = await db
       .from("videos")
       .select("*, streamers(name, avatar_url)")
@@ -140,23 +143,46 @@
 
     feed.innerHTML = videos.map(v => {
       let embedHtml = "";
+      const url = v.video_url || "";
+      const platform = (v.platform || "").toLowerCase();
+      const parent = window.location.hostname || "streamhub.ee";
       
-      // Genereerime õige sisseehitatud pleieri platvormi järgi
-      if (v.platform.toLowerCase() === "youtube") {
-        // Eraldame YouTube video ID lingist
-        const ytMatch = v.video_url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+      // 1. YouTube (tavaline video või Shorts)
+      if (platform === "youtube" || url.includes("youtube.com") || url.includes("youtu.be")) {
+        const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
         const ytId = ytMatch ? ytMatch[1] : "";
-        embedHtml = `<iframe src="https://www.youtube.com/embed/${ytId}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        if (ytId) {
+          embedHtml = `<iframe src="https://www.youtube.com/embed/${ytId}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        }
       } 
-      else if (v.platform.toLowerCase() === "twitch") {
-        const twMatch = v.video_url.match(/clips\.twitch\.tv\/([a-zA-Z0-9_-]+)/);
-        const clipSlug = twMatch ? twMatch[1] : "";
-        const parent = window.location.hostname || "streamhub.ee";
-        embedHtml = `<iframe src="https://clips.twitch.tv/embed?clip=${clipSlug}&parent=${parent}&autoplay=false" allowfullscreen></iframe>`;
-      } 
-      else {
-        // Fallback kui on otsene videolink või muu
-        embedHtml = `<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#111;"><a href="${v.video_url}" target="_blank" class="primary btn">Vaata videot eraldi akna all →</a></div>`;
+      // 2. Twitch (klipid või VOD salvestused)
+      else if (platform === "twitch" || url.includes("twitch.tv")) {
+        if (url.includes("clips.tv") || url.includes("clips.twitch.tv") || url.includes("/clip/")) {
+          const clipMatch = url.match(/(?:clips\.twitch\.tv\/|\/clip\/)([a-zA-Z0-9_-]+)/);
+          const clipSlug = clipMatch ? clipMatch[1] : "";
+          if (clipSlug) {
+            embedHtml = `<iframe src="https://clips.twitch.tv/embed?clip=${clipSlug}&parent=${parent}&autoplay=false" allowfullscreen></iframe>`;
+          }
+        } else if (url.includes("/videos/")) {
+          const videoMatch = url.match(/\/videos\/(\d+)/);
+          const videoId = videoMatch ? videoMatch[1] : "";
+          if (videoId) {
+            embedHtml = `<iframe src="https://player.twitch.tv/?video=${videoId}&parent=${parent}&autoplay=false" allowfullscreen></iframe>`;
+          }
+        }
+      }
+      // 3. TikToki sisseehitatud pleier
+      else if (platform === "tiktok" || url.includes("tiktok.com")) {
+        const ttMatch = url.match(/\/video\/(\d+)/);
+        const ttId = ttMatch ? ttMatch[1] : "";
+        if (ttId) {
+          embedHtml = `<iframe src="https://www.tiktok.com/embed/v2/${ttId}" allowfullscreen style="width:100%;height:100%;"></iframe>`;
+        }
+      }
+
+      // Fallback kui pleieri genereerimine ebaõnnestub
+      if (!embedHtml) {
+        embedHtml = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:#111;padding:20px;text-align:center;"><a href="${esc(url)}" target="_blank" class="primary btn">Ava video väliselt →</a></div>`;
       }
 
       return `
@@ -166,10 +192,10 @@
           </div>
           <div class="video-info">
             <div class="video-author">
-              <img src="${v.streamers?.avatar_url || 'https://via.placeholder.com/40'}" alt="">
-              <span>${v.streamers?.name || "Tundmatu striimer"}</span>
+              <img src="${esc(v.streamers?.avatar_url || 'https://via.placeholder.com/40')}" alt="">
+              <span>${esc(v.streamers?.name || "Tundmatu striimer")}</span>
             </div>
-            <p class="video-title">${v.title || "Nimetu video"}</p>
+            <p class="video-title">${esc(v.title || "Nimetu video")}</p>
           </div>
         </article>
       `;
