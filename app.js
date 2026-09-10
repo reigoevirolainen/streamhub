@@ -159,9 +159,17 @@
     let statusDisplay = "OFFLINE";
     if (s.is_live) {
       statusDisplay = `<span class='live-dot'></span>${getLiveDuration(s.platform, s.live_started_at)}`;
-    } else if (s.last_seen_at) {
-      const date = new Date(s.last_seen_at);
-      statusDisplay = `Viimati: ${date.toLocaleDateString("et-EE")} ${date.toLocaleTimeString("et-EE", {hour: '2-digit', minute:'2-digit'})}`;
+    } else {
+      // Otsime kas last_seen_at või updated_at välja, et näidata viimase laivi aega
+      const lastTime = s.last_seen_at || s.updated_at;
+      if (lastTime) {
+        const date = new Date(lastTime);
+        const timeStr = date.toLocaleTimeString("et-EE", { hour: '2-digit', minute: '2-digit' });
+        const dateStr = date.toLocaleDateString("et-EE", { day: 'numeric', month: 'numeric' });
+        statusDisplay = `Viimati: ${dateStr} kell ${timeStr}`;
+      } else {
+        statusDisplay = "OFFLINE";
+      }
     }
 
     return `<article class="card reveal">
