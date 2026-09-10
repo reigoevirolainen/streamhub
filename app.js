@@ -64,8 +64,11 @@
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
   }[c]));
 
-  // Arvutab laivi kestuse
-  function getLiveDuration(startedAt) {
+  // Arvutab laivi kestuse (TikToki puhul näitab lihtsalt pulssi ja LIVE)
+  function getLiveDuration(platform, startedAt) {
+    if (String(platform).toLowerCase() === "tiktok") {
+      return "LIVE";
+    }
     if (!startedAt) return "LIVE";
     const start = new Date(startedAt);
     const now = new Date();
@@ -155,7 +158,7 @@
     
     let statusDisplay = "OFFLINE";
     if (s.is_live) {
-      statusDisplay = `<span class='live-dot'></span>${getLiveDuration(s.live_started_at)}`;
+      statusDisplay = `<span class='live-dot'></span>${getLiveDuration(s.platform, s.live_started_at)}`;
     } else if (s.last_seen_at) {
       const date = new Date(s.last_seen_at);
       statusDisplay = `Viimati: ${date.toLocaleDateString("et-EE")} ${date.toLocaleTimeString("et-EE", {hour: '2-digit', minute:'2-digit'})}`;
@@ -261,7 +264,7 @@
           <div class="spotlight-card reveal active">
               <div class="spotlight-img preview" data-platform="${esc(top.platform)}" data-url="${esc(top.channel_url)}" data-yt="${esc(top.youtube_channel_id || "")}">
                   <img src="${esc(img)}" alt="${esc(top.name)} thumbnail" loading="lazy">
-                  <span class="badge"><span class='live-dot'></span>${getLiveDuration(top.live_started_at)}</span>
+                  <span class="badge"><span class='live-dot'></span>${getLiveDuration(top.platform, top.live_started_at)}</span>
               </div>
               <div class="spotlight-info">
                   <div class="eyebrow" style="color: #ff3b30; margin-bottom: 5px;">✨ ESILETÕSTETUD STRIIMER</div>
@@ -575,7 +578,12 @@
     b.querySelectorAll("[data-admin-status]").forEach(x=>x.onclick=async()=>{
       const id = x.dataset.adminStatus;
       const isLiveCurrently = x.dataset.live === "true";
-      const {error} = await db.from("streamers").update({ is_live: !isLiveCurrently }).eq("id", id);
+      const updateData = { is_live: !isLiveCurrently };
+      if (isLiveCurrently) {
+        updateData.last_seen_at = new Date().toISOString();
+        updateData.live_started_at = null;
+      }
+      const {error} = await db.from("streamers").update(updateData).eq("id", id);
       if(error){toast("Viga: " + supaError(error),true);return;}
       await db.from("streamer_logs").insert({ streamer_id: id, action: !isLiveCurrently ? 'ADMIN_SET_ONLINE' : 'ADMIN_SET_OFFLINE' });
       toast(`Staatus muudetud: ${!isLiveCurrently ? 'ONLINE' : 'OFFLINE'}`);
