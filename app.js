@@ -64,6 +64,23 @@
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
   }[c]));
 
+  // Arvutab laivi kestuse
+  function getLiveDuration(startedAt) {
+    if (!startedAt) return "LIVE";
+    const start = new Date(startedAt);
+    const now = new Date();
+    const diffMs = now - start;
+    if (diffMs < 0) return "LIVE";
+    
+    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (diffHrs > 0) {
+      return `LIVE · ${diffHrs}h ${diffMins}m`;
+    }
+    return `LIVE · ${diffMins} min`;
+  }
+
   function matchGame(streamerGame, targetGame) {
       const s = String(streamerGame || "").trim().toLowerCase();
       const t = targetGame.toLowerCase();
@@ -135,10 +152,19 @@
 
   function card(s) {
     const img = s.thumbnail_url || s.avatar_url || gameArt(s.game || "Fortnite");
+    
+    let statusDisplay = "OFFLINE";
+    if (s.is_live) {
+      statusDisplay = `<span class='live-dot'></span>${getLiveDuration(s.live_started_at)}`;
+    } else if (s.last_seen_at) {
+      const date = new Date(s.last_seen_at);
+      statusDisplay = `Viimati: ${date.toLocaleDateString("et-EE")} ${date.toLocaleTimeString("et-EE", {hour: '2-digit', minute:'2-digit'})}`;
+    }
+
     return `<article class="card reveal">
       <div class="preview" data-platform="${esc(s.platform)}" data-url="${esc(s.channel_url)}" data-yt="${esc(s.youtube_channel_id || "")}">
         <img src="${esc(img)}" data-game-fallback="${esc(s.game || "Fortnite")}" alt="${esc(s.name)} thumbnail" loading="lazy">
-        <span class="badge ${s.is_live ? "" : "offline"}">${s.is_live ? "<span class='live-dot'></span>LIVE" : "OFFLINE"}</span>
+        <span class="badge ${s.is_live ? "" : "offline"}">${statusDisplay}</span>
         ${s.is_live ? `<span class="viewers">👁 ${Number(s.viewers || 0).toLocaleString("et-EE")}</span>` : ""}
       </div>
       <div class="cardbody"><div class="cardtitle">${esc(s.name)}</div>
@@ -235,7 +261,7 @@
           <div class="spotlight-card reveal active">
               <div class="spotlight-img preview" data-platform="${esc(top.platform)}" data-url="${esc(top.channel_url)}" data-yt="${esc(top.youtube_channel_id || "")}">
                   <img src="${esc(img)}" alt="${esc(top.name)} thumbnail" loading="lazy">
-                  <span class="badge"><span class='live-dot'></span>LIVE</span>
+                  <span class="badge"><span class='live-dot'></span>${getLiveDuration(top.live_started_at)}</span>
               </div>
               <div class="spotlight-info">
                   <div class="eyebrow" style="color: #ff3b30; margin-bottom: 5px;">✨ ESILETÕSTETUD STRIIMER</div>
