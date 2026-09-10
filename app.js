@@ -159,8 +159,9 @@
     if (s.is_live) {
       statusDisplay = `<span class='live-dot'></span>${getLiveDuration(s.platform, s.live_started_at)}`;
     } else {
-      // EEMALDATUD || s.updated_at, et vältida vale kellaaja kuvamist boti tsükli tõttu
-      const lastTime = s.last_seen_at;
+      // Varuvariandina võtame updated_at, et ei näitaks tühjust. 
+      // Need ajad muutuvad unikaalseks, kui striimerid reaalselt uuesti offline'i lähevad.
+      const lastTime = s.last_seen_at || s.updated_at || s.created_at;
       if (lastTime) {
         const date = new Date(lastTime);
         const timeStr = date.toLocaleTimeString("et-EE", { hour: '2-digit', minute: '2-digit' });
