@@ -64,7 +64,6 @@
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
   }[c]));
 
-  // Arvutab laivi kestuse (TikToki puhul näitab lihtsalt pulssi ja LIVE)
   function getLiveDuration(platform, startedAt) {
     if (String(platform).toLowerCase() === "tiktok") {
       return "LIVE";
@@ -160,8 +159,8 @@
     if (s.is_live) {
       statusDisplay = `<span class='live-dot'></span>${getLiveDuration(s.platform, s.live_started_at)}`;
     } else {
-      // Otsime kas last_seen_at või updated_at välja, et näidata viimase laivi aega
-      const lastTime = s.last_seen_at || s.updated_at;
+      // EEMALDATUD || s.updated_at, et vältida vale kellaaja kuvamist boti tsükli tõttu
+      const lastTime = s.last_seen_at;
       if (lastTime) {
         const date = new Date(lastTime);
         const timeStr = date.toLocaleTimeString("et-EE", { hour: '2-digit', minute: '2-digit' });
