@@ -64,10 +64,8 @@
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
   }[c]));
 
+  // Nüüd näitab aega ilusti igal platvormil ja samas formaadis (LIVE - Xh Ym)
   function getLiveDuration(platform, startedAt) {
-    if (String(platform).toLowerCase() === "tiktok") {
-      return "LIVE";
-    }
     if (!startedAt) return "LIVE";
     const start = new Date(startedAt);
     const now = new Date();
@@ -78,12 +76,11 @@
     const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
     
     if (diffHrs > 0) {
-      return `LIVE · ${diffHrs}h ${diffMins}m`;
+      return `LIVE - ${diffHrs}h ${diffMins}m`;
     }
-    return `LIVE · ${diffMins} min`;
+    return `LIVE - ${diffMins}m`;
   }
 
-  // UUS: Inimlik ja ilus viimase aja kuvamise loogika
   function formatLastSeen(isoStr) {
     if (!isoStr) return "OFFLINE";
     const d = new Date(isoStr);
@@ -185,7 +182,6 @@
     if (s.is_live) {
       statusDisplay = `<span class='live-dot'></span>${getLiveDuration(s.platform, s.live_started_at)}`;
     } else {
-      // 100% puhas ja reaalne aeg, feik andmeid siin enam ei ole.
       statusDisplay = formatLastSeen(s.last_seen_at);
     }
 
@@ -600,14 +596,20 @@
     
     b.querySelectorAll("[data-admin-delete]").forEach(x=>x.onclick=()=>adminDelete(x.dataset.adminDelete));
     b.querySelectorAll("[data-admin-edit]").forEach(x=>x.onclick=()=>adminEdit(x.dataset.adminEdit));
+    
+    // Siin lisasime loogika, et TikToki nupulevajutusel hakkab kohe ka kell käima!
     b.querySelectorAll("[data-admin-status]").forEach(x=>x.onclick=async()=>{
       const id = x.dataset.adminStatus;
       const isLiveCurrently = x.dataset.live === "true";
       const updateData = { is_live: !isLiveCurrently };
+      
       if (isLiveCurrently) {
         updateData.last_seen_at = new Date().toISOString();
         updateData.live_started_at = null;
+      } else {
+        updateData.live_started_at = new Date().toISOString();
       }
+      
       const {error} = await db.from("streamers").update(updateData).eq("id", id);
       if(error){toast("Viga: " + supaError(error),true);return;}
       await db.from("streamer_logs").insert({ streamer_id: id, action: !isLiveCurrently ? 'ADMIN_SET_ONLINE' : 'ADMIN_SET_OFFLINE' });
