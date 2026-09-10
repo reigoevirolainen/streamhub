@@ -83,6 +83,32 @@
     return `LIVE · ${diffMins} min`;
   }
 
+  // UUS: Inimlik ja ilus viimase aja kuvamise loogika
+  function formatLastSeen(isoStr) {
+    if (!isoStr) return "OFFLINE";
+    const d = new Date(isoStr);
+    if (isNaN(d.getTime())) return "OFFLINE";
+
+    const now = new Date();
+    const isToday = d.toDateString() === now.toDateString();
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const isYesterday = d.toDateString() === yesterday.toDateString();
+
+    const time = d.toLocaleTimeString("et-EE", { hour: '2-digit', minute: '2-digit' });
+    
+    if (isToday) return `Viimati: Täna ${time}`;
+    if (isYesterday) return `Viimati: Eile ${time}`;
+    
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    
+    if (d.getFullYear() === now.getFullYear()) {
+      return `Viimati: ${day}.${month} ${time}`;
+    }
+    return `Viimati: ${day}.${month}.${d.getFullYear()}`;
+  }
+
   function matchGame(streamerGame, targetGame) {
       const s = String(streamerGame || "").trim().toLowerCase();
       const t = targetGame.toLowerCase();
@@ -159,17 +185,8 @@
     if (s.is_live) {
       statusDisplay = `<span class='live-dot'></span>${getLiveDuration(s.platform, s.live_started_at)}`;
     } else {
-      // Varuvariandina võtame updated_at, et ei näitaks tühjust. 
-      // Need ajad muutuvad unikaalseks, kui striimerid reaalselt uuesti offline'i lähevad.
-      const lastTime = s.last_seen_at || s.updated_at || s.created_at;
-      if (lastTime) {
-        const date = new Date(lastTime);
-        const timeStr = date.toLocaleTimeString("et-EE", { hour: '2-digit', minute: '2-digit' });
-        const dateStr = date.toLocaleDateString("et-EE", { day: 'numeric', month: 'numeric' });
-        statusDisplay = `Viimati: ${dateStr} kell ${timeStr}`;
-      } else {
-        statusDisplay = "OFFLINE";
-      }
+      // 100% puhas ja reaalne aeg, feik andmeid siin enam ei ole.
+      statusDisplay = formatLastSeen(s.last_seen_at);
     }
 
     return `<article class="card reveal">
