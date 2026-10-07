@@ -354,25 +354,6 @@
             z-index: 1;
         }
 
-        /* Hoiatuse kast (kuvatakse ainult HTTPS veebis HTTP kaarti laadides) */
-        .https-warning {
-            display: none; 
-            position: absolute; 
-            top: 0; left: 0; 
-            width: 100%; height: 100%; 
-            background: rgba(3, 7, 18, 0.95); 
-            z-index: 5;
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center; 
-            text-align: center; 
-            padding: 30px;
-        }
-        .https-warning h3 { color: #f43f5e; font-size: 24px; margin-bottom: 15px; }
-        .https-warning p { color: var(--text-sub); max-width: 600px; font-size: 16px; margin-bottom: 25px; line-height: 1.6; }
-        .https-warning ul { color: #fff; text-align: left; background: rgba(255,255,255,0.05); padding: 20px 40px; border-radius: 12px; margin-bottom: 25px;}
-        .https-warning li { margin-bottom: 10px; }
-        
         .btn-map-fallback {
             background: var(--bg-surface); 
             border: 1px solid var(--ice-primary); 
@@ -561,23 +542,13 @@
         <!-- SECTION: MAP -->
         <section id="kaart" style="margin-bottom: 80px;">
             <h2 class="section-title">REAAALAJAS 3D MAAILMAKAART</h2>
-            <p class="section-desc">Vaata serverit BlueMap vahendusel 3D-s. Kui kaart ei lae, ava see otse uues aknas.</p>
+            <p class="section-desc">Vaata serverit BlueMap vahendusel 3D-s otse veebibrauseris.</p>
 
             <div class="map-section">
-                <!-- Tõeline iframe, mis üritab kaarti laadida -->
+                <!-- Tõeline iframe, mis laeb kaarti otse. Eemaldatud kõik hoiatustekstid! -->
                 <iframe src="http://162.120.3.115:8100/" title="Põhjala BlueMap" allowfullscreen sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
-                
-                <!-- See kast ilmub AINULT SIIS, kui brauser kaardi (Mixed Content) tõttu blokeerib -->
-                <div id="https-warning" class="https-warning">
-                    <h3><i class="fa-solid fa-shield-halved"></i> Brauser blokeeris kaardi kuvamise!</h3>
-                    <p>Sinu veebileht laeb turvalise (<b>HTTPS</b>) ühendusega, kuid kaardi link (<b>HTTP</b>) ei ole turvatud. Chrome/Safari blokeerib selle automaatselt ja seda ei saa koodiga muuta.</p>
-                    <ul>
-                        <li><b>Variant 1:</b> Ava oma veebileht `http://` kaudu (mitte `https://`).</li>
-                        <li><b>Variant 2:</b> Mine BisectHosting paneeli, seadista BlueMapile tasuta alamdomeen ja lülita sisse SSL (HTTPS). Seejärel muuda koodis olev link uueks.</li>
-                    </ul>
-                </div>
 
-                <!-- Alati nähtav tagavaranupp -->
+                <!-- Tagavara nupp -->
                 <a href="http://162.120.3.115:8100/" target="_blank" class="btn-map-fallback">
                     <i class="fa-solid fa-external-link-alt"></i> AVA TÄISEKRAANIL
                 </a>
@@ -599,15 +570,6 @@
         const SERVER_PORT = "2350";
         const FULL_IP = `${SERVER_IP_RAW}:${SERVER_PORT}`;
 
-        // KONTROLLIME MIXED CONTENT PROBLEEMI
-        window.addEventListener('DOMContentLoaded', () => {
-            // Kui leht laetakse HTTPS-iga, anname kohe visuaalse hoiatuse, miks iframe on must kast.
-            if (window.location.protocol === 'https:') {
-                document.getElementById('https-warning').style.display = 'flex';
-            }
-        });
-
-        // IP KOPEERIMINE
         function copyIP() {
             navigator.clipboard.writeText(FULL_IP).then(() => {
                 const toast = document.getElementById('toast');
@@ -616,7 +578,6 @@
             });
         }
 
-        // TARGA API SÜSTEEM MÄNGIJATE KUVAMISEKS
         async function fetchServerData() {
             const playersWrapper = document.getElementById('players-wrapper');
             const countNum = document.getElementById('player-count-num');
