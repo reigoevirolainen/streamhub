@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Põhjala MC — Ametlik Minecrafti Serveri Portaal</title>
+    
+    <!-- Google Fonts: Modernne Outfit & Eepiline Cinzel -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Ikoonid -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-void: #030712;
+            --bg-surface: rgba(15, 23, 42, 0.65);
+            --bg-card: rgba(30, 41, 59, 0.5);
+            --border-ice: rgba(56, 189, 248, 0.2);
+            --border-glow: rgba(56, 189, 248, 0.6);
+            
+            --ice-primary: #38bdf8;
+            --ice-cyan: #00f2fe;
+            --ice-glow: rgba(56, 189, 248, 0.4);
+            
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-void);
+            color: var(--text-main);
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(14, 165, 233, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 10% 40%, rgba(2, 132, 199, 0.08) 0%, transparent 40%);
+            min-height: 100vh;
+        }
+
+        /* HEADER / NAVBAR */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            height: 80px;
+            background: rgba(3, 7, 18, 0.8);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-ice);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 50px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+        }
+        .nav-brand img {
+            height: 45px;
+            filter: drop-shadow(0 0 10px var(--ice-glow));
+        }
+        .nav-brand span {
+            font-family: 'Cinzel', serif;
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--ice-glow);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--text-sub);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--ice-primary);
+            text-shadow: 0 0 12px var(--ice-glow);
+        }
+
+        /* HERO SECTION */
+        .hero {
+            position: relative;
+            padding-top: 160px;
+            padding-bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(3,7,18,0.2) 0%, var(--bg-void) 100%),
+                        url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=2000&auto=format&fit=crop') center/cover no-repeat;
+            box-shadow: inset 0 -100px 100px var(--bg-void);
+        }
+
+        .hero-logo {
+            width: 100%;
+            max-width: 480px;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 15px 30px rgba(0, 242, 254, 0.4));
+            animation: float 4s ease-in-out infinite;
+        }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+        .hero-subtitle {
+            font-size: 20px;
+            color: var(--text-sub);
+            max-width: 600px;
+            margin-bottom: 40px;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        /* PLAY NOW / IP BOX */
+        .play-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            backdrop-filter: blur(20px);
+            padding: 12px 16px 12px 30px;
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            box-shadow: 0 0 50px rgba(14, 165, 233, 0.25);
+            transition: 0.3s;
+        }
+        .play-box:hover {
+            border-color: var(--ice-cyan);
+            box-shadow: 0 0 60px rgba(0, 242, 254, 0.4);
+        }
+
+        .server-status-info {
+            text-align: left;
+        }
+        .status-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #4ade80;
+        }
+        .status-dot-green {
+            width: 8px; height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #4ade80;
+            animation: pulseGreen 2s infinite;
+        }
+        @keyframes pulseGreen { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .ip-text {
+            font-family: 'Cinzel', serif;
+            font-size: 22px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .btn-copy {
+            background: linear-gradient(135deg, #0284c7 0%, #00f2fe 100%);
+            color: #030712;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 40px;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(0, 242, 254, 0.4);
+        }
+        .btn-copy:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 30px rgba(0, 242, 254, 0.7);
+            color: #fff;
+        }
+
+        /* CONTAINER FOR CONTENT SECTIONS */
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 36px;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 12px;
+            background: linear-gradient(180deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .section-desc {
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 16px;
+            margin-bottom: 50px;
+        }
+
+        /* FEATURE CARDS GRID */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        .feature-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-ice);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            padding: 35px;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        .feature-box:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(56, 189, 248, 0.05);
+            transform: translateY(-5px);
+        }
+
+        .feature-icon-wrapper {
+            width: 60px; height: 60px;
+            border-radius: 14px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid var(--border-glow);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            color: var(--ice-primary);
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px var(--ice-glow);
+        }
+
+        .feature-box h3 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .feature-box p {
+            color: var(--text-sub);
+            line-height: 1.7;
+            font-size: 15px;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .feature-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: auto;
+        }
+
+        .feature-tag {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--ice-primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ONLINE PLAYERS SHOWCASE */
+        .players-section {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-ice);
+            backdrop-filter: blur(16px);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 80px;
+            text-align: center;
+        }
+
+        .players-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        .player-chip {
+            background: var(--bg-card);
+            border: 1px solid var(--border-ice);
+            padding: 8px 18px 8px 10px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+        .player-chip:hover {
+            border-color: var(--ice-primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px var(--ice-glow);
+        }
+        .player-chip img {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+        }
+
+        /* BLUEMAP SECTION */
+        .map-section {
+            width: 100%;
+            height: 650px;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid var(--border-glow);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            position: relative;
+        }
+        .map-section iframe {
+            width: 100%; height: 100%; border: none;
+        }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--border-ice);
+            padding: 40px 0;
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 14px;
+            background: rgba(3, 7, 18, 0.95);
+        }
+
+        /* TOAST NOTIFICATION */
+        .toast {
+            position: fixed;
+            bottom: 30px; left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #00f2fe;
+            color: #030712;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 15px;
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.5);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2000;
+            opacity: 0;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <a href="#" class="nav-brand">
+            <img src="https://img.sanishtech.com/u/822475ff066b3d74f5642baff4961c2c.png" alt="Põhjala Logo">
+            <span>PÕHJALA MC</span>
+        </a>
+
+        <ul class="nav-links">
+            <li><a href="#avaleht" class="active"><i class="fa-solid fa-house"></i> Avaleht</a></li>
+            <li><a href="#voimalused"><i class="fa-solid fa-bolt"></i> Võimalused</a></li>
+            <li><a href="#mängijad"><i class="fa-solid fa-users"></i> Mängijad</a></li>
+            <li><a href="#kaart"><i class="fa-solid fa-map"></i> Kaart</a></li>
+        </ul>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero" id="avaleht">
+        <img src="https://img.sanishtech.com/u/822475ff066b3d74f5642baff4961c2c.png" alt="Põhjala MC Logo" class="hero-logo">
+        <p class="hero-subtitle">Eesti kaasaegseim Minecrafti Survival server. Sukeldu maailma, mis on täis võlu, RPG ja RP-d. Mc server 26.3</p>
+
+        <div class="play-box">
+            <div class="server-status-info">
+                <div class="status-header">
+                    <span class="status-dot-green" id="status-dot"></span>
+                    <span id="status-title">ONLINE</span>
+                </div>
+                <div class="ip-text" id="ip-display">162.120.3.115:2350</div>
+            </div>
+
+            <button class="btn-copy" onclick="copyIP()">
+                <i class="fa-solid fa-copy"></i>
+                <span>KOPEERI IP</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+
+        <!-- SECTION: SERVER FEATURES -->
+        <section id="voimalused">
+            <h2 class="section-title">SERVERI VÕIMALUSED</h2>
+            <p class="section-desc">Põhjala on ehitatud spetsiaalselt seiklejatele. Avasta maailma, mis viib mängukogemuse uuele tasemele.</p>
+
+            <div class="features-grid">
+                <!-- VOIP / IMMERSION -->
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper" style="color: #4ade80; border-color: #4ade80; box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);"><i class="fa-solid fa-microphone-lines"></i></div>
+                    <h3>Simple Voice Chat</h3>
+                    <p>Suhtle teiste mängijatega ilma Discordita, kasutades Simple Voice Chat modi. Lisaks ühendab <b>InteractiveChat</b> ja <b>DiscordSRV</b> serveri teksti-chati otse meie Discordiga cahtiga, et saaksid alati ühenduses olla.</p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">voicechat</span>
+                        <span class="feature-tag">DiscordSRV</span>
+                    </div>
+                </div>
+
+                <!-- SURM EI OLE LÕPP -->
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper" style="color: #f43f5e; border-color: #f43f5e; box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);"><i class="fa-solid fa-skull-crossbones"></i></div>
+                    <h3>Elu, Surm ja Päästmine</h3>
+                    <p>Creeper lasi su õhku või kukkusid laavasse? Ära muretse, sinu asjad jäävad kaitstud hauda (AxGraves). Veelgi enam, kaaslased saavad sind surma korral elustada, muutes koos mängimise tõeliseks meeskonnatööks!</p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">AxGraves</span>
+                        <span class="feature-tag">SimpleRevive</span>
+                    </div>
+                </div>
+
+                <!-- RPG & SKILLS -->
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper" style="color: #c084fc; border-color: #c084fc; box-shadow: 0 0 15px rgba(192, 132, 252, 0.4);"><i class="fa-solid fa-hat-wizard"></i></div>
+                    <h3>RPG Oskused & Sulamid</h3>
+                    <p>Kaevanda, võitle ja arenda oma tegelase taset läbi sügava <b>AuraSkills</b> süsteemi. Mida rohkem tegutsed, seda tugevamaks saad. Lisaks on maailma lisatud spetsiaalsed <b>Alloys ehk</b> metallid võimsate endgame esemete meisterdamiseks.</p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">AuraSkills</span>
+                        <span class="feature-tag">Alloys</span>
+                    </div>
+                </div>
+
+                <!-- DYNAMIC WORLD -->
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper" style="color: #facc15; border-color: #facc15; box-shadow: 0 0 15px rgba(250, 204, 21, 0.4);"><i class="fa-solid fa-moon"></i></div>
+                    <h3>Dünaamiline Kliima & The Sift</h3>
+                    <p>Tavaliselt on maailm <b>Normal</b> raskusel, kuid taevasse ilmunud täiskuu aktiveerib <b>MoonCycle</b> süsteemi, mis muudab kõik koletised ohtlikumaks (Hard). Kas julged sel ajal seigelda uues ja ohtlikus <b>The Sift</b> dimensioonis?</p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">MoonCycle</span>
+                        <span class="feature-tag">TheSift</span>
+                        <span class="feature-tag">BetterStructures</span>
+                    </div>
+                </div>
+
+                <!-- PROTECTION -->
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper" style="color: #38bdf8; border-color: #38bdf8;"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h3>Täielik Maa- ja Varakaitsmine</h3>
+                    <p>Sinu kodu on sinu kindlus. Kasuta kuldlabidat, et luua endale turvaline claim. Kaitse oma kirste ja uksi sildiga ning ole mureta – meie serveris on asjade vargus ja ehitiste lõhkumine keelatud ja kaitstud.</p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">GriefPrevention3D</span>
+                        <span class="feature-tag">BlockLocker</span>
+                    </div>
+                </div>
+
+                <!-- QUALITY OF LIFE -->
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper" style="color: #fb923c; border-color: #fb923c; box-shadow: 0 0 15px rgba(251, 146, 60, 0.4);"><i class="fa-solid fa-couch"></i></div>
+                    <h3>Mugavus (Quality of Life)</h3>
+                    <p>Raiu puu alumine plokk ja kogu puu variseb alla. Istu treppidele ja puhka lõkke ääres. Kauple teiste mängijatega turvaliselt ja kasuta mitmeid kodusid. Kõik on loodud sinu aja säästmiseks.</p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">Timber</span>
+                        <span class="feature-tag">GSit</span>
+                        <span class="feature-tag">AxTrade</span>
+                        <span class="feature-tag">zHomes</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: ONLINE PLAYERS -->
+        <section id="mängijad" class="players-section">
+            <h2 class="section-title" style="margin-bottom: 5px;">HETKEL SEES OLEVAD MÄNGIJAD</h2>
+            <p class="section-desc" style="margin-bottom: 20px;">Mängijaid liitunud: <b id="player-count-num" style="color: var(--ice-cyan);">0</b></p>
+
+            <div id="players-wrapper" class="players-grid">
+                <div style="color: var(--text-sub);">Otsin aktiivset API ühendust...</div>
+            </div>
+        </section>
+
+        <!-- SECTION: MAP -->
+        <section id="kaart" style="margin-bottom: 80px;">
+            <h2 class="section-title">REAAALAJAS 3D MAAILMAKAART</h2>
+            <p class="section-desc">Vaata serverit BlueMap vahendusel 3D-s otse veebibrauseris.</p>
+
+            <div class="map-section">
+                <iframe src="http://162.120.3.115:8100/" title="Põhjala BlueMap"></iframe>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>© 2026 Põhjala MC. Kõik õigused kaitstud. Server IP: 162.120.3.115:2350</p>
+    </footer>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast"><i class="fa-solid fa-check-circle"></i> Serveri IP on kopeeritud!</div>
+
+    <script>
+        const SERVER_IP_RAW = "162.120.3.115";
+        const SERVER_PORT = "2350";
+        const FULL_IP = `${SERVER_IP_RAW}:${SERVER_PORT}`;
+
+        function copyIP() {
+            navigator.clipboard.writeText(FULL_IP).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.add('show');
+                setTimeout(() => { toast.classList.remove('show'); }, 3000);
+            });
+        }
+
+        async function fetchServerData() {
+            const playersWrapper = document.getElementById('players-wrapper');
+            const countNum = document.getElementById('player-count-num');
+            const statusTitle = document.getElementById('status-title');
+            const statusDot = document.getElementById('status-dot');
+
+            // TARGA API SÜSTEEM: Kui üks on BisectHostingus blokeeritud, proovib järgmist!
+            const apis = [
+                {
+                    // 1. Minetools (Kõige lollikindlam BisectHostingu vastu)
+                    url: `https://api.minetools.eu/ping/${SERVER_IP_RAW}/${SERVER_PORT}`,
+                    check: (data) => data && !data.error,
+                    getPlayers: (data) => data.players.online,
+                    getMax: (data) => data.players.max,
+                    getList: (data) => data.players.sample ? data.players.sample.map(p => p.name) : []
+                },
+                {
+                    // 2. mcstatus.io (Väga kiire, aga mõnikord piiratud)
+                    url: `https://api.mcstatus.io/v2/status/java/${FULL_IP}`,
+                    check: (data) => data && data.online,
+                    getPlayers: (data) => data.players ? data.players.online : 0,
+                    getMax: (data) => data.players ? data.players.max : 0,
+                    getList: (data) => (data.players && data.players.list) ? data.players.list.map(p => p.name_clean || p.name_raw) : []
+                },
+                {
+                    // 3. mcsrvstat.us (Klassikaline tagavara)
+                    url: `https://api.mcsrvstat.us/3/${FULL_IP}`,
+                    check: (data) => data && data.online,
+                    getPlayers: (data) => data.players ? data.players.online : 0,
+                    getMax: (data) => data.players ? data.players.max : 0,
+                    getList: (data) => (data.players && data.players.list) ? data.players.list.map(p => p.name) : []
+                }
+            ];
+
+            let isOnline = false;
+            let onlineCount = 0;
+            let maxCount = 0;
+            let playersList = [];
+
+            // Käime API-d ükshaaval läbi
+            for (let api of apis) {
+                try {
+                    const res = await fetch(api.url);
+                    const data = await res.json();
+                    
+                    if (api.check(data)) {
+                        isOnline = true;
+                        onlineCount = api.getPlayers(data);
+                        maxCount = api.getMax(data);
+                        playersList = api.getList(data);
+                        console.log(`Edukas ühendus API-ga: ${api.url}`);
+                        break; // Leidsime töötava, lõpetame otsimise!
+                    }
+                } catch (e) {
+                    console.warn(`API ${api.url} blokeeritud või maas, proovin järgmist...`);
+                }
+            }
+
+            // KUVAME TULEMUSE
+            if (isOnline) {
+                statusTitle.innerText = `ONLINE (${onlineCount}/${maxCount})`;
+                countNum.innerText = `${onlineCount} / ${maxCount}`;
+                
+                statusTitle.style.color = "#4ade80";
+                statusDot.style.background = "#4ade80";
+                statusDot.style.boxShadow = "0 0 10px #4ade80";
+
+                if (playersList.length > 0) {
+                    playersWrapper.innerHTML = playersList.map(name => `
+                        <div class="player-chip">
+                            <img src="https://mc-heads.net/avatar/${name}/32" alt="${name}">
+                            <span>${name}</span>
+                        </div>
+                    `).join('');
+                } else if (onlineCount > 0) {
+                    playersWrapper.innerHTML = `<div style="color: var(--text-sub); padding: 10px;">Serveris on <b>${onlineCount}</b> mängijat sees. <i>(Nimede nägemiseks lülita serveris sisse <b>enable-query=true</b>)</i></div>`;
+                } else {
+                    playersWrapper.innerHTML = `<div style="color: var(--text-sub); padding: 10px;">Hetkel pole ühtegi mängijat sees. Ole esimene!</div>`;
+                }
+            } else {
+                statusTitle.innerText = "OFFLINE";
+                statusTitle.style.color = "#f43f5e";
+                statusDot.style.background = "#f43f5e";
+                statusDot.style.boxShadow = "0 0 10px #f43f5e";
+                countNum.innerText = "0 / 0";
+                playersWrapper.innerHTML = `<div style="color: #f43f5e; padding: 10px;">Server on hetkel hoolduses või offline. (Kõik 3 API-t on blokeeritud)</div>`;
+            }
+        }
+
+        window.onload = fetchServerData;
+    </script>
+</body>
+</html>
