@@ -341,11 +341,17 @@
             border: 1px solid var(--border-glow);
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.65);
         }
         .map-section iframe {
             width: 100%; height: 100%; border: none;
+            position: absolute;
+            top: 0; left: 0;
         }
-
+        
         /* FOOTER */
         footer {
             border-top: 1px solid var(--border-ice);
@@ -512,10 +518,13 @@
             <p class="section-desc">Vaata serverit BlueMap vahendusel 3D-s. Kui kaart ei lae, ava see otse uues aknas.</p>
 
             <div class="map-section">
-                <!-- Iframe üritab kaarti laadida -->
+                <!-- Sõnum, mida kuvatakse, kui iframe on brauseri poolt blokeeritud -->
+                <p style="color: var(--text-sub); text-align: center; padding: 20px;">Kaarti ei saa brauseri turvameetmete tõttu otse lehel laadida.<br>Palun vajuta allolevale nupule.</p>
+                
+                <!-- Iframe üritab kaarti laadida (blokeeritakse turvalisel lehel) -->
                 <iframe src="http://162.120.3.115:8100/" title="Põhjala BlueMap"></iframe>
                 
-                <!-- Tagavara nupp, kui brauser iframe'i blokeerib -->
+                <!-- Tagavara nupp -->
                 <div style="position: absolute; bottom: 20px; right: 20px; z-index: 10;">
                     <a href="http://162.120.3.115:8100/" target="_blank" style="background: var(--bg-surface); border: 1px solid var(--ice-primary); color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 30px; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(10px); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); transition: 0.3s;">
                         <i class="fa-solid fa-external-link-alt"></i> AVA TÄISEKRAANIL
@@ -553,10 +562,10 @@
             const statusTitle = document.getElementById('status-title');
             const statusDot = document.getElementById('status-dot');
 
-            // TARGA API SÜSTEEM: Kui üks on BisectHostingus blokeeritud, proovib järgmist!
+            // TARGA API SÜSTEEM
             const apis = [
                 {
-                    // 1. Minetools (Kõige lollikindlam BisectHostingu vastu)
+                    // 1. Minetools
                     url: `https://api.minetools.eu/ping/${SERVER_IP_RAW}/${SERVER_PORT}`,
                     check: (data) => data && !data.error,
                     getPlayers: (data) => data.players.online,
@@ -564,7 +573,7 @@
                     getList: (data) => data.players.sample ? data.players.sample.map(p => p.name) : []
                 },
                 {
-                    // 2. mcstatus.io (Väga kiire, aga mõnikord piiratud)
+                    // 2. mcstatus.io
                     url: `https://api.mcstatus.io/v2/status/java/${FULL_IP}`,
                     check: (data) => data && data.online,
                     getPlayers: (data) => data.players ? data.players.online : 0,
@@ -572,7 +581,7 @@
                     getList: (data) => (data.players && data.players.list) ? data.players.list.map(p => p.name_clean || p.name_raw) : []
                 },
                 {
-                    // 3. mcsrvstat.us (Klassikaline tagavara)
+                    // 3. mcsrvstat.us
                     url: `https://api.mcsrvstat.us/3/${FULL_IP}`,
                     check: (data) => data && data.online,
                     getPlayers: (data) => data.players ? data.players.online : 0,
@@ -586,7 +595,6 @@
             let maxCount = 0;
             let playersList = [];
 
-            // Käime API-d ükshaaval läbi
             for (let api of apis) {
                 try {
                     const res = await fetch(api.url);
@@ -597,11 +605,10 @@
                         onlineCount = api.getPlayers(data);
                         maxCount = api.getMax(data);
                         playersList = api.getList(data);
-                        console.log(`Edukas ühendus API-ga: ${api.url}`);
-                        break; // Leidsime töötava, lõpetame otsimise!
+                        break; 
                     }
                 } catch (e) {
-                    console.warn(`API ${api.url} blokeeritud või maas, proovin järgmist...`);
+                    console.warn(`API blokeeritud, proovin järgmist...`);
                 }
             }
 
@@ -632,7 +639,7 @@
                 statusDot.style.background = "#f43f5e";
                 statusDot.style.boxShadow = "0 0 10px #f43f5e";
                 countNum.innerText = "0 / 0";
-                playersWrapper.innerHTML = `<div style="color: #f43f5e; padding: 10px;">Server on hetkel hoolduses või offline. (Kõik 3 API-t on blokeeritud)</div>`;
+                playersWrapper.innerHTML = `<div style="color: #f43f5e; padding: 10px;">Server on hetkel hoolduses või offline. (Kõik API-d on blokeeritud)</div>`;
             }
         }
 
