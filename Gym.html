@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>24/7 Fitness App</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Lingime eraldi CSS faili -->
+    <link rel="stylesheet" href="Gym.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- TEAVITUS -->
+        <div id="demo-toast" class="toast">Funktsioon on hetkel demos lukus!</div>
+
+        <!-- =========================================
+             VIEW 1: HOME
+        ========================================= -->
+        <div id="view-home" class="view active">
+            <header class="top-header">
+                <button class="icon-btn" onclick="showToast('Menüü avamine')"><i class="fa-solid fa-bars"></i></button>
+                <div class="logo" onclick="navTo('view-home')">24/7 <span>FITNESS</span></div>
+                <button class="icon-btn" onclick="showToast('Sul ei ole uusi teavitusi')"><i class="fa-regular fa-bell"></i></button>
+            </header>
+
+            <div class="hero-banner">
+                <h1><span>TREENI OMA</span> TULEMUSI</h1>
+            </div>
+
+            <div class="profile-card">
+                <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                <div class="profile-info">
+                    <h3>Reigo</h3>
+                    <p>35 a • 109 kg</p>
+                </div>
+                <button class="btn-outline" onclick="showToast('Profiili muutmine')">Muuda</button>
+            </div>
+
+            <div class="categories" id="cat-list">
+                <div class="cat-item active" onclick="switchCategory(this)"><div class="cat-icon"><i class="fa-solid fa-dumbbell"></i></div><span>Kõik</span></div>
+                <div class="cat-item" onclick="switchCategory(this)"><div class="cat-icon"><i class="fa-solid fa-child"></i></div><span>Rind</span></div>
+                <div class="cat-item" onclick="switchCategory(this)"><div class="cat-icon"><i class="fa-solid fa-person-running"></i></div><span>Selg</span></div>
+                <div class="cat-item" onclick="switchCategory(this)"><div class="cat-icon"><i class="fa-solid fa-shoe-prints"></i></div><span>Jalad</span></div>
+            </div>
+
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Otsi masinat..." onkeypress="if(event.key === 'Enter') showToast('Otsing: ' + this.value)">
+            </div>
+
+            <div class="section-header"><h2>RIND</h2><button onclick="showToast('Avab kõik rinna harjutused')">Vaata kõik <i class="fa-solid fa-chevron-right"></i></button></div>
+            <div class="machine-list">
+                <div class="machine-card" onclick="openMachine()">
+                    <div class="machine-img" style="background-image: url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop');">
+                        <button class="heart-btn" onclick="event.stopPropagation(); showToast('Lisatud lemmikutesse!')"><i class="fa-regular fa-heart"></i></button>
+                    </div>
+                    <div class="machine-info"><h4>Rinnalt surumise pink</h4><p>Gymleco • Vabaraskused</p></div>
+                </div>
+                <!-- Lisa masinaid siia vajadusel juurde -->
+            </div>
+        </div>
+
+        <!-- =========================================
+             VIEW 2: MACHINE LOGGING
+        ========================================= -->
+        <div id="view-machine" class="view">
+            <div class="machine-hero">
+                <div class="machine-header-top">
+                    <button class="icon-btn" onclick="navTo('view-home')"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button class="icon-btn" onclick="showToast('Lisatud lemmikutesse!')"><i class="fa-regular fa-heart"></i></button>
+                </div>
+                <div>
+                    <h2>Rinnalt surumise pink</h2>
+                    <p>Gymleco • Vabaraskused</p>
+                </div>
+            </div>
+
+            <div class="tabs" id="machine-tabs">
+                <div class="tab active" onclick="switchTab(this, 'machine-tabs')">Logi</div>
+                <div class="tab" onclick="switchTab(this, 'machine-tabs'); showToast('Kirjeldus')">Kirjeldus</div>
+                <div class="tab" onclick="switchTab(this, 'machine-tabs'); showToast('Lihased')">Lihased</div>
+            </div>
+
+            <div class="pr-card">
+                <div class="pr-info">
+                    <i class="fa-solid fa-trophy"></i>
+                    <div class="pr-text"><span>Isiklik rekord</span><strong>100 kg × 5 kordust</strong></div>
+                </div>
+                <button class="btn-outline" onclick="showToast('Uue rekordi sisestamine')">Uuenda</button>
+            </div>
+
+            <div class="sets-section">
+                <div class="sets-header">
+                    <h3>Seeriad</h3>
+                    <button class="btn-add" onclick="addSet()">+ Lisa seeria</button>
+                </div>
+                
+                <table class="sets-table">
+                    <thead><tr><th>#</th><th>Raskus (kg)</th><th>Kordused</th><th>Mahu (kg)</th><th></th></tr></thead>
+                    <tbody id="sets-body"></tbody>
+                </table>
+
+                <div class="total-volume">Kokku maht: <span id="total-vol">0</span> kg</div>
+
+                <button class="btn-primary" onclick="saveWorkout()"><i class="fa-solid fa-check"></i> Salvesta harjutus</button>
+                <button class="btn-secondary" onclick="showToast('Taimer käivitatud! 02:00')"><i class="fa-regular fa-clock"></i> Taimer &nbsp; 02:00</button>
+            </div>
+        </div>
+
+        <!-- =========================================
+             VIEW 3: WORKOUT SUMMARY (PDF)
+        ========================================= -->
+        <div id="view-workout" class="view">
+            <div class="summary-header">
+                <button class="icon-btn" onclick="navTo('view-home')"><i class="fa-solid fa-arrow-left"></i></button>
+                <h2>Treening</h2>
+                <button class="icon-btn" style="color: var(--red); font-size: 16px;" onclick="showToast('Treening kustutatud!')"><i class="fa-regular fa-trash-can"></i> Kustuta</button>
+            </div>
+
+            <div class="summary-hero">
+                <div class="logo">24/7 <span>FITNESS</span></div>
+                <h1>RIND TRENN</h1>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box"><i class="fa-solid fa-weight-hanging"></i><span>Kogumaht</span><strong id="final-vol">0 kg</strong></div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-secondary" onclick="exportPDF()" style="flex: 1;"><i class="fa-solid fa-download"></i> Salvesta PDF</button>
+                <button class="btn-secondary" style="flex: 1;" onclick="showToast('Jagamise aken avaneb...')"><i class="fa-solid fa-share-nodes"></i> Jaga</button>
+            </div>
+        </div>
+
+        <!-- =========================================
+             VIEW 4: STATISTICS
+        ========================================= -->
+        <div id="view-stats" class="view">
+            <header class="top-header">
+                <button class="icon-btn" onclick="showToast('Menüü avamine')"><i class="fa-solid fa-bars"></i></button>
+                <div class="logo">24/7 <span>FITNESS</span></div>
+            </header>
+            <h2 style="text-align: center; margin-bottom: 20px;">Statistika</h2>
+            <div class="kpi-grid">
+                <div class="kpi-card"><i class="fa-solid fa-dumbbell"></i><p>Treeninguid</p><h3>12</h3></div>
+                <div class="kpi-card"><i class="fa-solid fa-chart-simple"></i><p>Kogumaht</p><h3>145k</h3></div>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAVIGATION -->
+        <nav class="bottom-nav" id="main-bottom-nav">
+            <button class="nav-item active" onclick="navTo('view-home', this)"><i class="fa-solid fa-house"></i><span>Avaleht</span></button>
+            <button class="nav-item" onclick="navTo('view-workout', this)"><i class="fa-regular fa-calendar-check"></i><span>Treeningud</span></button>
+            <button class="nav-item" onclick="navTo('view-stats', this)"><i class="fa-solid fa-chart-line"></i><span>Statistika</span></button>
+            <button class="nav-item" onclick="showToast('Seadete vaade avaneb...')"><i class="fa-solid fa-gear"></i><span>Seaded</span></button>
+        </nav>
+
+    </div>
+
+    <!-- Lingime eraldi JS faili -->
+    <script src="Gym.js"></script>
+</body>
+</html>
