@@ -1,11 +1,6 @@
 const app = {
-    // Andmed seeriate tabeli jaoks
-    sets: [
-        { weight: 60, reps: 12 },
-        { weight: 80, reps: 10 },
-        { weight: 100, reps: 8 },
-        { weight: 100, reps: 6 }
-    ],
+    // Hoiab aktiivse harjutuse seeriaid (algselt tühi)
+    sets: [],
 
     // Navigeerib vaadete vahel (id järgi) ja muudab all menüü aktiivseks
     navTo: function(viewId, bottomNavIndex = null) {
@@ -20,40 +15,32 @@ const app = {
         }
     },
 
-    // Joonistab seeriate tabeli HTMLi uuesti
+    // Joonistab seeriate tabeli HTMLi uuesti (ILMA mahu arvutuseta)
     renderSets: function() {
         const tbody = document.getElementById('sets-body');
         tbody.innerHTML = '';
-        let totalVolume = 0;
 
         this.sets.forEach((set, index) => {
-            const vol = set.weight * set.reps;
-            totalVolume += vol;
-            
             tbody.innerHTML += `
                 <tr>
-                    <td style="color: var(--text-muted);">${index + 1}</td>
-                    <td><input type="number" class="set-input" value="${set.weight}" onchange="app.updateSet(${index}, 'weight', this.value)"></td>
-                    <td><input type="number" class="set-input" value="${set.reps}" onchange="app.updateSet(${index}, 'reps', this.value)"></td>
-                    <td style="font-weight: 600; color: #fff;">${vol}</td>
-                    <td><button class="del-btn" onclick="app.removeSet(${index})"><i class="fa-regular fa-trash-can"></i></button></td>
+                    <td style="color: var(--neon); font-weight: 800; font-size: 16px;">${index + 1}</td>
+                    <td><input type="number" class="set-input" placeholder="0" value="${set.weight}" onchange="app.updateSet(${index}, 'weight', this.value)"></td>
+                    <td><input type="number" class="set-input" placeholder="0" value="${set.reps}" onchange="app.updateSet(${index}, 'reps', this.value)"></td>
+                    <td><button class="btn-del" onclick="app.removeSet(${index})"><i class="fa-solid fa-xmark"></i></button></td>
                 </tr>
             `;
         });
-
-        document.getElementById('total-vol').innerText = totalVolume;
     },
 
-    // Uuendab massiivis väärtust ja renderdab
+    // Uuendab massiivis väärtust
     updateSet: function(index, field, value) {
-        this.sets[index][field] = Number(value);
-        this.renderSets();
+        this.sets[index][field] = value; 
     },
 
-    // Lisab uue seeria (kopeerib eelmise andmed)
+    // Lisab uue seeria (kopeerib eelmise raskuse, aga jätab kordused tühjaks)
     addSet: function() {
-        const lastSet = this.sets.length > 0 ? this.sets[this.sets.length - 1] : { weight: 0, reps: 0 };
-        this.sets.push({ weight: lastSet.weight, reps: lastSet.reps });
+        const lastSet = this.sets.length > 0 ? this.sets[this.sets.length - 1] : { weight: '', reps: '' };
+        this.sets.push({ weight: lastSet.weight, reps: '' });
         this.renderSets();
     },
 
@@ -64,7 +51,10 @@ const app = {
     }
 };
 
-// Kui fail (leht) laeb, käivita seeriate renderdamine
+// Kui leht laeb, tekitame esimese tühja seeria ja renderdame tabeli
 window.onload = function() {
+    if (app.sets.length === 0) {
+        app.sets.push({ weight: '', reps: '' });
+    }
     app.renderSets();
 };

@@ -3,571 +3,552 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>24/7 Fitness</title>
+    <title>24/7 Fitness Logi</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         :root {
-            --bg-main: #000000;
-            --bg-card: #121214;
-            --bg-input: #1c1c1e;
-            --neon: #ccff00;
-            --text-main: #ffffff;
+            --bg-main: rgba(0, 0, 0, 0.85); 
+            --bg-card: rgba(18, 18, 20, 0.95); 
+            --bg-input: rgba(28, 28, 30, 0.8);
+            --neon: #ccff00; 
+            --text-main: #ffffff; 
             --text-muted: #a1a1aa;
-            --border: #27272a;
+            --border: #27272a; 
             --red: #ef4444;
-            --green: #22c55e;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: #111; display: flex; justify-content: center; color: var(--text-main); }
-        .app-container { width: 100%; max-width: 414px; background-color: var(--bg-main); min-height: 100vh; position: relative; overflow-x: hidden; padding-bottom: 90px; }
+        
+        body { 
+            background: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop') no-repeat center center fixed; 
+            background-size: cover;
+            display: flex; 
+            justify-content: center; 
+            color: var(--text-main); 
+        }
 
-        /* Navigation */
-        .view { display: none; animation: fadeIn 0.3s ease; }
+        .app-container { 
+            width: 100%; 
+            max-width: 480px; 
+            background-color: var(--bg-main); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
+            min-height: 100vh; 
+            position: relative; 
+            padding-bottom: 100px; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .view { display: none; animation: fadeIn 0.2s ease; flex-grow: 1; }
         .view.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Header */
-        .top-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; position: sticky; top: 0; z-index: 10; background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%); }
-        .icon-btn { background: none; border: none; color: var(--text-main); font-size: 22px; cursor: pointer; }
-        .logo { text-align: center; font-weight: 900; font-size: 24px; font-style: italic; line-height: 0.9; cursor: pointer; }
-        .logo span { color: var(--neon); display: block; font-size: 14px; letter-spacing: 1px; }
+        /* HEADER & PROFILE */
+        .top-header { padding: 20px 20px 10px; position: sticky; top: 0; z-index: 10; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo { font-weight: 900; font-size: 22px; font-style: italic; }
+        .logo span { color: var(--neon); }
 
-        /* Hero */
-        .hero-banner { margin: 0 20px 20px; height: 160px; border-radius: 16px; background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800') center/cover; display: flex; align-items: flex-end; padding: 20px; }
-        .hero-banner h1 { color: var(--neon); font-size: 32px; font-weight: 900; font-style: italic; text-transform: uppercase; line-height: 1; }
-        .hero-banner h1 span { color: white; display: block; }
-
-        /* Profile */
-        .profile-card { margin: 0 20px 25px; background: var(--bg-card); border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border); }
-        .avatar { width: 45px; height: 45px; background: #27272a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--text-muted); }
-        .profile-info { flex-grow: 1; }
-        .profile-info h3 { font-size: 16px; font-weight: 600; }
+        .profile-card { margin: 15px 20px 20px; background: var(--bg-card); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .avatar { width: 45px; height: 45px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--neon); flex-shrink: 0; }
+        .profile-info { flex-grow: 1; overflow: hidden; }
+        .profile-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .profile-info p { color: var(--text-muted); font-size: 12px; }
-        .btn-outline { border: 1px solid var(--neon); color: var(--neon); background: transparent; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; }
+        .btn-outline { border: 1px solid var(--neon); color: var(--neon); background: transparent; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; flex-shrink: 0; }
 
-        /* Categories */
-        .categories { display: flex; gap: 12px; overflow-x: auto; padding: 0 20px 20px; scrollbar-width: none; }
-        .categories::-webkit-scrollbar { display: none; }
-        .cat-item { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 60px; cursor: pointer; }
-        .cat-icon { width: 50px; height: 50px; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--text-muted); transition: 0.2s; }
-        .cat-item.active .cat-icon { border-color: var(--neon); color: var(--neon); }
-        .cat-item span { font-size: 11px; color: var(--text-muted); font-weight: 500; }
-        .cat-item.active span { color: var(--neon); }
+        /* FILTRID (TÖÖTAV HORISONTAALNE SCROLL) */
+        .section-header { padding: 0 20px; margin-bottom: 12px; font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #fff; }
+        
+        .filter-wrapper { width: 100%; overflow: hidden; }
+        .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 0 20px 15px 20px; scrollbar-width: none; -webkit-overflow-scrolling: touch; align-items: center; }
+        .filter-scroll::-webkit-scrollbar { display: none; }
+        .filter-scroll::after { content: ''; padding-right: 12px; }
+        
+        .filter-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; flex: 0 0 auto; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+        .filter-btn i { font-size: 14px; }
+        .filter-btn.active { border-color: var(--neon); color: black; background: var(--neon); }
 
-        /* Search */
-        .search-bar { margin: 0 20px 25px; position: relative; }
-        .search-bar input { width: 100%; background: var(--bg-input); border: none; border-radius: 10px; padding: 12px 12px 12px 40px; color: var(--text-main); font-size: 14px; }
-        .search-bar i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        /* MASINATE LIST */
+        .machine-list { display: flex; flex-direction: column; gap: 12px; padding: 0 20px 20px; }
+        .machine-card { background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.1s; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .machine-card:active { transform: scale(0.98); }
+        .machine-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #fff; }
+        .machine-card p { font-size: 12px; color: var(--text-muted); line-height: 1.4; font-weight: 500;}
+        .machine-icon-container { display: flex; align-items: center; gap: 15px; }
+        .machine-card i.list-icon { color: var(--neon); font-size: 20px; width: 25px; text-align: center; }
+        .empty-state { text-align: center; color: var(--text-muted); padding: 30px 20px; font-size: 14px; }
 
-        /* Lists & Headers */
-        .section-header { display: flex; justify-content: space-between; align-items: flex-end; padding: 0 20px; margin-bottom: 12px; }
-        .section-header h2 { font-size: 20px; font-weight: 900; font-style: italic; }
-        .text-link { background: none; border: none; color: var(--neon); font-size: 13px; font-weight: 600; cursor: pointer; }
-
-        .machine-list { display: flex; gap: 15px; overflow-x: auto; padding: 0 20px 25px; scrollbar-width: none; }
-        .machine-list::-webkit-scrollbar { display: none; }
-        .machine-card { min-width: 150px; width: 150px; background: var(--bg-card); border-radius: 12px; overflow: hidden; position: relative; border: 1px solid var(--border); cursor: pointer; }
-        .machine-img { height: 100px; background-size: cover; background-position: center; position: relative; }
-        .heart-btn { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.5); border: none; width: 28px; height: 28px; border-radius: 50%; color: white; cursor: pointer; }
-        .machine-info { padding: 10px; }
-        .machine-info h4 { font-size: 13px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
-        .machine-info p { font-size: 11px; color: var(--text-muted); }
-
-        /* Machine View */
-        .machine-hero { height: 220px; background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=800') center/cover; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
-        .machine-header-top { display: flex; justify-content: space-between; align-items: center; }
-        .machine-hero-text h2 { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
-        .machine-hero-text p { color: var(--text-muted); font-size: 13px; }
-        .anatomy-icon { position: absolute; bottom: 20px; right: 20px; font-size: 40px; color: var(--neon); opacity: 0.8;}
-
-        .tabs { display: flex; border-bottom: 1px solid var(--border); margin: 0 20px 20px; }
-        .tab { flex: 1; text-align: center; padding: 12px 0; color: var(--text-muted); font-weight: 600; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s;}
-        .tab.active { color: var(--neon); border-bottom: 2px solid var(--neon); }
-
-        .pr-card { margin: 0 20px 20px; background: var(--bg-card); border: 1px solid var(--neon); border-radius: 10px; padding: 15px; display: flex; align-items: center; justify-content: space-between; }
-        .pr-info { display: flex; align-items: center; gap: 12px; }
-        .pr-info i { color: #fbbf24; font-size: 24px; }
-        .pr-text span { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 2px;}
-        .pr-text strong { font-size: 14px; font-weight: 600;}
-
-        .sets-section { padding: 0 20px 20px; }
-        .sets-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .sets-header h3 { font-size: 16px; font-weight: 700; }
-        .btn-add { background: transparent; border: 1px solid var(--neon); color: var(--neon); padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
-
+        /* TREENINGU LOGIMINE */
+        .logger-header { display: flex; align-items: center; justify-content: space-between; padding: 20px; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
+        .icon-btn { background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; }
+        .logger-title { font-weight: 800; font-size: 16px; text-align: center; flex-grow: 1; padding: 0 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; letter-spacing: 0.5px;}
+        
+        .sets-section { padding: 20px; flex-grow: 1; }
         .sets-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .sets-table th { color: var(--text-muted); font-size: 11px; font-weight: 500; text-align: center; padding-bottom: 10px; }
-        .sets-table td { padding: 4px 2px; text-align: center; }
-        .set-input { width: 100%; background: var(--bg-card); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 8px; text-align: center; font-size: 15px; font-weight: 600; outline: none; }
-        .del-btn { color: var(--red); background: none; border: none; font-size: 15px; cursor: pointer; }
+        .sets-table th { color: var(--text-muted); font-size: 12px; font-weight: 600; text-align: center; padding-bottom: 15px; text-transform: uppercase; }
+        .sets-table td { padding: 6px 4px; text-align: center; }
+        .set-input { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: white; padding: 14px; border-radius: 10px; text-align: center; font-size: 16px; font-weight: 700; outline: none; }
+        .set-input:focus { border-color: var(--neon); }
+        
+        .btn-add { background: transparent; border: 1px dashed var(--border); color: var(--text-muted); width: 100%; padding: 14px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 15px; transition: 0.2s; }
+        .btn-primary { width: 100%; background: var(--neon); color: black; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(204, 255, 0, 0.2); text-transform: uppercase;}
+        .btn-del { color: var(--red); background: none; border: none; font-size: 18px; cursor: pointer; padding: 10px; }
 
-        .total-volume { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
-        .btn-primary { width: 100%; background: var(--neon); color: black; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 800; cursor: pointer; margin-bottom: 12px; }
-        .btn-secondary { width: 100%; background: transparent; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; cursor: pointer; }
+        /* MASINA INFO JA PILT ALLOSAS */
+        .machine-info-box { margin: 20px; padding: 15px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); display: flex; gap: 15px; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .machine-img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; background: #111; border: 1px solid #333; flex-shrink: 0; }
+        .machine-details { flex-grow: 1; }
+        .machine-details h5 { color: var(--neon); font-size: 12px; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .machine-details p { font-size: 14px; color: white; font-weight: 700; margin-bottom: 6px; line-height: 1.2;}
+        .machine-details .alt { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+        .machine-details .alt span { color: #fff; }
 
-        .history-list { padding: 0 20px 20px; }
-        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-        .history-item:last-child { border-bottom: none; }
-        .h-left { display: flex; gap: 30px; color: var(--text-muted); }
-        .h-right { color: var(--neon); font-weight: 700; }
+        /* AJALUGU & PDF */
+        .history-list { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .history-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .history-card-header { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px; }
+        .history-date { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 500;}
+        .history-machine { font-size: 15px; font-weight: 800; color: var(--text-main); }
+        .history-set { display: flex; justify-content: space-between; font-size: 14px; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); }
+        .history-set:last-child { border-bottom: none; }
+        .history-del-btn { color: var(--red); background: rgba(239, 68, 68, 0.1); border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; font-weight: 700; height: fit-content;}
 
-        /* Summary View */
-        .summary-hero { margin: 0 20px 20px; height: 160px; border-radius: 12px; background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800') center/cover; display: flex; flex-direction: column; justify-content: space-between; padding: 15px; }
-        .summary-hero h1 { font-size: 28px; font-weight: 900; font-style: italic; color: var(--neon); text-align: right; margin-top: auto; }
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 0 20px 20px; }
-        .stat-box { display: flex; flex-direction: column; gap: 4px; }
-        .stat-box i { font-size: 18px; margin-bottom: 4px; }
-        .stat-box span { font-size: 11px; color: var(--text-muted); }
-        .stat-box strong { font-size: 13px; font-weight: 700; }
-
-        .exercise-list { padding: 0 20px 20px; }
-        .ex-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-        .ex-img { width: 45px; height: 45px; border-radius: 8px; background-size: cover; background-position: center; }
-        .ex-info { flex-grow: 1; }
-        .ex-info h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px;}
-        .ex-info p { font-size: 11px; color: var(--text-muted); }
-        .ex-vol { color: var(--neon); font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px; }
-
-        .action-buttons { display: flex; gap: 10px; padding: 0 20px 20px; }
-        .note-box { margin: 0 20px 20px; padding: 15px; background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border); display: flex; gap: 12px; align-items: flex-start; }
-        .note-box i { font-size: 20px; color: var(--text-muted); }
-        .note-box p { font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-top: 4px; }
-        .note-box strong { color: white; font-size: 13px; }
-
-        /* Stats View */
-        .s-tab { flex: 1; padding: 8px 0; text-align: center; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;}
-        .s-tab.active { border-color: var(--neon); color: var(--neon); background: rgba(204,255,0,0.05); }
-
-        .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 20px 20px; }
-        .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; display: flex; flex-direction: column; align-items: center; }
-        .kpi-head { font-size: 20px; color: var(--neon); margin-bottom: 8px; height: 24px;}
-        .kpi-card p { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
-        .kpi-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-        .trend { font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
-        .trend-up { color: var(--green); }
-
-        .chart-section { padding: 0 20px 20px; }
-        .chart-section h3 { font-size: 15px; margin-bottom: 12px; font-weight: 600; }
-        .bar-chart-container { width: 100%; height: 140px; display: flex; flex-direction: column; }
-        .bar-chart { flex-grow: 1; display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 5px; gap: 4px; }
-        .bar { flex: 1; background: var(--neon); border-radius: 2px 2px 0 0; }
-        .bar-labels { display: flex; justify-content: space-between; font-size: 9px; color: var(--text-muted); padding-top: 8px; }
-
-        .pie-container { display: flex; align-items: center; gap: 20px; }
-        .pie-chart { width: 110px; height: 110px; border-radius: 50%; background: conic-gradient(#ccff00 0% 28%, #22c55e 28% 52%, #3b82f6 52% 72%, #64748b 72% 84%, #8b5cf6 84% 94%, #475569 94% 100%); display: flex; align-items: center; justify-content: center; }
-        .pie-inner { width: 70px; height: 70px; background: var(--bg-main); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
-        .pie-legend { flex-grow: 1; display: flex; flex-direction: column; gap: 6px; }
-        .l-item { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted); }
-        .l-item div { display: flex; align-items: center; gap: 8px;}
-        .dot { width: 10px; height: 10px; border-radius: 2px; display: block; }
-
-        /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 414px; background: rgba(9, 9, 11, 0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 10px 25px; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 10px; font-weight: 600; cursor: pointer; border: none; background: none; }
-        .nav-item i { font-size: 20px; transition: 0.2s;}
+        .btn-pdf { background: #222; border: 1px solid var(--border); color: white; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+        
+        /* ALUMINE MENÜÜ */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: rgba(10, 10, 12, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 10px 25px; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 11px; font-weight: 600; cursor: pointer; border: none; background: none; }
+        .nav-item i { font-size: 20px; transition: 0.2s; }
         .nav-item.active { color: var(--neon); }
-
-        /* Toast notification */
-        .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-150%); background: var(--neon); color: black; padding: 12px 24px; border-radius: 30px; font-weight: 700; font-size: 14px; box-shadow: 0 10px 30px rgba(204, 255, 0, 0.4); transition: all 0.4s; z-index: 2000; opacity: 0; pointer-events: none; white-space: nowrap; }
-        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-
-        @media print { .bottom-nav, .top-header, .btn-primary, .btn-secondary, .action-buttons { display: none !important; } body { background: white; color: black; } .app-container { background: white; } .summary-hero h1 { color: black; } }
     </style>
 </head>
 <body>
 
     <div class="app-container">
         
-        <div id="demo-toast" class="toast">Funktsioon töötab!</div>
-
-        <!-- ================= AVALEHT (HOME) ================= -->
+        <!-- ================= 1. AVALEHT ================= -->
         <div id="view-home" class="view active">
             <header class="top-header">
-                <button class="icon-btn" onclick="showToast('Menüü avamine')"><i class="fa-solid fa-bars"></i></button>
-                <div class="logo" onclick="navTo('view-home')">24/7 <span>FITNESS</span></div>
-                <button class="icon-btn" onclick="showToast('Sul ei ole uusi teavitusi')"><i class="fa-regular fa-bell"></i></button>
+                <div class="logo">24/7 <span>FITNESS</span></div>
             </header>
-
-            <div class="hero-banner">
-                <h1><span>TREENI OMA</span> TULEMUSI</h1>
-            </div>
 
             <div class="profile-card">
                 <div class="avatar"><i class="fa-solid fa-user"></i></div>
                 <div class="profile-info">
-                    <h3>Reigo</h3>
-                    <p>35 a • 109 kg</p>
+                    <h3 id="ui-name">Nimetu</h3>
+                    <p><span id="ui-age">0</span> a • <span id="ui-weight">0</span> kg</p>
                 </div>
-                <button class="btn-outline" onclick="showToast('Profiili muutmine avaneb...')">Muuda</button>
+                <button class="btn-outline" onclick="app.editProfile()">Muuda</button>
             </div>
 
-            <div class="categories" id="cat-list">
-                <div class="cat-item active" onclick="switchCategory(this)"><div class="cat-icon"><i class="fa-solid fa-dumbbell"></i></div><span>Kõik masinad</span></div>
-                <div class="cat-item" onclick="switchCategory(this)"><div class="cat-icon"><i class="fa-solid fa-child"></i></div><span>Rind</span></div>
-                <div class="cat-item" onclick="switchCategory(this)"><div class="cat-icon"><i class="fa-solid fa-person-running"></i></div><span>Selg</span></div>
-                <div class="cat-item" onclick="switchCategory(this)"><div class="cat-icon"><i class="fa-solid fa-shoe-prints"></i></div><span>Jalad</span></div>
-                <div class="cat-item" onclick="switchCategory(this)"><div class="cat-icon"><i class="fa-solid fa-child-reaching"></i></div><span>Õlad</span></div>
-                <div class="cat-item" onclick="switchCategory(this)"><div class="cat-icon"><i class="fa-solid fa-hand-fist"></i></div><span>Käed</span></div>
-            </div>
-
-            <div class="search-bar">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Otsi masinat või harjutust..." onkeypress="if(event.key === 'Enter') showToast('Otsing: ' + this.value)">
-            </div>
-
-            <!-- RIND SEKTSIOON -->
-            <div class="section-header"><h2>RIND</h2><button class="text-link" onclick="showToast('Avab kõik rinna harjutused')">Vaata kõik <i class="fa-solid fa-chevron-right"></i></button></div>
-            <div class="machine-list">
-                <div class="machine-card" onclick="openMachine()">
-                    <div class="machine-img" style="background-image: url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400');"><button class="heart-btn" onclick="event.stopPropagation(); showToast('Lisatud lemmikutesse!')"><i class="fa-regular fa-heart"></i></button></div>
-                    <div class="machine-info"><h4>Rinnalt surumise pink</h4><p>Gymleco • Vabaraskused</p></div>
-                </div>
-                <div class="machine-card" onclick="openMachine()">
-                    <div class="machine-img" style="background-image: url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400');"><button class="heart-btn" onclick="event.stopPropagation(); showToast('Lisatud lemmikutesse!')"><i class="fa-regular fa-heart"></i></button></div>
-                    <div class="machine-info"><h4>Kaldpink</h4><p>Gymleco</p></div>
-                </div>
-                <div class="machine-card" onclick="openMachine()">
-                    <div class="machine-img" style="background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400');"><button class="heart-btn" onclick="event.stopPropagation(); showToast('Lisatud lemmikutesse!')"><i class="fa-regular fa-heart"></i></button></div>
-                    <div class="machine-info"><h4>Decline pink</h4><p>Gymleco</p></div>
-                </div>
-                <div class="machine-card" onclick="openMachine()">
-                    <div class="machine-img" style="background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400');"><button class="heart-btn" onclick="event.stopPropagation(); showToast('Lisatud lemmikutesse!')"><i class="fa-regular fa-heart"></i></button></div>
-                    <div class="machine-info"><h4>Pec Deck (rinnalihased)</h4><p>Gymleco</p></div>
+            <div class="section-header">Vali lihasgrupp</div>
+            
+            <!-- SKROLLITAVAD FILTRID -->
+            <div class="filter-wrapper">
+                <div class="filter-scroll" id="filter-container">
+                    <!-- Genereeritakse JS abil -->
                 </div>
             </div>
-
-            <!-- SELG SEKTSIOON -->
-            <div class="section-header"><h2>SELG</h2><button class="text-link" onclick="showToast('Avab kõik selja harjutused')">Vaata kõik <i class="fa-solid fa-chevron-right"></i></button></div>
-            <div class="machine-list">
-                <div class="machine-card" onclick="openMachine()">
-                    <div class="machine-img" style="background-image: url('https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=400');"><button class="heart-btn" onclick="event.stopPropagation(); showToast('Lisatud lemmikutesse!')"><i class="fa-regular fa-heart"></i></button></div>
-                    <div class="machine-info"><h4>Lat Pulldown</h4><p>Gymleco</p></div>
-                </div>
-                <div class="machine-card" onclick="openMachine()">
-                    <div class="machine-img" style="background-image: url('https://images.unsplash.com/photo-1603287681836-b174ce5074c2?q=80&w=400');"><button class="heart-btn" onclick="event.stopPropagation(); showToast('Lisatud lemmikutesse!')"><i class="fa-regular fa-heart"></i></button></div>
-                    <div class="machine-info"><h4>Seated Row</h4><p>Gymleco</p></div>
-                </div>
+            
+            <div class="machine-list" id="exercise-list">
+                <!-- Masinad genereeritakse JS abil -->
             </div>
         </div>
 
-        <!-- ================= TREENINGU LOGIMINE (MACHINE DETAIL) ================= -->
-        <div id="view-machine" class="view">
-            <div class="machine-hero">
-                <div class="machine-header-top">
-                    <button class="icon-btn" onclick="navTo('view-home', 0)"><i class="fa-solid fa-arrow-left"></i></button>
-                    <button class="icon-btn" onclick="showToast('Lisatud lemmikutesse!')"><i class="fa-regular fa-heart"></i></button>
-                </div>
-                <div class="machine-hero-text">
-                    <h2>Rinnalt surumise pink</h2>
-                    <p>Gymleco • Vabaraskused</p>
-                </div>
-                <div class="anatomy-icon"><i class="fa-solid fa-child-reaching"></i></div>
-            </div>
-
-            <div class="tabs" id="machine-tabs">
-                <div class="tab active" onclick="switchTab(this, 'machine-tabs')">Logi</div>
-                <div class="tab" onclick="switchTab(this, 'machine-tabs'); showToast('Kirjeldus avatud')">Kirjeldus</div>
-                <div class="tab" onclick="switchTab(this, 'machine-tabs'); showToast('Lihaste vaade avatud')">Lihased</div>
-            </div>
-
-            <div class="pr-card">
-                <div class="pr-info">
-                    <i class="fa-solid fa-trophy" style="color: #fbbf24; font-size: 24px;"></i>
-                    <div class="pr-text"><span>Isiklik rekord</span><strong>100 kg × 5 kordust</strong></div>
-                </div>
-                <button class="btn-outline" onclick="showToast('Rekordi uuendamine...')">Uuenda</button>
-            </div>
+        <!-- ================= 2. LOGI TREENINGUT ================= -->
+        <div id="view-logger" class="view">
+            <header class="logger-header">
+                <button class="icon-btn" onclick="app.navTo('view-home', 0)"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="logger-title" id="logger-machine-name">Harjutus</div>
+                <div style="width:20px;"></div>
+            </header>
 
             <div class="sets-section">
-                <div class="sets-header">
-                    <h3>Seeriad</h3>
-                    <button class="btn-add" onclick="addSet()">+ Lisa seeria</button>
-                </div>
-                
                 <table class="sets-table">
-                    <thead><tr><th>#</th><th>Raskus (kg)</th><th>Kordused</th><th>Mahu (kg)</th><th></th></tr></thead>
-                    <tbody id="sets-body"></tbody>
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">Seeria</th>
+                            <th style="width: 35%;">Raskus (kg)</th>
+                            <th style="width: 35%;">Kordused</th>
+                            <th style="width: 15%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="logger-sets-body">
+                        <!-- Sisestusväljad -->
+                    </tbody>
                 </table>
 
-                <div class="total-volume">Kokku maht: <span id="total-vol" style="color: var(--neon);">0</span> kg</div>
-
-                <button class="btn-primary" onclick="saveWorkout()"><i class="fa-solid fa-check"></i> Salvesta harjutus</button>
-                <button class="btn-secondary" onclick="showToast('Taimer käivitatud! (02:00)')"><i class="fa-regular fa-clock"></i> Taimer &nbsp; 02:00</button>
-                <button class="btn-secondary" onclick="showToast('Märkmete aken avatud')"><i class="fa-regular fa-clipboard"></i> Lisa märge</button>
+                <button class="btn-add" onclick="app.addSet()">+ Lisa uus seeria</button>
+                <button class="btn-primary" onclick="app.saveWorkout()">Salvesta harjutus</button>
             </div>
 
-            <div class="history-list">
-                <h3 style="margin: 0 20px 15px;">Viimased treeningud</h3>
-                <div class="history-item">
-                    <div class="h-left"><span>08.10.2026</span><span>100 kg × 6</span></div>
-                    <span class="h-right">2 920 kg</span>
-                </div>
-                <div class="history-item">
-                    <div class="h-left"><span>04.10.2026</span><span>90 kg × 8</span></div>
-                    <span class="h-right">2 560 kg</span>
+            <!-- MASINA INFO JA PILT ALLOSAS -->
+            <div class="machine-info-box" id="machine-info-box">
+                <img src="" alt="Machine" class="machine-img" id="machine-img">
+                <div class="machine-details">
+                    <h5>Soovituslik Pink</h5>
+                    <p id="machine-desc">Gymleco Pink</p>
+                    <div class="alt">Alternatiiv: <span id="machine-alt">-</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- ================= KOKKUVÕTE (SUMMARY) ================= -->
-        <div id="view-summary" class="view">
-            <header class="top-header" style="background: var(--bg-main);">
-                <button class="icon-btn" onclick="navTo('view-home', 0)"><i class="fa-solid fa-arrow-left"></i></button>
-                <div style="font-weight: 600; font-size: 16px;">Treening</div>
-                <button class="text-link" style="color: var(--red); font-size: 14px;" onclick="showToast('Treening kustutatud!')"><i class="fa-regular fa-trash-can"></i> Kustuta</button>
+        <!-- ================= 3. TREENINGUTE AJALUGU & PDF ================= -->
+        <div id="view-history" class="view">
+            <header class="top-header">
+                <div class="logo">Minu <span>Ajalugu</span></div>
+                <button class="btn-pdf" onclick="app.exportPDF()"><i class="fa-solid fa-file-pdf"></i> Salvesta PDF</button>
             </header>
 
-            <div class="summary-hero">
-                <div class="logo" style="text-align: left;">24/7 <span>FITNESS</span></div>
-                <h1>RIND TRENN</h1>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-box"><i class="fa-regular fa-calendar"></i><span>08.10.2026</span><strong>18:42</strong></div>
-                <div class="stat-box"><i class="fa-regular fa-clock"></i><span>Kestus</span><strong>1h 15m</strong></div>
-                <div class="stat-box"><i class="fa-solid fa-weight-hanging"></i><span>Kogumaht</span><strong id="final-vol">12 560 kg</strong></div>
-                <div class="stat-box"><i class="fa-solid fa-trophy"></i><span>Harjutusi</span><strong>6</strong></div>
-            </div>
-
-            <div class="exercise-list">
-                <div class="ex-item">
-                    <div class="ex-img" style="background-image: url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=100');"></div>
-                    <div class="ex-info"><h4>Rinnalt surumise pink</h4><p>4 seeriat</p></div>
-                    <div class="ex-vol">2 920 kg <i class="fa-solid fa-chevron-right" style="color: var(--border); margin-left: 5px;"></i></div>
-                </div>
-                <div class="ex-item">
-                    <div class="ex-img" style="background-image: url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=100');"></div>
-                    <div class="ex-info"><h4>Kaldpink hantlitega</h4><p>4 seeriat</p></div>
-                    <div class="ex-vol">2 160 kg <i class="fa-solid fa-chevron-right" style="color: var(--border); margin-left: 5px;"></i></div>
-                </div>
-                <div class="ex-item">
-                    <div class="ex-img" style="background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=100');"></div>
-                    <div class="ex-info"><h4>Pec Deck</h4><p>3 seeriat</p></div>
-                    <div class="ex-vol">1 680 kg <i class="fa-solid fa-chevron-right" style="color: var(--border); margin-left: 5px;"></i></div>
-                </div>
-            </div>
-
-            <div class="action-buttons">
-                <button class="btn-secondary" onclick="exportPDF()" style="flex: 1;"><i class="fa-solid fa-download"></i> Salvesta PDF</button>
-                <button class="btn-secondary" style="flex: 1;" onclick="showToast('Jagamise aken avatud')"><i class="fa-solid fa-share-nodes"></i> Jaga</button>
-            </div>
-
-            <div class="note-box">
-                <i class="fa-regular fa-file-lines"></i>
-                <div><strong>Treeningu märge</strong><p>Tugev trenn, järgmine kord proovin 105 kg.</p></div>
+            <div class="history-list" id="history-container">
+                <!-- Ajalugu genereeritakse siia -->
             </div>
         </div>
 
-        <!-- ================= STATISTIKA (STATS) ================= -->
-        <div id="view-stats" class="view">
-            <header class="top-header" style="background: var(--bg-main);">
-                <button class="icon-btn" onclick="showToast('Menüü avamine')"><i class="fa-solid fa-bars"></i></button>
-                <div class="logo">24/7 <span>FITNESS</span></div>
-                <button class="icon-btn" onclick="showToast('Teavitused')"><i class="fa-regular fa-bell"></i></button>
-            </header>
-
-            <h2 style="text-align: center; margin-bottom: 20px; font-weight: 700; font-size: 20px;">Statistika</h2>
-
-            <div class="tabs" style="margin: 0 20px 20px; gap: 10px;" id="stats-tabs">
-                <div class="s-tab" onclick="switchTab(this, 'stats-tabs'); showToast('Nädala vaade')">Nädal</div>
-                <div class="s-tab active" onclick="switchTab(this, 'stats-tabs'); showToast('Kuu vaade')">Kuu</div>
-                <div class="s-tab" onclick="switchTab(this, 'stats-tabs'); showToast('3 kuu vaade')">3 kuud</div>
-                <div class="s-tab" onclick="switchTab(this, 'stats-tabs'); showToast('Aasta vaade')">Aasta</div>
-            </div>
-
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="kpi-head"><i class="fa-solid fa-dumbbell"></i></div>
-                    <p>Treeninguid</p>
-                    <h3>12</h3>
-                    <span class="trend trend-up">+20% <i class="fa-solid fa-arrow-up"></i></span>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-head"><i class="fa-solid fa-chart-simple"></i></div>
-                    <p>Kogumaht</p>
-                    <h3>145 620 kg</h3>
-                    <span class="trend trend-up">+18% <i class="fa-solid fa-arrow-up"></i></span>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-head"><i class="fa-solid fa-trophy" style="color: #fbbf24;"></i></div>
-                    <p>Isiklikke rekordeid</p>
-                    <h3>5</h3>
-                    <span class="trend trend-up">+ 2 <i class="fa-solid fa-arrow-up"></i></span>
-                </div>
-            </div>
-
-            <div class="chart-section">
-                <h3>Kogumaht ajas</h3>
-                <div class="bar-chart-container">
-                    <div class="bar-chart">
-                        <div class="bar" style="height: 10%"></div><div class="bar" style="height: 20%"></div>
-                        <div class="bar" style="height: 35%"></div><div class="bar" style="height: 25%"></div>
-                        <div class="bar" style="height: 40%"></div><div class="bar" style="height: 45%"></div>
-                        <div class="bar" style="height: 60%"></div><div class="bar" style="height: 50%"></div>
-                        <div class="bar" style="height: 55%"></div><div class="bar" style="height: 70%"></div>
-                        <div class="bar" style="height: 65%"></div><div class="bar" style="height: 85%"></div>
-                        <div class="bar" style="height: 75%"></div><div class="bar" style="height: 90%"></div>
-                        <div class="bar" style="height: 100%"></div><div class="bar" style="height: 95%"></div>
-                    </div>
-                    <div class="bar-labels">
-                        <span>01.09</span><span>08.09</span><span>15.09</span><span>22.09</span><span>29.09</span><span>06.10</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="chart-section">
-                <h3>Lihasgrupi jaotus</h3>
-                <div class="pie-container">
-                    <div class="pie-chart">
-                        <div class="pie-inner">145k kg</div>
-                    </div>
-                    <div class="pie-legend">
-                        <div class="l-item"><div><span class="dot" style="background:#ccff00;"></span> Rind</div> <span>28%</span></div>
-                        <div class="l-item"><div><span class="dot" style="background:#22c55e;"></span> Selg</div> <span>24%</span></div>
-                        <div class="l-item"><div><span class="dot" style="background:#3b82f6;"></span> Jalad</div> <span>20%</span></div>
-                        <div class="l-item"><div><span class="dot" style="background:#64748b;"></span> Õlad</div> <span>12%</span></div>
-                        <div class="l-item"><div><span class="dot" style="background:#8b5cf6;"></span> Käed</div> <span>10%</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section-header" style="margin-top: 10px;">
-                <h3 style="font-size: 16px; margin:0;">Viimased treeningud</h3>
-                <button class="text-link" onclick="showToast('Avab kogu ajaloo')">Vaata kõik <i class="fa-solid fa-chevron-right"></i></button>
-            </div>
-            <div class="history-list">
-                <div class="history-item">
-                    <div class="h-left"><span class="h-date">08.10.2026</span><span style="color:#fff;">Rind trenn</span></div>
-                    <span class="h-right">12 560 kg</span>
-                </div>
-                <div class="history-item">
-                    <div class="h-left"><span class="h-date">06.10.2026</span><span style="color:#fff;">Selg trenn</span></div>
-                    <span class="h-right">10 480 kg</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= BOTTOM NAV ================= -->
+        <!-- ================= ALUMINE MENÜÜ ================= -->
         <nav class="bottom-nav">
-            <button class="nav-item active" onclick="navTo('view-home', 0)"><i class="fa-solid fa-house"></i><span>Avaleht</span></button>
-            <button class="nav-item" onclick="navTo('view-summary', 1)"><i class="fa-regular fa-calendar-check"></i><span>Treeningud</span></button>
-            <button class="nav-item" onclick="navTo('view-stats', 2)"><i class="fa-solid fa-chart-line"></i><span>Statistika</span></button>
-            <button class="nav-item" onclick="showToast('Seadete vaade avaneb...')"><i class="fa-solid fa-gear"></i><span>Seaded</span></button>
+            <button class="nav-item active" onclick="app.navTo('view-home', 0)">
+                <i class="fa-solid fa-dumbbell"></i><span>Treeni</span>
+            </button>
+            <button class="nav-item" onclick="app.navTo('view-history', 1)">
+                <i class="fa-regular fa-calendar-check"></i><span>Ajalugu</span>
+            </button>
         </nav>
 
     </div>
 
-    <!-- KOGU JAVASCRIPT LOOGIKA SIIN SAMAS FAILIS -->
     <script>
-        // Teavituse (Toast) loogika
-        let toastTimeout;
-        function showToast(message) {
-            const toast = document.getElementById('demo-toast');
-            toast.innerText = message;
-            toast.classList.add('show');
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 2500);
-        }
+        // Dünaamiline 100% klappiv pildi URL generaator (loob pildi, kus on täpselt masina nimi peal)
+        const getImgUrl = (text) => `https://placehold.co/400x400/1c1c1e/ccff00?text=${encodeURIComponent(text.replace(' ', '\n'))}&font=montserrat`;
 
-        // Kategooriate nupud (Kõik, Rind, Selg jne)
-        function switchCategory(element) {
-            const children = document.getElementById('cat-list').children;
-            for(let i=0; i<children.length; i++) children[i].classList.remove('active');
-            element.classList.add('active');
-            showToast('Filtreerin: ' + element.innerText);
-        }
+        const app = {
+            profile: JSON.parse(localStorage.getItem('247app_profile_v5')) || { name: '', age: '', weight: '' },
+            history: JSON.parse(localStorage.getItem('247app_history_v5')) || [],
+            
+            activeFilters: [],
+            currentExercise: null,
+            currentSets: [],
 
-        // Vahekaardid (Logi/Kirjeldus/Lihased või Nädal/Kuu/Aasta)
-        function switchTab(element, parentId) {
-            const children = document.getElementById(parentId).children;
-            for(let i=0; i<children.length; i++) children[i].classList.remove('active');
-            element.classList.add('active');
-        }
+            // LAIENDATUD SPETSIIFILISED KATEGOORIAD
+            categories: [
+                { id: 'Rind', icon: 'fa-child' },
+                { id: 'Ülaselg', icon: 'fa-arrow-down-up-across-line' },
+                { id: 'Alaselg', icon: 'fa-person-bending-backward' },
+                { id: 'Õlad', icon: 'fa-child-reaching' },
+                { id: 'Biitseps', icon: 'fa-hand-fist' },
+                { id: 'Triitseps', icon: 'fa-hand-back-fist' },
+                { id: 'Reied', icon: 'fa-shoe-prints' },
+                { id: 'Sääred', icon: 'fa-shoe-prints' },
+                { id: 'Kõht', icon: 'fa-cubes' }
+            ],
 
-        // Vaadete vahel navigeerimine (Avaleht -> Masin -> Treening -> Statistika)
-        function navTo(viewId, bottomNavIndex = null) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-            window.scrollTo(0,0);
-
-            if (bottomNavIndex !== null) {
-                const navItems = document.querySelectorAll('.bottom-nav .nav-item');
-                navItems.forEach(b => b.classList.remove('active'));
-                navItems[bottomNavIndex].classList.add('active');
-            }
-        }
-
-        // Masinale klikkimine avab detailvaate
-        function openMachine() {
-            navTo('view-machine');
-            document.querySelectorAll('.bottom-nav .nav-item').forEach(b => b.classList.remove('active'));
-        }
-
-        // Seeriate arvutamise loogika
-        let sets = [
-            { weight: 60, reps: 12 },
-            { weight: 80, reps: 10 },
-            { weight: 100, reps: 8 },
-            { weight: 100, reps: 6 }
-        ];
-        let globalTotalVolume = 0;
-
-        function renderSets() {
-            const tbody = document.getElementById('sets-body');
-            tbody.innerHTML = '';
-            globalTotalVolume = 0;
-
-            sets.forEach((set, index) => {
-                const vol = set.weight * set.reps;
-                globalTotalVolume += vol;
+            // LÕPLIK TÄIUSLIK ANDMEBAAS (Klapib 100% Gymleco ja 24/7 fitnessiga)
+            exercises: [
+                // RIND
+                { name: 'Bench Press', target: 'Rind', desc: 'Gymleco Olympic Flat Bench', alt: 'Smith masin / Hantlid lamades', icon: 'fa-child', img: getImgUrl('Bench Press') },
+                { name: 'Incline Dumbbell Press', target: 'Rind', desc: 'Gymleco Adjustable Bench + Hantlid', alt: 'Kaldpink kangiga / Smith', icon: 'fa-dumbbell', img: getImgUrl('Incline Press') },
+                { name: 'Pec Deck Fly', target: 'Rind', desc: 'Gymleco Pec Deck plokkmasin', alt: 'Hantlitega lendamine', icon: 'fa-arrows-left-right', img: getImgUrl('Pec Deck') },
+                { name: 'Cable Crossover', target: 'Rind', desc: 'Gymleco ristveo masin', alt: 'Pec Deck / Lendamine hantlitega', icon: 'fa-xmarks-lines', img: getImgUrl('Cable Cross') },
+                { name: 'Dips', target: 'Rind', desc: 'Gymleco Dip Station', alt: 'Assisted Dip masin', icon: 'fa-arrow-down', img: getImgUrl('Dips') },
                 
-                tbody.innerHTML += `
-                    <tr>
-                        <td style="color: var(--text-muted);">${index + 1}</td>
-                        <td><input type="number" class="set-input" value="${set.weight}" onchange="updateSet(${index}, 'weight', this.value)"></td>
-                        <td><input type="number" class="set-input" value="${set.reps}" onchange="updateSet(${index}, 'reps', this.value)"></td>
-                        <td style="font-weight: 600; color: #fff;">${vol}</td>
-                        <td><button class="del-btn" onclick="removeSet(${index})"><i class="fa-regular fa-trash-can"></i></button></td>
-                    </tr>
+                // ÜLASELG
+                { name: 'Lat Pulldown', target: 'Ülaselg', desc: 'Gymleco Lat Pulldown masin', alt: 'Lõuatõmbed / Assisted Pull-up', icon: 'fa-arrow-down', img: getImgUrl('Lat Pulldown') },
+                { name: 'Seated Cable Row', target: 'Ülaselg', desc: 'Gymleco Seated Row masin', alt: 'T-Bar Row / Hantliga tõmbed', icon: 'fa-arrow-right-to-bracket', img: getImgUrl('Seated Row') },
+                { name: 'T-Bar Row', target: 'Ülaselg', desc: 'Gymleco T-Bar masin / Kangi ots', alt: 'Seated Cable Row / Kangi tõmbed', icon: 'fa-dumbbell', img: getImgUrl('T-Bar Row') },
+                { name: 'Pull-Ups', target: 'Ülaselg', desc: 'Gymleco Lõuatõmbe kang', alt: 'Lat Pulldown masin', icon: 'fa-arrow-up', img: getImgUrl('Pull-Ups') },
+                { name: 'Face Pulls', target: 'Ülaselg', desc: 'Gymleco ristveo masin + köis', alt: 'Rear Delt Fly masin', icon: 'fa-arrows-to-eye', img: getImgUrl('Face Pulls') },
+                
+                // ALASELG
+                { name: 'Deadlift (Jõutõmme)', target: 'Alaselg', desc: 'Vabaraskus kang tõsteplatvormil', alt: 'Smith masinal / Hantlitega', icon: 'fa-person-arrow-up-from-line', img: getImgUrl('Deadlift') },
+                { name: 'Back Extension', target: 'Alaselg', desc: 'Gymleco Roman Chair (Seljapink)', alt: 'Good Mornings kangiga', icon: 'fa-person-bending-backward', img: getImgUrl('Back Extension') },
+                { name: 'Good Mornings', target: 'Alaselg', desc: 'Kükipuur + Kang vabalanguses', alt: 'Back Extension pink', icon: 'fa-child-reaching', img: getImgUrl('Good Mornings') },
+                
+                // REIED
+                { name: 'Barbell Squat', target: 'Reied', desc: 'Gymleco Kükipuur (Half Rack)', alt: 'Smith masina kükk / Hack Squat', icon: 'fa-person-arrow-up-from-line', img: getImgUrl('Squat') },
+                { name: 'Leg Press', target: 'Reied', desc: 'Gymleco 45° Leg Press masin', alt: 'Kükk kangiga / Hack Squat', icon: 'fa-shoe-prints', img: getImgUrl('Leg Press') },
+                { name: 'Romanian Deadlift', target: 'Reied', desc: 'Vabaraskus kang / Hantlid', alt: 'Kõhuli Reiekõverdused', icon: 'fa-person-bending-backward', img: getImgUrl('RDL') },
+                { name: 'Leg Extension', target: 'Reied', desc: 'Gymleco Leg Extension masin', alt: 'Väljaasted / Bulgaaria kükk', icon: 'fa-person-walking', img: getImgUrl('Leg Extension') },
+                { name: 'Leg Curl', target: 'Reied', desc: 'Gymleco Istuv/Lamav Leg Curl', alt: 'RDL / Good Mornings', icon: 'fa-person-running', img: getImgUrl('Leg Curl') },
+                
+                // SÄÄRED
+                { name: 'Standing Calf Raise', target: 'Sääred', desc: 'Gymleco Standing Calf masin', alt: 'Smith masin / Hantliga ühel jalal', icon: 'fa-shoe-prints', img: getImgUrl('Standing Calf') },
+                { name: 'Seated Calf Raise', target: 'Sääred', desc: 'Gymleco Seated Calf masin', alt: 'Kang põlvedel istudes', icon: 'fa-chair', img: getImgUrl('Seated Calf') },
+
+                // ÕLAD
+                { name: 'Overhead Press (OHP)', target: 'Õlad', desc: 'Kangi surumine seistes (Half Rack)', alt: 'Hantlitega surumine istudes', icon: 'fa-arrow-up', img: getImgUrl('Overhead Press') },
+                { name: 'Lateral Raise', target: 'Õlad', desc: 'Hantlid vabaraskuste alal', alt: 'Kaablitega lendamine küljele', icon: 'fa-arrows-up-to-line', img: getImgUrl('Lateral Raise') },
+                { name: 'Reverse Pec Deck', target: 'Õlad', desc: 'Gymleco Pec Deck (tagurpidi)', alt: 'Face Pulls / Kummardades lendamine', icon: 'fa-arrows-left-right-to-line', img: getImgUrl('Reverse Deck') },
+                
+                // BIITSEPS
+                { name: 'Barbell Bicep Curl', target: 'Biitseps', desc: 'Sirge või EZ kang vabaraskustest', alt: 'Hantlitega Curls', icon: 'fa-dumbbell', img: getImgUrl('Barbell Curl') },
+                { name: 'Hammer Curls', target: 'Biitseps', desc: 'Hantlid vabaraskuste alal', alt: 'Kaabliga Hammer Curl', icon: 'fa-gavel', img: getImgUrl('Hammer Curls') },
+                { name: 'Preacher Curl', target: 'Biitseps', desc: 'Gymleco Scott pink + EZ kang', alt: 'Masinal Preacher Curl', icon: 'fa-hand-holding', img: getImgUrl('Preacher Curl') },
+                
+                // TRIITSEPS
+                { name: 'Tricep Pushdown', target: 'Triitseps', desc: 'Gymleco ristveo masin + köis/sirge', alt: 'Tricep Kickbacks hantliga', icon: 'fa-hand-back-fist', img: getImgUrl('Pushdown') },
+                { name: 'Skullcrushers', target: 'Triitseps', desc: 'Lamades Gymleco pink + EZ kang', alt: 'Overhead Tricep Ext.', icon: 'fa-arrow-up-from-bracket', img: getImgUrl('Skullcrusher') },
+                
+                // KÕHT
+                { name: 'Cable Crunch', target: 'Kõht', desc: 'Gymleco ristveo masin + köis', alt: 'Kõhulihaste masin', icon: 'fa-cubes', img: getImgUrl('Cable Crunch') },
+                { name: 'Hanging Leg Raise', target: 'Kõht', desc: 'Lõuatõmbe kangil rippudes', alt: 'Istesse tõusud pingil', icon: 'fa-person', img: getImgUrl('Leg Raise') }
+            ],
+
+            init: function() {
+                this.updateProfileUI();
+                this.renderFilters();
+                this.renderExerciseList();
+                this.renderHistory();
+            },
+
+            updateProfileUI: function() {
+                document.getElementById('ui-name').innerText = this.profile.name || 'Sisesta nimi';
+                document.getElementById('ui-age').innerText = this.profile.age || '-';
+                document.getElementById('ui-weight').innerText = this.profile.weight || '-';
+            },
+
+            editProfile: function() {
+                const newName = prompt("Sinu nimi:", this.profile.name);
+                if(newName === null) return;
+                const newAge = prompt("Sinu vanus:", this.profile.age);
+                if(newAge === null) return;
+                const newWeight = prompt("Sinu kaal (kg):", this.profile.weight);
+                if(newWeight === null) return;
+                
+                this.profile = { name: newName.trim(), age: newAge.trim(), weight: newWeight.trim() };
+                localStorage.setItem('247app_profile_v5', JSON.stringify(this.profile));
+                this.updateProfileUI();
+            },
+
+            navTo: function(viewId, navIndex) {
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                document.getElementById(viewId).classList.add('active');
+                
+                if(navIndex !== null) {
+                    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+                }
+                
+                if(viewId === 'view-history') this.renderHistory();
+                window.scrollTo(0,0);
+            },
+
+            renderFilters: function() {
+                const container = document.getElementById('filter-container');
+                container.innerHTML = '';
+                
+                this.categories.forEach(cat => {
+                    const isActive = this.activeFilters.includes(cat.id);
+                    container.innerHTML += `
+                        <button class="filter-btn ${isActive ? 'active' : ''}" onclick="app.toggleFilter('${cat.id}')">
+                            <i class="fa-solid ${cat.icon}"></i> ${cat.id}
+                        </button>
+                    `;
+                });
+            },
+
+            toggleFilter: function(category) {
+                const index = this.activeFilters.indexOf(category);
+                if (index > -1) {
+                    this.activeFilters.splice(index, 1);
+                } else {
+                    this.activeFilters.push(category);
+                }
+                this.renderFilters();
+                this.renderExerciseList();
+            },
+
+            renderExerciseList: function() {
+                const list = document.getElementById('exercise-list');
+                list.innerHTML = '';
+                
+                const filteredExercises = this.exercises.filter(ex => {
+                    if (this.activeFilters.length === 0) return true;
+                    return this.activeFilters.includes(ex.target);
+                });
+
+                if (filteredExercises.length === 0) {
+                    list.innerHTML = '<div class="empty-state">Sellele valikule vastavaid harjutusi ei leitud.</div>';
+                    return;
+                }
+
+                filteredExercises.forEach(ex => {
+                    list.innerHTML += `
+                        <div class="machine-card" onclick="app.openLogger('${ex.name}')">
+                            <div class="machine-icon-container">
+                                <i class="fa-solid ${ex.icon} list-icon"></i>
+                                <div>
+                                    <h4>${ex.name}</h4>
+                                    <p>${ex.target}</p>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right" style="color: var(--neon); font-size: 18px;"></i>
+                        </div>
+                    `;
+                });
+            },
+
+            openLogger: function(exerciseName) {
+                this.currentExercise = this.exercises.find(e => e.name === exerciseName);
+                if(!this.currentExercise) return;
+
+                document.getElementById('logger-machine-name').innerText = this.currentExercise.name;
+                
+                // Uuenda masina info kasti (mis asub nüüd ALL)
+                document.getElementById('machine-img').src = this.currentExercise.img;
+                document.getElementById('machine-desc').innerText = this.currentExercise.desc;
+                document.getElementById('machine-alt').innerText = this.currentExercise.alt;
+
+                this.currentSets = [{ weight: '', reps: '' }];
+                this.renderLoggerSets();
+                this.navTo('view-logger', null);
+            },
+
+            renderLoggerSets: function() {
+                const tbody = document.getElementById('logger-sets-body');
+                tbody.innerHTML = '';
+                
+                this.currentSets.forEach((set, index) => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td style="color: var(--neon); font-size: 16px; font-weight: 800;">${index + 1}</td>
+                            <td><input type="number" class="set-input" placeholder="0" value="${set.weight}" onchange="app.updateSet(${index}, 'weight', this.value)"></td>
+                            <td><input type="number" class="set-input" placeholder="0" value="${set.reps}" onchange="app.updateSet(${index}, 'reps', this.value)"></td>
+                            <td><button class="btn-del" onclick="app.removeSet(${index})"><i class="fa-solid fa-xmark"></i></button></td>
+                        </tr>
+                    `;
+                });
+            },
+
+            updateSet: function(index, field, value) {
+                this.currentSets[index][field] = value;
+            },
+
+            addSet: function() {
+                const prevSet = this.currentSets.length > 0 ? this.currentSets[this.currentSets.length - 1] : { weight: '', reps: '' };
+                this.currentSets.push({ weight: prevSet.weight, reps: '' });
+                this.renderLoggerSets();
+            },
+
+            removeSet: function(index) {
+                this.currentSets.splice(index, 1);
+                this.renderLoggerSets();
+            },
+
+            saveWorkout: function() {
+                const validSets = this.currentSets.filter(s => s.weight !== '' && s.reps !== '');
+                
+                if(validSets.length === 0) {
+                    alert("Palun sisesta vähemalt üks kehtiv seeria (raskus ja kordused)!");
+                    return;
+                }
+
+                const workoutEntry = {
+                    id: Date.now(),
+                    date: new Date().toLocaleDateString('et-EE'),
+                    time: new Date().toLocaleTimeString('et-EE', {hour: '2-digit', minute:'2-digit'}),
+                    machine: this.currentExercise.name,
+                    sets: validSets
+                };
+
+                this.history.unshift(workoutEntry);
+                localStorage.setItem('247app_history_v5', JSON.stringify(this.history));
+                
+                this.navTo('view-history', 1);
+            },
+
+            renderHistory: function() {
+                const container = document.getElementById('history-container');
+                container.innerHTML = '';
+                
+                if(this.history.length === 0) {
+                    container.innerHTML = '<div class="empty-state" style="margin-top: 40px;"><i class="fa-solid fa-clipboard-list" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i><br>Ajalugu puudub.<br>Alusta treenimist ja logi oma esimene harjutus!</div>';
+                    return;
+                }
+
+                this.history.forEach((session, sessionIndex) => {
+                    let setsHTML = '';
+                    session.sets.forEach((s, i) => {
+                        setsHTML += `
+                            <div class="history-set">
+                                <span style="color: var(--text-muted);">Seeria ${i + 1}</span>
+                                <span><strong style="color: white;">${s.weight}</strong> kg × <strong style="color: white;">${s.reps}</strong> kordust</span>
+                            </div>
+                        `;
+                    });
+
+                    container.innerHTML += `
+                        <div class="history-card">
+                            <div class="history-card-header">
+                                <div>
+                                    <div class="history-machine">${session.machine}</div>
+                                    <div class="history-date"><i class="fa-regular fa-calendar" style="margin-right: 4px;"></i>${session.date} kell ${session.time}</div>
+                                </div>
+                                <button class="history-del-btn" onclick="app.deleteHistoryEntry(${sessionIndex})">Kustuta</button>
+                            </div>
+                            <div style="padding-top: 4px;">
+                                ${setsHTML}
+                            </div>
+                        </div>
+                    `;
+                });
+            },
+
+            deleteHistoryEntry: function(index) {
+                if(confirm("Kas oled kindel, et soovid selle harjutuse ajaloost kustutada?")) {
+                    this.history.splice(index, 1);
+                    localStorage.setItem('247app_history_v5', JSON.stringify(this.history));
+                    this.renderHistory();
+                }
+            },
+
+            // --- PDF ALLALAADIMINE ---
+            exportPDF: function() {
+                if(this.history.length === 0) {
+                    alert("Ajalugu on tühi, pole midagi salvestada!");
+                    return;
+                }
+
+                let pdfContent = `
+                    <div style="padding: 20px; font-family: sans-serif; color: black; background: white;">
+                        <h2 style="margin-bottom: 20px; color: black; text-align: center; font-weight: 900;">24/7 FITNESS LOGI</h2>
+                        <h4 style="margin-bottom: 20px; text-align: center; color: #333;">Nimi: ${this.profile.name || 'Nimetu'}</h4>
                 `;
-            });
 
-            document.getElementById('total-vol').innerText = globalTotalVolume;
-        }
+                this.history.forEach(session => {
+                    pdfContent += `
+                        <div style="border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 15px;">
+                            <h3 style="margin: 0 0 5px 0; color: black; font-size: 16px; font-weight: 800;">${session.machine}</h3>
+                            <p style="margin: 0 0 10px 0; font-size: 12px; color: #666;">${session.date} kell ${session.time}</p>
+                    `;
+                    session.sets.forEach((s, i) => {
+                        pdfContent += `<div style="font-size: 14px; margin-bottom: 4px;">Seeria ${i + 1}: <strong style="color: black;">${s.weight} kg</strong> × <strong style="color: black;">${s.reps} kordust</strong></div>`;
+                    });
+                    pdfContent += `</div>`;
+                });
 
-        function updateSet(index, field, value) {
-            sets[index][field] = Number(value);
-            renderSets();
-        }
+                pdfContent += `</div>`;
 
-        function addSet() {
-            const lastSet = sets.length > 0 ? sets[sets.length - 1] : { weight: 0, reps: 0 };
-            sets.push({ weight: lastSet.weight, reps: lastSet.reps });
-            renderSets();
-        }
+                const opt = {
+                    margin:       1,
+                    filename:     'Minu_Treeningud.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2 },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
 
-        function removeSet(index) {
-            sets.splice(index, 1);
-            renderSets();
-        }
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = pdfContent;
+                html2pdf().set(opt).from(tempDiv).save();
+            }
+        };
 
-        function saveWorkout() {
-            navTo('view-summary', 1); // Avab Summary vaate ja teeb all menüüs "Treeningud" aktiivseks
-            document.getElementById('final-vol').innerText = globalTotalVolume + ' kg'; // Uuendab kogumahtu teises vaates
-            showToast('Harjutus edukalt salvestatud!');
-        }
-
-        function exportPDF() {
-            showToast('Valmistan PDF faili...');
-            setTimeout(() => { window.print(); }, 1000);
-        }
-
-        // Lehe laadimisel käivitab tabeli joonistamise
         window.onload = function() {
-            renderSets();
+            app.init();
         };
     </script>
 </body>
