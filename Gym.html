@@ -3,28 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>24/7 Fitness App</title>
-    
+    <title>24/7 Fitness</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Lingime eraldi CSS faili -->
     <link rel="stylesheet" href="Gym.css">
 </head>
 <body>
 
     <div class="app-container">
-        <!-- TEAVITUS -->
-        <div id="demo-toast" class="toast">Funktsioon on hetkel demos lukus!</div>
-
-        <!-- =========================================
-             VIEW 1: HOME
-        ========================================= -->
+        
+        <!-- ================= AVALEHT (HOME) ================= -->
         <div id="view-home" class="view active">
             <header class="top-header">
-                <button class="icon-btn" onclick="showToast('Menüü avamine')"><i class="fa-solid fa-bars"></i></button>
-                <div class="logo" onclick="navTo('view-home')">24/7 <span>FITNESS</span></div>
-                <button class="icon-btn" onclick="showToast('Sul ei ole uusi teavitusi')"><i class="fa-regular fa-bell"></i></button>
+                <button class="icon-btn"><i class="fa-solid fa-bars"></i></button>
+                <div class="logo">24/7 <span>FITNESS</span></div>
+                <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
             </header>
 
             <div class="hero-banner">
@@ -37,66 +30,96 @@
                     <h3>Reigo</h3>
                     <p>35 a • 109 kg</p>
                 </div>
-                <button class="btn-outline" onclick="showToast('Profiili muutmine')">Muuda</button>
+                <button class="btn-outline">Muuda</button>
             </div>
 
-            <div class="categories" id="cat-list">
-                <div class="cat-item active" onclick="switchCategory(this)"><div class="cat-icon"><i class="fa-solid fa-dumbbell"></i></div><span>Kõik</span></div>
-                <div class="cat-item" onclick="switchCategory(this)"><div class="cat-icon"><i class="fa-solid fa-child"></i></div><span>Rind</span></div>
-                <div class="cat-item" onclick="switchCategory(this)"><div class="cat-icon"><i class="fa-solid fa-person-running"></i></div><span>Selg</span></div>
-                <div class="cat-item" onclick="switchCategory(this)"><div class="cat-icon"><i class="fa-solid fa-shoe-prints"></i></div><span>Jalad</span></div>
+            <div class="categories">
+                <div class="cat-item active"><div class="cat-icon"><i class="fa-solid fa-dumbbell"></i></div><span>Kõik masinad</span></div>
+                <div class="cat-item"><div class="cat-icon"><i class="fa-solid fa-child"></i></div><span>Rind</span></div>
+                <div class="cat-item"><div class="cat-icon"><i class="fa-solid fa-person-running"></i></div><span>Selg</span></div>
+                <div class="cat-item"><div class="cat-icon"><i class="fa-solid fa-shoe-prints"></i></div><span>Jalad</span></div>
+                <div class="cat-item"><div class="cat-icon"><i class="fa-solid fa-child-reaching"></i></div><span>Õlad</span></div>
+                <div class="cat-item"><div class="cat-icon"><i class="fa-solid fa-hand-fist"></i></div><span>Käed</span></div>
             </div>
 
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Otsi masinat..." onkeypress="if(event.key === 'Enter') showToast('Otsing: ' + this.value)">
+                <input type="text" placeholder="Otsi masinat või harjutust...">
             </div>
 
-            <div class="section-header"><h2>RIND</h2><button onclick="showToast('Avab kõik rinna harjutused')">Vaata kõik <i class="fa-solid fa-chevron-right"></i></button></div>
+            <!-- RIND SEKTSIOON -->
+            <div class="section-header"><h2>RIND</h2><button class="text-link">Vaata kõik <i class="fa-solid fa-chevron-right"></i></button></div>
             <div class="machine-list">
-                <div class="machine-card" onclick="openMachine()">
-                    <div class="machine-img" style="background-image: url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop');">
-                        <button class="heart-btn" onclick="event.stopPropagation(); showToast('Lisatud lemmikutesse!')"><i class="fa-regular fa-heart"></i></button>
-                    </div>
+                <div class="machine-card" onclick="app.navTo('view-machine')">
+                    <div class="machine-img" style="background-image: url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400');"><button class="heart-btn" onclick="event.stopPropagation()"><i class="fa-regular fa-heart"></i></button></div>
                     <div class="machine-info"><h4>Rinnalt surumise pink</h4><p>Gymleco • Vabaraskused</p></div>
                 </div>
-                <!-- Lisa masinaid siia vajadusel juurde -->
+                <div class="machine-card" onclick="app.navTo('view-machine')">
+                    <div class="machine-img" style="background-image: url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400');"><button class="heart-btn" onclick="event.stopPropagation()"><i class="fa-regular fa-heart"></i></button></div>
+                    <div class="machine-info"><h4>Kaldpink</h4><p>Gymleco</p></div>
+                </div>
+                <div class="machine-card" onclick="app.navTo('view-machine')">
+                    <div class="machine-img" style="background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400');"><button class="heart-btn" onclick="event.stopPropagation()"><i class="fa-regular fa-heart"></i></button></div>
+                    <div class="machine-info"><h4>Decline pink</h4><p>Gymleco</p></div>
+                </div>
+                <div class="machine-card" onclick="app.navTo('view-machine')">
+                    <div class="machine-img" style="background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400');"><button class="heart-btn" onclick="event.stopPropagation()"><i class="fa-regular fa-heart"></i></button></div>
+                    <div class="machine-info"><h4>Pec Deck (rinnalihased)</h4><p>Gymleco</p></div>
+                </div>
+            </div>
+
+            <!-- SELG SEKTSIOON -->
+            <div class="section-header"><h2>SELG</h2><button class="text-link">Vaata kõik <i class="fa-solid fa-chevron-right"></i></button></div>
+            <div class="machine-list">
+                <div class="machine-card">
+                    <div class="machine-img" style="background-image: url('https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=400');"><button class="heart-btn"><i class="fa-regular fa-heart"></i></button></div>
+                    <div class="machine-info"><h4>Lat Pulldown</h4><p>Gymleco</p></div>
+                </div>
+                <div class="machine-card">
+                    <div class="machine-img" style="background-image: url('https://images.unsplash.com/photo-1603287681836-b174ce5074c2?q=80&w=400');"><button class="heart-btn"><i class="fa-regular fa-heart"></i></button></div>
+                    <div class="machine-info"><h4>Seated Row</h4><p>Gymleco</p></div>
+                </div>
+                <div class="machine-card">
+                    <div class="machine-img" style="background-image: url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400');"><button class="heart-btn"><i class="fa-regular fa-heart"></i></button></div>
+                    <div class="machine-info"><h4>T-Bar Row</h4><p>Gymleco</p></div>
+                </div>
+                <div class="machine-card">
+                    <div class="machine-img" style="background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400');"><button class="heart-btn"><i class="fa-regular fa-heart"></i></button></div>
+                    <div class="machine-info"><h4>Pull-Up/Dip masin</h4><p>Gymleco</p></div>
+                </div>
             </div>
         </div>
 
-        <!-- =========================================
-             VIEW 2: MACHINE LOGGING
-        ========================================= -->
+        <!-- ================= TREENINGU LOGIMINE (MACHINE DETAIL) ================= -->
         <div id="view-machine" class="view">
             <div class="machine-hero">
                 <div class="machine-header-top">
-                    <button class="icon-btn" onclick="navTo('view-home')"><i class="fa-solid fa-arrow-left"></i></button>
-                    <button class="icon-btn" onclick="showToast('Lisatud lemmikutesse!')"><i class="fa-regular fa-heart"></i></button>
+                    <button class="icon-btn" onclick="app.navTo('view-home')"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button class="icon-btn"><i class="fa-regular fa-heart"></i></button>
                 </div>
-                <div>
+                <div class="machine-hero-text">
                     <h2>Rinnalt surumise pink</h2>
                     <p>Gymleco • Vabaraskused</p>
                 </div>
+                <div class="anatomy-icon"><i class="fa-solid fa-child-reaching" style="color: var(--neon); font-size: 40px;"></i></div>
             </div>
 
-            <div class="tabs" id="machine-tabs">
-                <div class="tab active" onclick="switchTab(this, 'machine-tabs')">Logi</div>
-                <div class="tab" onclick="switchTab(this, 'machine-tabs'); showToast('Kirjeldus')">Kirjeldus</div>
-                <div class="tab" onclick="switchTab(this, 'machine-tabs'); showToast('Lihased')">Lihased</div>
+            <div class="tabs">
+                <div class="tab active">Logi</div><div class="tab">Kirjeldus</div><div class="tab">Lihased</div>
             </div>
 
             <div class="pr-card">
                 <div class="pr-info">
-                    <i class="fa-solid fa-trophy"></i>
+                    <i class="fa-solid fa-trophy" style="color: #fbbf24; font-size: 24px;"></i>
                     <div class="pr-text"><span>Isiklik rekord</span><strong>100 kg × 5 kordust</strong></div>
                 </div>
-                <button class="btn-outline" onclick="showToast('Uue rekordi sisestamine')">Uuenda</button>
+                <button class="btn-outline">Uuenda</button>
             </div>
 
             <div class="sets-section">
                 <div class="sets-header">
                     <h3>Seeriad</h3>
-                    <button class="btn-add" onclick="addSet()">+ Lisa seeria</button>
+                    <button class="btn-add" onclick="app.addSet()">+ Lisa seeria</button>
                 </div>
                 
                 <table class="sets-table">
@@ -104,64 +127,206 @@
                     <tbody id="sets-body"></tbody>
                 </table>
 
-                <div class="total-volume">Kokku maht: <span id="total-vol">0</span> kg</div>
+                <div class="total-volume">Kokku maht: <span id="total-vol" style="color: var(--neon);">2920</span> kg</div>
 
-                <button class="btn-primary" onclick="saveWorkout()"><i class="fa-solid fa-check"></i> Salvesta harjutus</button>
-                <button class="btn-secondary" onclick="showToast('Taimer käivitatud! 02:00')"><i class="fa-regular fa-clock"></i> Taimer &nbsp; 02:00</button>
+                <button class="btn-primary" onclick="app.navTo('view-summary', 1)"><i class="fa-solid fa-check"></i> Salvesta harjutus</button>
+                <button class="btn-secondary"><i class="fa-regular fa-clock"></i> Taimer &nbsp; 02:00</button>
+                <button class="btn-secondary"><i class="fa-regular fa-clipboard"></i> Lisa märge</button>
+            </div>
+
+            <div class="history-list">
+                <h3 style="margin: 0 20px 15px;">Viimased treeningud</h3>
+                <div class="history-item">
+                    <div class="h-left"><span>08.10.2026</span><span>100 kg × 6</span></div>
+                    <span class="h-right">2 920 kg</span>
+                </div>
+                <div class="history-item">
+                    <div class="h-left"><span>04.10.2026</span><span>90 kg × 8</span></div>
+                    <span class="h-right">2 560 kg</span>
+                </div>
+                <div class="history-item">
+                    <div class="h-left"><span>01.10.2026</span><span>80 kg × 10</span></div>
+                    <span class="h-right">2 160 kg</span>
+                </div>
+                <div class="history-item">
+                    <div class="h-left"><span>28.09.2026</span><span>80 kg × 8</span></div>
+                    <span class="h-right">1 920 kg</span>
+                </div>
             </div>
         </div>
 
-        <!-- =========================================
-             VIEW 3: WORKOUT SUMMARY (PDF)
-        ========================================= -->
-        <div id="view-workout" class="view">
-            <div class="summary-header">
-                <button class="icon-btn" onclick="navTo('view-home')"><i class="fa-solid fa-arrow-left"></i></button>
-                <h2>Treening</h2>
-                <button class="icon-btn" style="color: var(--red); font-size: 16px;" onclick="showToast('Treening kustutatud!')"><i class="fa-regular fa-trash-can"></i> Kustuta</button>
-            </div>
+        <!-- ================= KOKKUVÕTE (SUMMARY) ================= -->
+        <div id="view-summary" class="view">
+            <header class="top-header" style="background: var(--bg-main);">
+                <button class="icon-btn" onclick="app.navTo('view-home')"><i class="fa-solid fa-arrow-left"></i></button>
+                <div style="font-weight: 600; font-size: 16px;">Treening</div>
+                <button class="text-link" style="color: var(--red); font-size: 14px;"><i class="fa-regular fa-trash-can"></i> Kustuta</button>
+            </header>
 
             <div class="summary-hero">
-                <div class="logo">24/7 <span>FITNESS</span></div>
+                <div class="logo" style="text-align: left;">24/7 <span>FITNESS</span></div>
                 <h1>RIND TRENN</h1>
             </div>
 
             <div class="stats-grid">
-                <div class="stat-box"><i class="fa-solid fa-weight-hanging"></i><span>Kogumaht</span><strong id="final-vol">0 kg</strong></div>
+                <div class="stat-box"><i class="fa-regular fa-calendar"></i><span>08.10.2026</span><strong>18:42</strong></div>
+                <div class="stat-box"><i class="fa-regular fa-clock"></i><span>Kestus</span><strong>1h 15m</strong></div>
+                <div class="stat-box"><i class="fa-solid fa-weight-hanging"></i><span>Kogumaht</span><strong>12 560 kg</strong></div>
+                <div class="stat-box"><i class="fa-solid fa-trophy"></i><span>Harjutusi</span><strong>6</strong></div>
+            </div>
+
+            <div class="exercise-list">
+                <div class="ex-item">
+                    <div class="ex-img" style="background-image: url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=100');"></div>
+                    <div class="ex-info"><h4>Rinnalt surumise pink</h4><p>4 seeriat</p></div>
+                    <div class="ex-vol">2 920 kg <i class="fa-solid fa-chevron-right" style="color: var(--border); margin-left: 5px;"></i></div>
+                </div>
+                <div class="ex-item">
+                    <div class="ex-img" style="background-image: url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=100');"></div>
+                    <div class="ex-info"><h4>Kaldpink hantlitega</h4><p>4 seeriat</p></div>
+                    <div class="ex-vol">2 160 kg <i class="fa-solid fa-chevron-right" style="color: var(--border); margin-left: 5px;"></i></div>
+                </div>
+                <div class="ex-item">
+                    <div class="ex-img" style="background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=100');"></div>
+                    <div class="ex-info"><h4>Pec Deck</h4><p>3 seeriat</p></div>
+                    <div class="ex-vol">1 680 kg <i class="fa-solid fa-chevron-right" style="color: var(--border); margin-left: 5px;"></i></div>
+                </div>
+                <div class="ex-item">
+                    <div class="ex-img" style="background-image: url('https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=100');"></div>
+                    <div class="ex-info"><h4>Kaablitega rinnasurve</h4><p>3 seeriat</p></div>
+                    <div class="ex-vol">1 440 kg <i class="fa-solid fa-chevron-right" style="color: var(--border); margin-left: 5px;"></i></div>
+                </div>
+                <div class="ex-item">
+                    <div class="ex-img" style="background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=100');"></div>
+                    <div class="ex-info"><h4>Dips masin</h4><p>3 seeriat</p></div>
+                    <div class="ex-vol">1 200 kg <i class="fa-solid fa-chevron-right" style="color: var(--border); margin-left: 5px;"></i></div>
+                </div>
+                <div class="ex-item">
+                    <div class="ex-img" style="background-image: url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=100');"></div>
+                    <div class="ex-info"><h4>Kätekõverdused</h4><p>3 seeriat</p></div>
+                    <div class="ex-vol">1 160 kg <i class="fa-solid fa-chevron-right" style="color: var(--border); margin-left: 5px;"></i></div>
+                </div>
             </div>
 
             <div class="action-buttons">
-                <button class="btn-secondary" onclick="exportPDF()" style="flex: 1;"><i class="fa-solid fa-download"></i> Salvesta PDF</button>
-                <button class="btn-secondary" style="flex: 1;" onclick="showToast('Jagamise aken avaneb...')"><i class="fa-solid fa-share-nodes"></i> Jaga</button>
+                <button class="btn-secondary" onclick="window.print()" style="flex: 1;"><i class="fa-solid fa-download"></i> Salvesta PDF</button>
+                <button class="btn-secondary" style="flex: 1;"><i class="fa-solid fa-share-nodes"></i> Jaga</button>
+            </div>
+
+            <div class="note-box">
+                <i class="fa-regular fa-file-lines"></i>
+                <div><strong>Treeningu märge</strong><p>Tugev trenn, järgmine kord proovin 105 kg.</p></div>
             </div>
         </div>
 
-        <!-- =========================================
-             VIEW 4: STATISTICS
-        ========================================= -->
+        <!-- ================= STATISTIKA (STATS) ================= -->
         <div id="view-stats" class="view">
-            <header class="top-header">
-                <button class="icon-btn" onclick="showToast('Menüü avamine')"><i class="fa-solid fa-bars"></i></button>
+            <header class="top-header" style="background: var(--bg-main);">
+                <button class="icon-btn"><i class="fa-solid fa-bars"></i></button>
                 <div class="logo">24/7 <span>FITNESS</span></div>
+                <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
             </header>
-            <h2 style="text-align: center; margin-bottom: 20px;">Statistika</h2>
+
+            <h2 style="text-align: center; margin-bottom: 20px; font-weight: 700; font-size: 20px;">Statistika</h2>
+
+            <div class="tabs" style="margin: 0 20px 20px; gap: 10px;">
+                <div class="s-tab">Nädal</div>
+                <div class="s-tab active">Kuu</div>
+                <div class="s-tab">3 kuud</div>
+                <div class="s-tab">Aasta</div>
+            </div>
+
             <div class="kpi-grid">
-                <div class="kpi-card"><i class="fa-solid fa-dumbbell"></i><p>Treeninguid</p><h3>12</h3></div>
-                <div class="kpi-card"><i class="fa-solid fa-chart-simple"></i><p>Kogumaht</p><h3>145k</h3></div>
+                <div class="kpi-card">
+                    <div class="kpi-head"><i class="fa-solid fa-dumbbell"></i></div>
+                    <p>Treeninguid</p>
+                    <h3>12</h3>
+                    <span class="trend trend-up">+20% <i class="fa-solid fa-arrow-up"></i></span>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-head"><i class="fa-solid fa-chart-simple"></i></div>
+                    <p>Kogumaht</p>
+                    <h3>145 620 kg</h3>
+                    <span class="trend trend-up">+18% <i class="fa-solid fa-arrow-up"></i></span>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-head"><i class="fa-solid fa-trophy" style="color: #fbbf24;"></i></div>
+                    <p>Isiklikke rekordeid</p>
+                    <h3>5</h3>
+                    <span class="trend trend-up">+ 2 <i class="fa-solid fa-arrow-up"></i></span>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <h3>Kogumaht ajas</h3>
+                <div class="bar-chart-container">
+                    <div class="bar-chart">
+                        <div class="bar" style="height: 10%"></div><div class="bar" style="height: 20%"></div>
+                        <div class="bar" style="height: 35%"></div><div class="bar" style="height: 25%"></div>
+                        <div class="bar" style="height: 40%"></div><div class="bar" style="height: 45%"></div>
+                        <div class="bar" style="height: 60%"></div><div class="bar" style="height: 50%"></div>
+                        <div class="bar" style="height: 55%"></div><div class="bar" style="height: 70%"></div>
+                        <div class="bar" style="height: 65%"></div><div class="bar" style="height: 85%"></div>
+                        <div class="bar" style="height: 75%"></div><div class="bar" style="height: 90%"></div>
+                        <div class="bar" style="height: 100%"></div><div class="bar" style="height: 95%"></div>
+                    </div>
+                    <div class="bar-labels">
+                        <span>01.09</span><span>08.09</span><span>15.09</span><span>22.09</span><span>29.09</span><span>06.10</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <h3>Lihasgrupi jaotus</h3>
+                <div class="pie-container">
+                    <div class="pie-chart">
+                        <div class="pie-inner">145 620 kg</div>
+                    </div>
+                    <div class="pie-legend">
+                        <div class="l-item"><div><span class="dot" style="background:#ccff00;"></span> Rind</div> <span>28%</span></div>
+                        <div class="l-item"><div><span class="dot" style="background:#22c55e;"></span> Selg</div> <span>24%</span></div>
+                        <div class="l-item"><div><span class="dot" style="background:#3b82f6;"></span> Jalad</div> <span>20%</span></div>
+                        <div class="l-item"><div><span class="dot" style="background:#64748b;"></span> Õlad</div> <span>12%</span></div>
+                        <div class="l-item"><div><span class="dot" style="background:#8b5cf6;"></span> Käed</div> <span>10%</span></div>
+                        <div class="l-item"><div><span class="dot" style="background:#475569;"></span> Kere</div> <span>6%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header" style="margin-top: 10px;">
+                <h3 style="font-size: 16px; margin:0;">Viimased treeningud</h3>
+                <button class="text-link">Vaata kõik <i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <div class="history-list">
+                <div class="history-item">
+                    <div class="h-left"><span class="h-date">08.10.2026</span><span style="color:#fff;">Rind trenn</span></div>
+                    <span class="h-right">12 560 kg</span>
+                </div>
+                <div class="history-item">
+                    <div class="h-left"><span class="h-date">06.10.2026</span><span style="color:#fff;">Selg trenn</span></div>
+                    <span class="h-right">10 480 kg</span>
+                </div>
+                <div class="history-item">
+                    <div class="h-left"><span class="h-date">04.10.2026</span><span style="color:#fff;">Jalad trenn</span></div>
+                    <span class="h-right">14 200 kg</span>
+                </div>
+                <div class="history-item">
+                    <div class="h-left"><span class="h-date">01.10.2026</span><span style="color:#fff;">Õlad trenn</span></div>
+                    <span class="h-right">8 960 kg</span>
+                </div>
             </div>
         </div>
 
-        <!-- BOTTOM NAVIGATION -->
-        <nav class="bottom-nav" id="main-bottom-nav">
-            <button class="nav-item active" onclick="navTo('view-home', this)"><i class="fa-solid fa-house"></i><span>Avaleht</span></button>
-            <button class="nav-item" onclick="navTo('view-workout', this)"><i class="fa-regular fa-calendar-check"></i><span>Treeningud</span></button>
-            <button class="nav-item" onclick="navTo('view-stats', this)"><i class="fa-solid fa-chart-line"></i><span>Statistika</span></button>
-            <button class="nav-item" onclick="showToast('Seadete vaade avaneb...')"><i class="fa-solid fa-gear"></i><span>Seaded</span></button>
+        <!-- ================= BOTTOM NAV ================= -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="app.navTo('view-home', 0)"><i class="fa-solid fa-house"></i><span>Avaleht</span></button>
+            <button class="nav-item" onclick="app.navTo('view-summary', 1)"><i class="fa-regular fa-calendar-check"></i><span>Treeningud</span></button>
+            <button class="nav-item" onclick="app.navTo('view-stats', 2)"><i class="fa-solid fa-chart-line"></i><span>Statistika</span></button>
+            <button class="nav-item"><i class="fa-solid fa-gear"></i><span>Seaded</span></button>
         </nav>
 
     </div>
 
-    <!-- Lingime eraldi JS faili -->
     <script src="Gym.js"></script>
 </body>
 </html>
