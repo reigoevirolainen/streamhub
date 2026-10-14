@@ -5,10 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>24/7 Fitness Logi</title>
     
+    <!-- Veebilehe Ikoon (Favicon) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💪</text></svg>">
+    
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- FontAwesome Ikoonid -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- HTML2PDF Teek -->
+    
+    <!-- HTML2PDF Teek (Uusim stabiilne versioon) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
@@ -110,7 +113,7 @@
         .machine-details .alt { font-size: 12px; color: var(--text-muted); font-weight: 500; }
         .machine-details .alt span { color: #fff; }
 
-        /* AJALUGU & PDF */
+        /* AJALUGU */
         .history-list { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
         .history-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .history-card-header { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px; }
@@ -131,7 +134,7 @@
 </head>
 <body>
 
-    <div class="app-container">
+    <div class="app-container" id="main-app">
         
         <!-- ================= 1. AVALEHT ================= -->
         <div id="view-home" class="view active">
@@ -203,7 +206,7 @@
         <div id="view-history" class="view">
             <header class="top-header">
                 <div class="logo">Minu <span>Ajalugu</span></div>
-                <button class="btn-pdf" onclick="app.exportPDF()"><i class="fa-solid fa-file-pdf"></i> Salvesta PDF</button>
+                <button class="btn-pdf" onclick="app.exportPDF()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             </header>
 
             <div class="history-list" id="history-container">
@@ -228,8 +231,8 @@
         const getImgUrl = (text) => `https://placehold.co/400x400/1c1c1e/ccff00?text=${encodeURIComponent(text.replace(' ', '\n'))}&font=montserrat`;
 
         const app = {
-            profile: JSON.parse(localStorage.getItem('247app_profile_v7')) || { name: '', age: '', weight: '' },
-            history: JSON.parse(localStorage.getItem('247app_history_v7')) || [],
+            profile: JSON.parse(localStorage.getItem('247app_profile_v8')) || { name: '', age: '', weight: '' },
+            history: JSON.parse(localStorage.getItem('247app_history_v8')) || [],
             
             activeFilters: [],
             currentExercise: null,
@@ -319,7 +322,7 @@
                 if(newWeight === null) return;
                 
                 this.profile = { name: newName.trim(), age: newAge.trim(), weight: newWeight.trim() };
-                localStorage.setItem('247app_profile_v7', JSON.stringify(this.profile));
+                localStorage.setItem('247app_profile_v8', JSON.stringify(this.profile));
                 this.updateProfileUI();
             },
 
@@ -453,7 +456,7 @@
                 };
 
                 this.history.unshift(workoutEntry);
-                localStorage.setItem('247app_history_v7', JSON.stringify(this.history));
+                localStorage.setItem('247app_history_v8', JSON.stringify(this.history));
                 
                 this.navTo('view-history', 1);
             },
@@ -498,35 +501,24 @@
             deleteHistoryEntry: function(index) {
                 if(confirm("Kas oled kindel, et soovid selle harjutuse ajaloost kustutada?")) {
                     this.history.splice(index, 1);
-                    localStorage.setItem('247app_history_v7', JSON.stringify(this.history));
+                    localStorage.setItem('247app_history_v8', JSON.stringify(this.history));
                     this.renderHistory();
                 }
             },
 
-            // TÄIUSTATUD JA TÖÖKINDEL PDF EKSPORT (MOBIIL & DESKTOP)
+            // TÄIELIKULT LOLLIKINDEL PDF-I GENEREERIMINE
             exportPDF: function() {
                 if(this.history.length === 0) {
                     alert("Ajalugu on tühi, pole midagi salvestada!");
                     return;
                 }
 
-                // 1. Luuakse tegelikult ekraanile kuvatav ajutine kiht (Overlay)
-                const tempDiv = document.createElement('div');
-                tempDiv.style.position = 'fixed';
-                tempDiv.style.top = '0';
-                tempDiv.style.left = '0';
-                tempDiv.style.width = '100%';
-                tempDiv.style.height = '100vh';
-                tempDiv.style.overflowY = 'auto';
-                tempDiv.style.zIndex = '999999';
-                tempDiv.style.background = '#ffffff';
-                tempDiv.style.color = '#000000';
-                tempDiv.style.padding = '25px';
-                tempDiv.style.boxSizing = 'border-box';
-                tempDiv.style.fontFamily = "'Outfit', sans-serif";
+                // Kerime täiesti üles, et vältida brauseri scrolli bugi
+                window.scrollTo(0, 0);
 
-                let pdfContent = `
-                    <div style="max-width: 600px; margin: 0 auto; color: #000;">
+                // 1. Loome PDF sisu HTMLi stringina
+                let pdfContentHTML = `
+                    <div style="max-width: 600px; margin: 0 auto; color: #000; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
                         <h1 style="text-align: center; margin-bottom: 5px; color: #000; font-weight: 900; font-size: 24px;">24/7 FITNESS LOGI</h1>
                         <p style="text-align: center; margin-bottom: 20px; color: #555; font-size: 13px;">Treeningute raport</p>
                         
@@ -537,7 +529,7 @@
                 `;
 
                 this.history.forEach((session) => {
-                    pdfContent += `
+                    pdfContentHTML += `
                         <div style="border: 1px solid #e4e4e7; border-radius: 8px; padding: 14px; margin-bottom: 12px; background: #fafafa;">
                             <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e4e4e7; padding-bottom: 8px; margin-bottom: 8px;">
                                 <strong style="font-size: 16px; color: #000;">${session.machine}</strong>
@@ -546,49 +538,53 @@
                             <div style="font-size: 13px;">
                     `;
                     session.sets.forEach((s, i) => {
-                        pdfContent += `
+                        pdfContentHTML += `
                             <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #eee;">
                                 <span style="color: #666;">Seeria ${i + 1}</span>
                                 <span style="color: #000; font-weight: 700;">${s.weight} kg × ${s.reps} kordust</span>
                             </div>
                         `;
                     });
-                    pdfContent += `
-                            </div>
-                        </div>
-                    `;
+                    pdfContentHTML += `</div></div>`;
                 });
 
-                pdfContent += `</div>`;
-                tempDiv.innerHTML = pdfContent;
-                document.body.appendChild(tempDiv);
+                pdfContentHTML += `</div>`;
+
+                // 2. Loome prindi konteineri ja peidame hetkeks põhirakenduse
+                const printContainer = document.createElement('div');
+                printContainer.innerHTML = pdfContentHTML;
+                printContainer.style.padding = '30px';
+                printContainer.style.background = '#ffffff';
+                printContainer.style.minHeight = '100vh';
+                
+                const mainApp = document.getElementById('main-app');
+                
+                // Peidame äpi ja paneme valge prinditava osa ekraanile
+                mainApp.style.display = 'none';
+                document.body.appendChild(printContainer);
+                document.body.style.background = '#ffffff';
 
                 const opt = {
-                    margin:       [0.4, 0.4, 0.4, 0.4],
+                    margin:       0.5,
                     filename:     `Treeningud_${this.profile.name || 'Logi'}.pdf`,
                     image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { 
-                        scale: 2, 
-                        useCORS: true, 
-                        scrollY: 0, 
-                        scrollX: 0
-                    },
+                    html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
                     jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
                 };
 
-                // Ootame 150ms kuni brauser DOM-i täielikult laeb ja konverteerime PDF-iks
+                // Teeme PDF-i ja taastame äpi esialgse oleku
                 setTimeout(() => {
-                    html2pdf().set(opt).from(tempDiv).save().then(() => {
-                        if (document.body.contains(tempDiv)) {
-                            document.body.removeChild(tempDiv);
-                        }
+                    html2pdf().set(opt).from(printContainer).save().then(() => {
+                        document.body.removeChild(printContainer);
+                        mainApp.style.display = 'flex';
+                        document.body.style.background = "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop') no-repeat center center fixed";
+                        document.body.style.backgroundSize = "cover";
                     }).catch(err => {
                         alert("Viga PDF-i salvestamisel: " + err);
-                        if (document.body.contains(tempDiv)) {
-                            document.body.removeChild(tempDiv);
-                        }
+                        document.body.removeChild(printContainer);
+                        mainApp.style.display = 'flex';
                     });
-                }, 150);
+                }, 100);
             }
         };
 
