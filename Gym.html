@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>24/7 Fitness Logi</title>
     
-    <!-- Veebilehe Ikoon (Favicon) -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💪</text></svg>">
+    <!-- UUS: Neoonroheline kaldus 'F' Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.85em%22 x=%2250%22 text-anchor=%22middle%22 font-size=%2290%22 font-family=%22sans-serif%22 font-weight=%22900%22 font-style=%22italic%22 fill=%22%23ccff00%22>F</text></svg>">
     
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- HTML2PDF Teek (Uusim stabiilne versioon) -->
+    <!-- HTML2PDF Teek -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
@@ -65,6 +65,10 @@
         .search-input:focus { border-color: var(--neon); width: 140px; background: rgba(0,0,0,0.9); }
         .search-input::placeholder { color: var(--text-muted); }
 
+        /* ÜLDINE TAGASI NOOL (NEOONROHELINE) */
+        .icon-btn { background: none; border: none; color: var(--neon); font-size: 22px; cursor: pointer; padding: 5px 10px 5px 0; transition: 0.2s; }
+        .icon-btn:active { transform: scale(0.9); }
+
         /* PROFILE */
         .profile-card { margin: 15px 20px 20px; background: var(--bg-card); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         .avatar { width: 45px; height: 45px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--neon); flex-shrink: 0; }
@@ -97,7 +101,6 @@
 
         /* TREENINGU LOGIMINE */
         .logger-header { display: flex; align-items: center; justify-content: space-between; padding: 20px; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
-        .icon-btn { background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; }
         .logger-title { font-weight: 800; font-size: 16px; text-align: center; flex-grow: 1; padding: 0 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; letter-spacing: 0.5px;}
         
         .sets-section { padding: 20px; flex-grow: 1; }
@@ -147,7 +150,7 @@
         <div id="view-home" class="view active">
             <header class="top-header">
                 <div class="logo">24/7 <span>FITNESS</span></div>
-                <!-- UUS OTSINGURIBA -->
+                <!-- OTSINGURIBA -->
                 <div class="search-container">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="text" class="search-input" placeholder="Otsi..." onkeyup="app.handleSearch(this.value)">
@@ -179,9 +182,10 @@
         <!-- ================= 2. LOGI TREENINGUT ================= -->
         <div id="view-logger" class="view">
             <header class="logger-header">
+                <!-- NEOON TAGASI NOOL -->
                 <button class="icon-btn" onclick="app.navTo('view-home', 0)"><i class="fa-solid fa-arrow-left"></i></button>
                 <div class="logger-title" id="logger-machine-name">Harjutus</div>
-                <div style="width:20px;"></div>
+                <div style="width:24px;"></div>
             </header>
 
             <div class="sets-section">
@@ -216,8 +220,10 @@
 
         <!-- ================= 3. TREENINGUTE AJALUGU & PDF ================= -->
         <div id="view-history" class="view">
-            <header class="top-header">
-                <div class="logo">Minu <span>Ajalugu</span></div>
+            <header class="logger-header">
+                <!-- NEOON TAGASI NOOL (lisatud ajalukku UX parandamiseks) -->
+                <button class="icon-btn" onclick="app.navTo('view-home', 0)"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="logger-title"><span>AJALUGU</span></div>
                 <button class="btn-pdf" onclick="app.exportPDF()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             </header>
 
@@ -243,11 +249,11 @@
         const getImgUrl = (text) => `https://placehold.co/400x400/1c1c1e/ccff00?text=${encodeURIComponent(text.replace(' ', '\n'))}&font=montserrat`;
 
         const app = {
-            profile: JSON.parse(localStorage.getItem('247app_profile_v9')) || { name: '', age: '', weight: '' },
-            history: JSON.parse(localStorage.getItem('247app_history_v9')) || [],
+            profile: JSON.parse(localStorage.getItem('247app_profile_v10')) || { name: '', age: '', weight: '' },
+            history: JSON.parse(localStorage.getItem('247app_history_v10')) || [],
             
             activeFilters: [],
-            searchQuery: '', // UUS: Otsingusõna hoidmine
+            searchQuery: '',
             currentExercise: null,
             currentSets: [],
 
@@ -335,7 +341,7 @@
                 if(newWeight === null) return;
                 
                 this.profile = { name: newName.trim(), age: newAge.trim(), weight: newWeight.trim() };
-                localStorage.setItem('247app_profile_v9', JSON.stringify(this.profile));
+                localStorage.setItem('247app_profile_v10', JSON.stringify(this.profile));
                 this.updateProfileUI();
             },
 
@@ -352,7 +358,6 @@
                 window.scrollTo(0,0);
             },
 
-            // UUS: Otsingu käsitlemine
             handleSearch: function(query) {
                 this.searchQuery = query.toLowerCase();
                 this.renderExerciseList();
@@ -388,18 +393,14 @@
                 list.innerHTML = '';
                 
                 const filteredExercises = this.exercises.filter(ex => {
-                    // Kas vastab valitud kategooriale?
                     const matchesCategory = this.activeFilters.length === 0 || this.activeFilters.includes(ex.target);
-                    
-                    // Kas vastab otsingusõnale? (Otsib nii nime kui ka sihtlihase järgi)
                     const matchesSearch = ex.name.toLowerCase().includes(this.searchQuery) || 
                                           ex.target.toLowerCase().includes(this.searchQuery);
-                    
                     return matchesCategory && matchesSearch;
                 });
 
                 if (filteredExercises.length === 0) {
-                    list.innerHTML = '<div class="empty-state">Sellele valikule/otsingule vastavaid harjutusi ei leitud.</div>';
+                    list.innerHTML = '<div class="empty-state">Sellele valikule vastavaid harjutusi ei leitud.</div>';
                     return;
                 }
 
@@ -481,7 +482,7 @@
                 };
 
                 this.history.unshift(workoutEntry);
-                localStorage.setItem('247app_history_v9', JSON.stringify(this.history));
+                localStorage.setItem('247app_history_v10', JSON.stringify(this.history));
                 
                 this.navTo('view-history', 1);
             },
@@ -526,22 +527,19 @@
             deleteHistoryEntry: function(index) {
                 if(confirm("Kas oled kindel, et soovid selle harjutuse ajaloost kustutada?")) {
                     this.history.splice(index, 1);
-                    localStorage.setItem('247app_history_v9', JSON.stringify(this.history));
+                    localStorage.setItem('247app_history_v10', JSON.stringify(this.history));
                     this.renderHistory();
                 }
             },
 
-            // TÄIELIKULT LOLLIKINDEL PDF-I GENEREERIMINE
             exportPDF: function() {
                 if(this.history.length === 0) {
                     alert("Ajalugu on tühi, pole midagi salvestada!");
                     return;
                 }
 
-                // Kerime täiesti üles, et vältida brauseri scrolli bugi
                 window.scrollTo(0, 0);
 
-                // 1. Loome PDF sisu HTMLi stringina
                 let pdfContentHTML = `
                     <div style="max-width: 600px; margin: 0 auto; color: #000; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
                         <h1 style="text-align: center; margin-bottom: 5px; color: #000; font-weight: 900; font-size: 24px;">24/7 FITNESS LOGI</h1>
@@ -575,7 +573,6 @@
 
                 pdfContentHTML += `</div>`;
 
-                // 2. Loome prindi konteineri ja peidame hetkeks põhirakenduse
                 const printContainer = document.createElement('div');
                 printContainer.innerHTML = pdfContentHTML;
                 printContainer.style.padding = '30px';
@@ -584,7 +581,6 @@
                 
                 const mainApp = document.getElementById('main-app');
                 
-                // Peidame äpi ja paneme valge prinditava osa ekraanile
                 mainApp.style.display = 'none';
                 document.body.appendChild(printContainer);
                 document.body.style.background = '#ffffff';
@@ -597,7 +593,6 @@
                     jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
                 };
 
-                // Teeme PDF-i ja taastame äpi esialgse oleku
                 setTimeout(() => {
                     html2pdf().set(opt).from(printContainer).save().then(() => {
                         document.body.removeChild(printContainer);
