@@ -6,9 +6,9 @@
     <title>24/7 Fitness Logi</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- FontAwesome - 100% töökindel versioon -->
+    <!-- FontAwesome Ikoonid -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- HTML2PDF - PDF salvestamiseks -->
+    <!-- HTML2PDF Teek -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
@@ -63,7 +63,7 @@
         .profile-info p { color: var(--text-muted); font-size: 12px; }
         .btn-outline { border: 1px solid var(--neon); color: var(--neon); background: transparent; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; flex-shrink: 0; }
 
-        /* FILTRID (HORISONTAALNE SCROLL) */
+        /* FILTRID (SKROLLITAV) */
         .section-header { padding: 0 20px; margin-bottom: 12px; font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #fff; }
         
         .filter-wrapper { width: 100%; overflow: hidden; }
@@ -75,14 +75,14 @@
         .filter-btn i { font-size: 14px; }
         .filter-btn.active { border-color: var(--neon); color: black; background: var(--neon); }
 
-        /* MASINATE LIST (Ikooni garantii) */
+        /* MASINATE LIST */
         .machine-list { display: flex; flex-direction: column; gap: 12px; padding: 0 20px 20px; }
         .machine-card { background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.1s; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .machine-card:active { transform: scale(0.98); }
         .machine-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #fff; }
         .machine-card p { font-size: 12px; color: var(--text-muted); line-height: 1.4; font-weight: 500;}
         .machine-icon-container { display: flex; align-items: center; gap: 15px; }
-        .machine-icon-container i.list-icon { color: var(--neon); font-size: 22px; min-width: 30px; display: inline-block; text-align: center; } /* Fikseerib ikoonide puudumise bugi */
+        .machine-icon-container i.list-icon { color: var(--neon); font-size: 22px; min-width: 30px; display: inline-block; text-align: center; }
         .empty-state { text-align: center; color: var(--text-muted); padding: 30px 20px; font-size: 14px; }
 
         /* TREENINGU LOGIMINE */
@@ -223,15 +223,13 @@
 
     </div>
 
-    <!-- ========================================== -->
-    <!-- JAVASCRIPT (Rakenduse loogika)             -->
-    <!-- ========================================== -->
+    <!-- JAVASCRIPT -->
     <script>
         const getImgUrl = (text) => `https://placehold.co/400x400/1c1c1e/ccff00?text=${encodeURIComponent(text.replace(' ', '\n'))}&font=montserrat`;
 
         const app = {
-            profile: JSON.parse(localStorage.getItem('247app_profile_v6')) || { name: '', age: '', weight: '' },
-            history: JSON.parse(localStorage.getItem('247app_history_v6')) || [],
+            profile: JSON.parse(localStorage.getItem('247app_profile_v7')) || { name: '', age: '', weight: '' },
+            history: JSON.parse(localStorage.getItem('247app_history_v7')) || [],
             
             activeFilters: [],
             currentExercise: null,
@@ -321,7 +319,7 @@
                 if(newWeight === null) return;
                 
                 this.profile = { name: newName.trim(), age: newAge.trim(), weight: newWeight.trim() };
-                localStorage.setItem('247app_profile_v6', JSON.stringify(this.profile));
+                localStorage.setItem('247app_profile_v7', JSON.stringify(this.profile));
                 this.updateProfileUI();
             },
 
@@ -455,7 +453,7 @@
                 };
 
                 this.history.unshift(workoutEntry);
-                localStorage.setItem('247app_history_v6', JSON.stringify(this.history));
+                localStorage.setItem('247app_history_v7', JSON.stringify(this.history));
                 
                 this.navTo('view-history', 1);
             },
@@ -500,63 +498,97 @@
             deleteHistoryEntry: function(index) {
                 if(confirm("Kas oled kindel, et soovid selle harjutuse ajaloost kustutada?")) {
                     this.history.splice(index, 1);
-                    localStorage.setItem('247app_history_v6', JSON.stringify(this.history));
+                    localStorage.setItem('247app_history_v7', JSON.stringify(this.history));
                     this.renderHistory();
                 }
             },
 
-            // PDF-i genereerimise MOBIILIPARANDUS
+            // TÄIUSTATUD JA TÖÖKINDEL PDF EKSPORT (MOBIIL & DESKTOP)
             exportPDF: function() {
                 if(this.history.length === 0) {
                     alert("Ajalugu on tühi, pole midagi salvestada!");
                     return;
                 }
 
-                // Luuakse ajutine element, et mobiilibrauser ei blokeeriks PDF renderdust
+                // 1. Luuakse tegelikult ekraanile kuvatav ajutine kiht (Overlay)
                 const tempDiv = document.createElement('div');
-                tempDiv.style.position = 'absolute';
-                tempDiv.style.left = '-9999px'; // Peidame ekraanilt
+                tempDiv.style.position = 'fixed';
                 tempDiv.style.top = '0';
-                tempDiv.style.width = '800px'; 
-                tempDiv.style.background = 'white';
-                tempDiv.style.color = 'black';
-                tempDiv.style.padding = '20px';
-                tempDiv.style.fontFamily = 'sans-serif';
+                tempDiv.style.left = '0';
+                tempDiv.style.width = '100%';
+                tempDiv.style.height = '100vh';
+                tempDiv.style.overflowY = 'auto';
+                tempDiv.style.zIndex = '999999';
+                tempDiv.style.background = '#ffffff';
+                tempDiv.style.color = '#000000';
+                tempDiv.style.padding = '25px';
+                tempDiv.style.boxSizing = 'border-box';
+                tempDiv.style.fontFamily = "'Outfit', sans-serif";
 
                 let pdfContent = `
-                    <h2 style="margin-bottom: 20px; color: black; text-align: center; font-weight: 900;">24/7 FITNESS LOGI</h2>
-                    <h4 style="margin-bottom: 20px; text-align: center; color: #333;">Nimi: ${this.profile.name || 'Nimetu'}</h4>
+                    <div style="max-width: 600px; margin: 0 auto; color: #000;">
+                        <h1 style="text-align: center; margin-bottom: 5px; color: #000; font-weight: 900; font-size: 24px;">24/7 FITNESS LOGI</h1>
+                        <p style="text-align: center; margin-bottom: 20px; color: #555; font-size: 13px;">Treeningute raport</p>
+                        
+                        <div style="background: #f4f4f5; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; border: 1px solid #e4e4e7;">
+                            <strong>Kasutaja:</strong> ${this.profile.name || 'Nimetu'}<br>
+                            <strong>Vanus:</strong> ${this.profile.age || '-'} a &nbsp;|&nbsp; <strong>Kaal:</strong> ${this.profile.weight || '-'} kg
+                        </div>
                 `;
 
-                this.history.forEach(session => {
+                this.history.forEach((session) => {
                     pdfContent += `
-                        <div style="border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 15px;">
-                            <h3 style="margin: 0 0 5px 0; color: black; font-size: 16px; font-weight: 800;">${session.machine}</h3>
-                            <p style="margin: 0 0 10px 0; font-size: 12px; color: #666;">${session.date} kell ${session.time}</p>
+                        <div style="border: 1px solid #e4e4e7; border-radius: 8px; padding: 14px; margin-bottom: 12px; background: #fafafa;">
+                            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e4e4e7; padding-bottom: 8px; margin-bottom: 8px;">
+                                <strong style="font-size: 16px; color: #000;">${session.machine}</strong>
+                                <span style="font-size: 12px; color: #666;">${session.date} kell ${session.time}</span>
+                            </div>
+                            <div style="font-size: 13px;">
                     `;
                     session.sets.forEach((s, i) => {
-                        pdfContent += `<div style="font-size: 14px; margin-bottom: 4px;">Seeria ${i + 1}: <strong style="color: black;">${s.weight} kg</strong> × <strong style="color: black;">${s.reps} kordust</strong></div>`;
+                        pdfContent += `
+                            <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #eee;">
+                                <span style="color: #666;">Seeria ${i + 1}</span>
+                                <span style="color: #000; font-weight: 700;">${s.weight} kg × ${s.reps} kordust</span>
+                            </div>
+                        `;
                     });
-                    pdfContent += `</div>`;
+                    pdfContent += `
+                            </div>
+                        </div>
+                    `;
                 });
 
+                pdfContent += `</div>`;
                 tempDiv.innerHTML = pdfContent;
-                document.body.appendChild(tempDiv); // See on kohustuslik samm telefonide jaoks!
+                document.body.appendChild(tempDiv);
 
                 const opt = {
-                    margin:       0.5,
-                    filename:     'Treening_Ajalugu.pdf',
+                    margin:       [0.4, 0.4, 0.4, 0.4],
+                    filename:     `Treeningud_${this.profile.name || 'Logi'}.pdf`,
                     image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true },
+                    html2canvas:  { 
+                        scale: 2, 
+                        useCORS: true, 
+                        scrollY: 0, 
+                        scrollX: 0
+                    },
                     jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
                 };
 
-                html2pdf().set(opt).from(tempDiv).save().then(() => {
-                    document.body.removeChild(tempDiv); // Eemaldame peidetud divi pärast PDF valmimist
-                }).catch(err => {
-                    alert("Viga PDF-i genereerimisel: " + err);
-                    document.body.removeChild(tempDiv);
-                });
+                // Ootame 150ms kuni brauser DOM-i täielikult laeb ja konverteerime PDF-iks
+                setTimeout(() => {
+                    html2pdf().set(opt).from(tempDiv).save().then(() => {
+                        if (document.body.contains(tempDiv)) {
+                            document.body.removeChild(tempDiv);
+                        }
+                    }).catch(err => {
+                        alert("Viga PDF-i salvestamisel: " + err);
+                        if (document.body.contains(tempDiv)) {
+                            document.body.removeChild(tempDiv);
+                        }
+                    });
+                }, 150);
             }
         };
 
