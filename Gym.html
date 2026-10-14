@@ -54,11 +54,18 @@
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* HEADER & PROFILE */
+        /* HEADER & OTSINGURIBA */
         .top-header { padding: 20px 20px 10px; position: sticky; top: 0; z-index: 10; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .logo { font-weight: 900; font-size: 22px; font-style: italic; }
+        .logo { font-weight: 900; font-size: 22px; font-style: italic; white-space: nowrap; }
         .logo span { color: var(--neon); }
+        
+        .search-container { position: relative; display: flex; align-items: center; }
+        .search-container i { position: absolute; left: 12px; color: var(--text-muted); font-size: 13px; pointer-events: none; }
+        .search-input { background: var(--bg-input); border: 1px solid var(--border); color: white; padding: 8px 12px 8px 32px; border-radius: 20px; outline: none; font-size: 13px; width: 110px; transition: all 0.3s ease; font-family: 'Outfit', sans-serif; }
+        .search-input:focus { border-color: var(--neon); width: 140px; background: rgba(0,0,0,0.9); }
+        .search-input::placeholder { color: var(--text-muted); }
 
+        /* PROFILE */
         .profile-card { margin: 15px 20px 20px; background: var(--bg-card); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         .avatar { width: 45px; height: 45px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--neon); flex-shrink: 0; }
         .profile-info { flex-grow: 1; overflow: hidden; }
@@ -140,6 +147,11 @@
         <div id="view-home" class="view active">
             <header class="top-header">
                 <div class="logo">24/7 <span>FITNESS</span></div>
+                <!-- UUS OTSINGURIBA -->
+                <div class="search-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" class="search-input" placeholder="Otsi..." onkeyup="app.handleSearch(this.value)">
+                </div>
             </header>
 
             <div class="profile-card">
@@ -231,10 +243,11 @@
         const getImgUrl = (text) => `https://placehold.co/400x400/1c1c1e/ccff00?text=${encodeURIComponent(text.replace(' ', '\n'))}&font=montserrat`;
 
         const app = {
-            profile: JSON.parse(localStorage.getItem('247app_profile_v8')) || { name: '', age: '', weight: '' },
-            history: JSON.parse(localStorage.getItem('247app_history_v8')) || [],
+            profile: JSON.parse(localStorage.getItem('247app_profile_v9')) || { name: '', age: '', weight: '' },
+            history: JSON.parse(localStorage.getItem('247app_history_v9')) || [],
             
             activeFilters: [],
+            searchQuery: '', // UUS: Otsingusõna hoidmine
             currentExercise: null,
             currentSets: [],
 
@@ -322,7 +335,7 @@
                 if(newWeight === null) return;
                 
                 this.profile = { name: newName.trim(), age: newAge.trim(), weight: newWeight.trim() };
-                localStorage.setItem('247app_profile_v8', JSON.stringify(this.profile));
+                localStorage.setItem('247app_profile_v9', JSON.stringify(this.profile));
                 this.updateProfileUI();
             },
 
@@ -337,6 +350,12 @@
                 
                 if(viewId === 'view-history') this.renderHistory();
                 window.scrollTo(0,0);
+            },
+
+            // UUS: Otsingu käsitlemine
+            handleSearch: function(query) {
+                this.searchQuery = query.toLowerCase();
+                this.renderExerciseList();
             },
 
             renderFilters: function() {
@@ -369,12 +388,18 @@
                 list.innerHTML = '';
                 
                 const filteredExercises = this.exercises.filter(ex => {
-                    if (this.activeFilters.length === 0) return true;
-                    return this.activeFilters.includes(ex.target);
+                    // Kas vastab valitud kategooriale?
+                    const matchesCategory = this.activeFilters.length === 0 || this.activeFilters.includes(ex.target);
+                    
+                    // Kas vastab otsingusõnale? (Otsib nii nime kui ka sihtlihase järgi)
+                    const matchesSearch = ex.name.toLowerCase().includes(this.searchQuery) || 
+                                          ex.target.toLowerCase().includes(this.searchQuery);
+                    
+                    return matchesCategory && matchesSearch;
                 });
 
                 if (filteredExercises.length === 0) {
-                    list.innerHTML = '<div class="empty-state">Sellele valikule vastavaid harjutusi ei leitud.</div>';
+                    list.innerHTML = '<div class="empty-state">Sellele valikule/otsingule vastavaid harjutusi ei leitud.</div>';
                     return;
                 }
 
@@ -456,7 +481,7 @@
                 };
 
                 this.history.unshift(workoutEntry);
-                localStorage.setItem('247app_history_v8', JSON.stringify(this.history));
+                localStorage.setItem('247app_history_v9', JSON.stringify(this.history));
                 
                 this.navTo('view-history', 1);
             },
@@ -501,7 +526,7 @@
             deleteHistoryEntry: function(index) {
                 if(confirm("Kas oled kindel, et soovid selle harjutuse ajaloost kustutada?")) {
                     this.history.splice(index, 1);
-                    localStorage.setItem('247app_history_v8', JSON.stringify(this.history));
+                    localStorage.setItem('247app_history_v9', JSON.stringify(this.history));
                     this.renderHistory();
                 }
             },
