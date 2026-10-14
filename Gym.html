@@ -6,7 +6,9 @@
     <title>24/7 Fitness Logi</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome - 100% töökindel versioon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- HTML2PDF - PDF salvestamiseks -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
@@ -61,7 +63,7 @@
         .profile-info p { color: var(--text-muted); font-size: 12px; }
         .btn-outline { border: 1px solid var(--neon); color: var(--neon); background: transparent; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; flex-shrink: 0; }
 
-        /* FILTRID (TÖÖTAV HORISONTAALNE SCROLL) */
+        /* FILTRID (HORISONTAALNE SCROLL) */
         .section-header { padding: 0 20px; margin-bottom: 12px; font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #fff; }
         
         .filter-wrapper { width: 100%; overflow: hidden; }
@@ -73,14 +75,14 @@
         .filter-btn i { font-size: 14px; }
         .filter-btn.active { border-color: var(--neon); color: black; background: var(--neon); }
 
-        /* MASINATE LIST */
+        /* MASINATE LIST (Ikooni garantii) */
         .machine-list { display: flex; flex-direction: column; gap: 12px; padding: 0 20px 20px; }
         .machine-card { background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.1s; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .machine-card:active { transform: scale(0.98); }
         .machine-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #fff; }
         .machine-card p { font-size: 12px; color: var(--text-muted); line-height: 1.4; font-weight: 500;}
         .machine-icon-container { display: flex; align-items: center; gap: 15px; }
-        .machine-card i.list-icon { color: var(--neon); font-size: 20px; width: 25px; text-align: center; }
+        .machine-icon-container i.list-icon { color: var(--neon); font-size: 22px; min-width: 30px; display: inline-block; text-align: center; } /* Fikseerib ikoonide puudumise bugi */
         .empty-state { text-align: center; color: var(--text-muted); padding: 30px 20px; font-size: 14px; }
 
         /* TREENINGU LOGIMINE */
@@ -148,7 +150,6 @@
 
             <div class="section-header">Vali lihasgrupp</div>
             
-            <!-- SKROLLITAVAD FILTRID -->
             <div class="filter-wrapper">
                 <div class="filter-scroll" id="filter-container">
                     <!-- Genereeritakse JS abil -->
@@ -222,38 +223,38 @@
 
     </div>
 
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT (Rakenduse loogika)             -->
+    <!-- ========================================== -->
     <script>
-        // Dünaamiline 100% klappiv pildi URL generaator (loob pildi, kus on täpselt masina nimi peal)
         const getImgUrl = (text) => `https://placehold.co/400x400/1c1c1e/ccff00?text=${encodeURIComponent(text.replace(' ', '\n'))}&font=montserrat`;
 
         const app = {
-            profile: JSON.parse(localStorage.getItem('247app_profile_v5')) || { name: '', age: '', weight: '' },
-            history: JSON.parse(localStorage.getItem('247app_history_v5')) || [],
+            profile: JSON.parse(localStorage.getItem('247app_profile_v6')) || { name: '', age: '', weight: '' },
+            history: JSON.parse(localStorage.getItem('247app_history_v6')) || [],
             
             activeFilters: [],
             currentExercise: null,
             currentSets: [],
 
-            // LAIENDATUD SPETSIIFILISED KATEGOORIAD
             categories: [
-                { id: 'Rind', icon: 'fa-child' },
-                { id: 'Ülaselg', icon: 'fa-arrow-down-up-across-line' },
-                { id: 'Alaselg', icon: 'fa-person-bending-backward' },
-                { id: 'Õlad', icon: 'fa-child-reaching' },
+                { id: 'Rind', icon: 'fa-dumbbell' },
+                { id: 'Ülaselg', icon: 'fa-child-reaching' },
+                { id: 'Alaselg', icon: 'fa-weight-hanging' },
+                { id: 'Õlad', icon: 'fa-arrows-up-to-line' },
                 { id: 'Biitseps', icon: 'fa-hand-fist' },
-                { id: 'Triitseps', icon: 'fa-hand-back-fist' },
+                { id: 'Triitseps', icon: 'fa-bolt' },
                 { id: 'Reied', icon: 'fa-shoe-prints' },
                 { id: 'Sääred', icon: 'fa-shoe-prints' },
                 { id: 'Kõht', icon: 'fa-cubes' }
             ],
 
-            // LÕPLIK TÄIUSLIK ANDMEBAAS (Klapib 100% Gymleco ja 24/7 fitnessiga)
             exercises: [
                 // RIND
-                { name: 'Bench Press', target: 'Rind', desc: 'Gymleco Olympic Flat Bench', alt: 'Smith masin / Hantlid lamades', icon: 'fa-child', img: getImgUrl('Bench Press') },
+                { name: 'Bench Press', target: 'Rind', desc: 'Gymleco Olympic Flat Bench', alt: 'Smith masin / Hantlid lamades', icon: 'fa-dumbbell', img: getImgUrl('Bench Press') },
                 { name: 'Incline Dumbbell Press', target: 'Rind', desc: 'Gymleco Adjustable Bench + Hantlid', alt: 'Kaldpink kangiga / Smith', icon: 'fa-dumbbell', img: getImgUrl('Incline Press') },
                 { name: 'Pec Deck Fly', target: 'Rind', desc: 'Gymleco Pec Deck plokkmasin', alt: 'Hantlitega lendamine', icon: 'fa-arrows-left-right', img: getImgUrl('Pec Deck') },
-                { name: 'Cable Crossover', target: 'Rind', desc: 'Gymleco ristveo masin', alt: 'Pec Deck / Lendamine hantlitega', icon: 'fa-xmarks-lines', img: getImgUrl('Cable Cross') },
+                { name: 'Cable Crossover', target: 'Rind', desc: 'Gymleco ristveo masin', alt: 'Pec Deck / Lendamine hantlitega', icon: 'fa-bolt', img: getImgUrl('Cable Cross') },
                 { name: 'Dips', target: 'Rind', desc: 'Gymleco Dip Station', alt: 'Assisted Dip masin', icon: 'fa-arrow-down', img: getImgUrl('Dips') },
                 
                 // ÜLASELG
@@ -261,17 +262,17 @@
                 { name: 'Seated Cable Row', target: 'Ülaselg', desc: 'Gymleco Seated Row masin', alt: 'T-Bar Row / Hantliga tõmbed', icon: 'fa-arrow-right-to-bracket', img: getImgUrl('Seated Row') },
                 { name: 'T-Bar Row', target: 'Ülaselg', desc: 'Gymleco T-Bar masin / Kangi ots', alt: 'Seated Cable Row / Kangi tõmbed', icon: 'fa-dumbbell', img: getImgUrl('T-Bar Row') },
                 { name: 'Pull-Ups', target: 'Ülaselg', desc: 'Gymleco Lõuatõmbe kang', alt: 'Lat Pulldown masin', icon: 'fa-arrow-up', img: getImgUrl('Pull-Ups') },
-                { name: 'Face Pulls', target: 'Ülaselg', desc: 'Gymleco ristveo masin + köis', alt: 'Rear Delt Fly masin', icon: 'fa-arrows-to-eye', img: getImgUrl('Face Pulls') },
+                { name: 'Face Pulls', target: 'Ülaselg', desc: 'Gymleco ristveo masin + köis', alt: 'Rear Delt Fly masin', icon: 'fa-bullseye', img: getImgUrl('Face Pulls') },
                 
                 // ALASELG
-                { name: 'Deadlift (Jõutõmme)', target: 'Alaselg', desc: 'Vabaraskus kang tõsteplatvormil', alt: 'Smith masinal / Hantlitega', icon: 'fa-person-arrow-up-from-line', img: getImgUrl('Deadlift') },
-                { name: 'Back Extension', target: 'Alaselg', desc: 'Gymleco Roman Chair (Seljapink)', alt: 'Good Mornings kangiga', icon: 'fa-person-bending-backward', img: getImgUrl('Back Extension') },
+                { name: 'Deadlift (Jõutõmme)', target: 'Alaselg', desc: 'Vabaraskus kang tõsteplatvormil', alt: 'Smith masinal / Hantlitega', icon: 'fa-arrow-up', img: getImgUrl('Deadlift') },
+                { name: 'Back Extension', target: 'Alaselg', desc: 'Gymleco Roman Chair (Seljapink)', alt: 'Good Mornings kangiga', icon: 'fa-person', img: getImgUrl('Back Extension') },
                 { name: 'Good Mornings', target: 'Alaselg', desc: 'Kükipuur + Kang vabalanguses', alt: 'Back Extension pink', icon: 'fa-child-reaching', img: getImgUrl('Good Mornings') },
                 
                 // REIED
-                { name: 'Barbell Squat', target: 'Reied', desc: 'Gymleco Kükipuur (Half Rack)', alt: 'Smith masina kükk / Hack Squat', icon: 'fa-person-arrow-up-from-line', img: getImgUrl('Squat') },
+                { name: 'Barbell Squat', target: 'Reied', desc: 'Gymleco Kükipuur (Half Rack)', alt: 'Smith masina kükk / Hack Squat', icon: 'fa-arrow-up', img: getImgUrl('Squat') },
                 { name: 'Leg Press', target: 'Reied', desc: 'Gymleco 45° Leg Press masin', alt: 'Kükk kangiga / Hack Squat', icon: 'fa-shoe-prints', img: getImgUrl('Leg Press') },
-                { name: 'Romanian Deadlift', target: 'Reied', desc: 'Vabaraskus kang / Hantlid', alt: 'Kõhuli Reiekõverdused', icon: 'fa-person-bending-backward', img: getImgUrl('RDL') },
+                { name: 'Romanian Deadlift', target: 'Reied', desc: 'Vabaraskus kang / Hantlid', alt: 'Kõhuli Reiekõverdused', icon: 'fa-weight-hanging', img: getImgUrl('RDL') },
                 { name: 'Leg Extension', target: 'Reied', desc: 'Gymleco Leg Extension masin', alt: 'Väljaasted / Bulgaaria kükk', icon: 'fa-person-walking', img: getImgUrl('Leg Extension') },
                 { name: 'Leg Curl', target: 'Reied', desc: 'Gymleco Istuv/Lamav Leg Curl', alt: 'RDL / Good Mornings', icon: 'fa-person-running', img: getImgUrl('Leg Curl') },
                 
@@ -282,7 +283,7 @@
                 // ÕLAD
                 { name: 'Overhead Press (OHP)', target: 'Õlad', desc: 'Kangi surumine seistes (Half Rack)', alt: 'Hantlitega surumine istudes', icon: 'fa-arrow-up', img: getImgUrl('Overhead Press') },
                 { name: 'Lateral Raise', target: 'Õlad', desc: 'Hantlid vabaraskuste alal', alt: 'Kaablitega lendamine küljele', icon: 'fa-arrows-up-to-line', img: getImgUrl('Lateral Raise') },
-                { name: 'Reverse Pec Deck', target: 'Õlad', desc: 'Gymleco Pec Deck (tagurpidi)', alt: 'Face Pulls / Kummardades lendamine', icon: 'fa-arrows-left-right-to-line', img: getImgUrl('Reverse Deck') },
+                { name: 'Reverse Pec Deck', target: 'Õlad', desc: 'Gymleco Pec Deck (tagurpidi)', alt: 'Face Pulls / Kummardades lendamine', icon: 'fa-arrows-left-right', img: getImgUrl('Reverse Deck') },
                 
                 // BIITSEPS
                 { name: 'Barbell Bicep Curl', target: 'Biitseps', desc: 'Sirge või EZ kang vabaraskustest', alt: 'Hantlitega Curls', icon: 'fa-dumbbell', img: getImgUrl('Barbell Curl') },
@@ -291,7 +292,7 @@
                 
                 // TRIITSEPS
                 { name: 'Tricep Pushdown', target: 'Triitseps', desc: 'Gymleco ristveo masin + köis/sirge', alt: 'Tricep Kickbacks hantliga', icon: 'fa-hand-back-fist', img: getImgUrl('Pushdown') },
-                { name: 'Skullcrushers', target: 'Triitseps', desc: 'Lamades Gymleco pink + EZ kang', alt: 'Overhead Tricep Ext.', icon: 'fa-arrow-up-from-bracket', img: getImgUrl('Skullcrusher') },
+                { name: 'Skullcrushers', target: 'Triitseps', desc: 'Lamades Gymleco pink + EZ kang', alt: 'Overhead Tricep Ext.', icon: 'fa-bolt', img: getImgUrl('Skullcrusher') },
                 
                 // KÕHT
                 { name: 'Cable Crunch', target: 'Kõht', desc: 'Gymleco ristveo masin + köis', alt: 'Kõhulihaste masin', icon: 'fa-cubes', img: getImgUrl('Cable Crunch') },
@@ -320,7 +321,7 @@
                 if(newWeight === null) return;
                 
                 this.profile = { name: newName.trim(), age: newAge.trim(), weight: newWeight.trim() };
-                localStorage.setItem('247app_profile_v5', JSON.stringify(this.profile));
+                localStorage.setItem('247app_profile_v6', JSON.stringify(this.profile));
                 this.updateProfileUI();
             },
 
@@ -397,8 +398,6 @@
                 if(!this.currentExercise) return;
 
                 document.getElementById('logger-machine-name').innerText = this.currentExercise.name;
-                
-                // Uuenda masina info kasti (mis asub nüüd ALL)
                 document.getElementById('machine-img').src = this.currentExercise.img;
                 document.getElementById('machine-desc').innerText = this.currentExercise.desc;
                 document.getElementById('machine-alt').innerText = this.currentExercise.alt;
@@ -429,8 +428,8 @@
             },
 
             addSet: function() {
-                const prevSet = this.currentSets.length > 0 ? this.currentSets[this.currentSets.length - 1] : { weight: '', reps: '' };
-                this.currentSets.push({ weight: prevSet.weight, reps: '' });
+                const lastSet = this.currentSets.length > 0 ? this.currentSets[this.currentSets.length - 1] : { weight: '', reps: '' };
+                this.currentSets.push({ weight: lastSet.weight, reps: '' });
                 this.renderLoggerSets();
             },
 
@@ -456,7 +455,7 @@
                 };
 
                 this.history.unshift(workoutEntry);
-                localStorage.setItem('247app_history_v5', JSON.stringify(this.history));
+                localStorage.setItem('247app_history_v6', JSON.stringify(this.history));
                 
                 this.navTo('view-history', 1);
             },
@@ -501,22 +500,32 @@
             deleteHistoryEntry: function(index) {
                 if(confirm("Kas oled kindel, et soovid selle harjutuse ajaloost kustutada?")) {
                     this.history.splice(index, 1);
-                    localStorage.setItem('247app_history_v5', JSON.stringify(this.history));
+                    localStorage.setItem('247app_history_v6', JSON.stringify(this.history));
                     this.renderHistory();
                 }
             },
 
-            // --- PDF ALLALAADIMINE ---
+            // PDF-i genereerimise MOBIILIPARANDUS
             exportPDF: function() {
                 if(this.history.length === 0) {
                     alert("Ajalugu on tühi, pole midagi salvestada!");
                     return;
                 }
 
+                // Luuakse ajutine element, et mobiilibrauser ei blokeeriks PDF renderdust
+                const tempDiv = document.createElement('div');
+                tempDiv.style.position = 'absolute';
+                tempDiv.style.left = '-9999px'; // Peidame ekraanilt
+                tempDiv.style.top = '0';
+                tempDiv.style.width = '800px'; 
+                tempDiv.style.background = 'white';
+                tempDiv.style.color = 'black';
+                tempDiv.style.padding = '20px';
+                tempDiv.style.fontFamily = 'sans-serif';
+
                 let pdfContent = `
-                    <div style="padding: 20px; font-family: sans-serif; color: black; background: white;">
-                        <h2 style="margin-bottom: 20px; color: black; text-align: center; font-weight: 900;">24/7 FITNESS LOGI</h2>
-                        <h4 style="margin-bottom: 20px; text-align: center; color: #333;">Nimi: ${this.profile.name || 'Nimetu'}</h4>
+                    <h2 style="margin-bottom: 20px; color: black; text-align: center; font-weight: 900;">24/7 FITNESS LOGI</h2>
+                    <h4 style="margin-bottom: 20px; text-align: center; color: #333;">Nimi: ${this.profile.name || 'Nimetu'}</h4>
                 `;
 
                 this.history.forEach(session => {
@@ -531,19 +540,23 @@
                     pdfContent += `</div>`;
                 });
 
-                pdfContent += `</div>`;
+                tempDiv.innerHTML = pdfContent;
+                document.body.appendChild(tempDiv); // See on kohustuslik samm telefonide jaoks!
 
                 const opt = {
-                    margin:       1,
-                    filename:     'Minu_Treeningud.pdf',
+                    margin:       0.5,
+                    filename:     'Treening_Ajalugu.pdf',
                     image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2 },
-                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
                 };
 
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = pdfContent;
-                html2pdf().set(opt).from(tempDiv).save();
+                html2pdf().set(opt).from(tempDiv).save().then(() => {
+                    document.body.removeChild(tempDiv); // Eemaldame peidetud divi pärast PDF valmimist
+                }).catch(err => {
+                    alert("Viga PDF-i genereerimisel: " + err);
+                    document.body.removeChild(tempDiv);
+                });
             }
         };
 
