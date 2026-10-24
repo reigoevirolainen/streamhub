@@ -111,13 +111,27 @@
         .sets-section { padding: 20px; flex-grow: 1; }
         .sets-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         .sets-table th { color: var(--text-muted); font-size: 12px; font-weight: 600; text-align: center; padding-bottom: 15px; text-transform: uppercase; }
-        .sets-table td { padding: 6px 4px; text-align: center; }
-        .set-input { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: white; padding: 14px; border-radius: 10px; text-align: center; font-size: 16px; font-weight: 700; outline: none; }
+        .sets-table td { padding: 10px 4px; text-align: center; vertical-align: middle; }
+        .set-input { width: 100%; height: 50px; background: var(--bg-input); border: 1px solid var(--border); color: white; padding: 0 10px; border-radius: 10px; text-align: center; font-size: 18px; font-weight: 700; outline: none; }
         .set-input:focus { border-color: var(--neon); }
         
+        /* UUS: iOS-STIILIS WHEEL PICKER (KORDUSTE JAOKS) */
+        .picker-wrapper { position: relative; height: 120px; background: var(--bg-input); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; width: 100%; }
+        /* Varjud mis tekitavad rulliku efekti */
+        .picker-wrapper::before, .picker-wrapper::after { content: ''; position: absolute; left: 0; right: 0; height: 40px; pointer-events: none; z-index: 2; }
+        .picker-wrapper::before { top: 0; background: linear-gradient(to bottom, #1c1c1e 10%, transparent); }
+        .picker-wrapper::after { bottom: 0; background: linear-gradient(to top, #1c1c1e 10%, transparent); }
+        /* Keskmine valitud ala (fookus) */
+        .picker-highlight { position: absolute; top: 40px; left: 0; right: 0; height: 40px; border-top: 1px solid rgba(204, 255, 0, 0.4); border-bottom: 1px solid rgba(204, 255, 0, 0.4); background: rgba(204, 255, 0, 0.05); pointer-events: none; z-index: 1; }
+        /* Scrollitav ala */
+        .picker-scroll { height: 100%; overflow-y: auto; scroll-snap-type: y mandatory; padding: 40px 0; scrollbar-width: none; -ms-overflow-style: none; }
+        .picker-scroll::-webkit-scrollbar { display: none; }
+        /* Üksikud numbrid rullikus */
+        .picker-item { height: 40px; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; font-size: 20px; font-weight: 700; color: white; }
+
         .btn-add { background: transparent; border: 1px dashed var(--border); color: var(--text-muted); width: 100%; padding: 14px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 15px; transition: 0.2s; }
         .btn-primary { width: 100%; background: var(--neon); color: black; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(204, 255, 0, 0.2); text-transform: uppercase;}
-        .btn-del { color: var(--red); background: none; border: none; font-size: 18px; cursor: pointer; padding: 10px; }
+        .btn-del { color: var(--red); background: rgba(239, 68, 68, 0.1); border: none; border-radius: 8px; font-size: 16px; cursor: pointer; padding: 10px; height: 50px; width: 100%; display: flex; align-items: center; justify-content: center; }
 
         /* MASINA INFO */
         .machine-info-box { margin: 20px; padding: 15px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); display: flex; gap: 15px; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
@@ -183,7 +197,7 @@
             </div>
         </div>
 
-        <!-- ================= 2. LOGI TREENINGUT (ALAMLEHT, KUS ON TAGASI NUPP) ================= -->
+        <!-- ================= 2. LOGI TREENINGUT ================= -->
         <div id="view-logger" class="view">
             <header class="logger-header">
                 <div class="header-left">
@@ -197,14 +211,14 @@
                 <table class="sets-table">
                     <thead>
                         <tr>
-                            <th style="width: 15%;">Seeria</th>
+                            <th style="width: 10%;">Seeria</th>
                             <th style="width: 35%;">Raskus (kg)</th>
-                            <th style="width: 35%;">Kordused</th>
+                            <th style="width: 40%;">Kordused</th>
                             <th style="width: 15%;"></th>
                         </tr>
                     </thead>
                     <tbody id="logger-sets-body">
-                        <!-- Sisestusväljad -->
+                        <!-- Sisestusväljad (sh scrollitav ratas) genereeritakse siia -->
                     </tbody>
                 </table>
 
@@ -223,7 +237,7 @@
             </div>
         </div>
 
-        <!-- ================= 3. TREENINGUTE AJALUGU (ALAMLEHT, KUS ON TAGASI NUPP) ================= -->
+        <!-- ================= 3. TREENINGUTE AJALUGU ================= -->
         <div id="view-history" class="view">
             <header class="logger-header">
                 <div class="header-left">
@@ -257,13 +271,14 @@
         const getImgUrl = (text) => `https://placehold.co/400x400/1c1c1e/ccff00?text=${encodeURIComponent(text.replace(' ', '\n'))}&font=montserrat`;
 
         const app = {
-            profile: JSON.parse(localStorage.getItem('247app_profile_v11')) || { name: '', age: '', weight: '' },
-            history: JSON.parse(localStorage.getItem('247app_history_v11')) || [],
+            profile: JSON.parse(localStorage.getItem('247app_profile_v13')) || { name: '', age: '', weight: '' },
+            history: JSON.parse(localStorage.getItem('247app_history_v13')) || [],
             
             activeFilters: [],
             searchQuery: '',
             currentExercise: null,
             currentSets: [],
+            repOptionsHTML: '', // Salvestab generitud rattavalikud
 
             categories: [
                 { id: 'Rind', icon: 'fa-dumbbell' },
@@ -300,7 +315,6 @@
                 // REIED
                 { name: 'Barbell Squat', target: 'Reied', desc: 'Gymleco Kükipuur (Half Rack)', alt: 'Smith masina kükk / Hack Squat', icon: 'fa-arrow-up', img: getImgUrl('Squat') },
                 { name: 'Leg Press', target: 'Reied', desc: 'Gymleco 45° Leg Press masin', alt: 'Kükk kangiga / Hack Squat', icon: 'fa-shoe-prints', img: getImgUrl('Leg Press') },
-                { name: 'Romanian deadlift', target: 'Reied', desc: 'Vabaraskus kang / Hantlid', alt: 'Kõhuli Reiekõverdused', icon: 'fa-weight-hanging', img: getImgUrl('RDL') },
                 { name: 'Leg Extension', target: 'Reied', desc: 'Gymleco Leg Extension masin', alt: 'Väljaasted / Bulgaaria kükk', icon: 'fa-person-walking', img: getImgUrl('Leg Extension') },
                 { name: 'Leg Curl', target: 'Reied', desc: 'Gymleco Istuv/Lamav Leg Curl', alt: 'RDL / Romanian deadlift', icon: 'fa-person-running', img: getImgUrl('Leg Curl') },
                 
@@ -349,7 +363,7 @@
                 if(newWeight === null) return;
                 
                 this.profile = { name: newName.trim(), age: newAge.trim(), weight: newWeight.trim() };
-                localStorage.setItem('247app_profile_v11', JSON.stringify(this.profile));
+                localStorage.setItem('247app_profile_v13', JSON.stringify(this.profile));
                 this.updateProfileUI();
             },
 
@@ -437,9 +451,37 @@
                 document.getElementById('machine-desc').innerText = this.currentExercise.desc;
                 document.getElementById('machine-alt').innerText = this.currentExercise.alt;
 
-                this.currentSets = [{ weight: '', reps: '' }];
+                // Uus harjutus avades anname korduste arvuks by default 10, see teeb kerimise mugavamaks!
+                this.currentSets = [{ weight: '', reps: 10 }];
                 this.renderLoggerSets();
                 this.navTo('view-logger', null);
+            },
+
+            // Genereerib HTML sisu rulliku jaoks (0 kuni 100 kordust)
+            generateRepOptions: function() {
+                if (!this.repOptionsHTML) {
+                    let html = '';
+                    for(let i=0; i<=100; i++) {
+                        html += `<div class="picker-item">${i}</div>`;
+                    }
+                    this.repOptionsHTML = html;
+                }
+                return this.repOptionsHTML;
+            },
+
+            // Kutsutakse välja kui kasutaja rullikut kerib
+            onRepScroll: function(element, setIndex) {
+                clearTimeout(element.scrollTimeout);
+                // Ootame natuke peale kerimise peatumist, et andmed värskendada
+                element.scrollTimeout = setTimeout(() => {
+                    const itemHeight = 40; // Sama mis .picker-item CSS height
+                    let selectedVal = Math.round(element.scrollTop / itemHeight);
+                    if(selectedVal < 0) selectedVal = 0;
+                    if(selectedVal > 100) selectedVal = 100;
+                    
+                    // Uuendame vaikselt mudelis korduste arvu, ilma tervet tabelit uuesti laadimata
+                    this.currentSets[setIndex].reps = selectedVal;
+                }, 100); 
             },
 
             renderLoggerSets: function() {
@@ -448,14 +490,33 @@
                 
                 this.currentSets.forEach((set, index) => {
                     tbody.innerHTML += `
-                        <tr>
+                        <tr style="border-bottom: 1px dashed rgba(255,255,255,0.05);">
                             <td style="color: var(--neon); font-size: 16px; font-weight: 800;">${index + 1}</td>
-                            <td><input type="number" class="set-input" placeholder="0" value="${set.weight}" onchange="app.updateSet(${index}, 'weight', this.value)"></td>
-                            <td><input type="number" class="set-input" placeholder="0" value="${set.reps}" onchange="app.updateSet(${index}, 'reps', this.value)"></td>
-                            <td><button class="btn-del" onclick="app.removeSet(${index})"><i class="fa-solid fa-xmark"></i></button></td>
+                            <td>
+                                <input type="number" class="set-input" placeholder="0" value="${set.weight}" onchange="app.updateSet(${index}, 'weight', this.value)">
+                            </td>
+                            <td>
+                                <!-- iOS stiilis scrollitav valikurull -->
+                                <div class="picker-wrapper">
+                                    <div class="picker-highlight"></div>
+                                    <div class="picker-scroll" onscroll="app.onRepScroll(this, ${index})" data-index="${index}">
+                                        ${app.generateRepOptions()}
+                                    </div>
+                                </div>
+                            </td>
+                            <td><button class="btn-del" onclick="app.removeSet(${index})"><i class="fa-solid fa-trash-can"></i></button></td>
                         </tr>
                     `;
                 });
+
+                // Taastame scrolli positsioonid rullikutes pärast HTMLi sisse panemist!
+                setTimeout(() => {
+                    document.querySelectorAll('.picker-scroll').forEach((el) => {
+                        const idx = el.getAttribute('data-index');
+                        const reps = parseInt(this.currentSets[idx].reps) || 0;
+                        el.scrollTop = reps * 40; 
+                    });
+                }, 10);
             },
 
             updateSet: function(index, field, value) {
@@ -463,8 +524,9 @@
             },
 
             addSet: function() {
-                const lastSet = this.currentSets.length > 0 ? this.currentSets[this.currentSets.length - 1] : { weight: '', reps: '' };
-                this.currentSets.push({ weight: lastSet.weight, reps: '' });
+                // Kopeerime eelmise seeria andmed uue aluseks (kaasaarvatud eelmise keritud kordused)
+                const lastSet = this.currentSets.length > 0 ? this.currentSets[this.currentSets.length - 1] : { weight: '', reps: 10 };
+                this.currentSets.push({ weight: lastSet.weight, reps: lastSet.reps });
                 this.renderLoggerSets();
             },
 
@@ -474,10 +536,11 @@
             },
 
             saveWorkout: function() {
-                const validSets = this.currentSets.filter(s => s.weight !== '' && s.reps !== '');
+                // Kontrollime, et kordused oleks suurem kui 0!
+                const validSets = this.currentSets.filter(s => s.weight !== '' && parseInt(s.reps) > 0);
                 
                 if(validSets.length === 0) {
-                    alert("Palun sisesta vähemalt üks kehtiv seeria (raskus ja kordused)!");
+                    alert("Palun sisesta vähemalt üks kehtiv seeria (raskus, ja kordused üle 0)!");
                     return;
                 }
 
@@ -490,7 +553,7 @@
                 };
 
                 this.history.unshift(workoutEntry);
-                localStorage.setItem('247app_history_v11', JSON.stringify(this.history));
+                localStorage.setItem('247app_history_v13', JSON.stringify(this.history));
                 
                 this.navTo('view-history', 1);
             },
@@ -535,7 +598,7 @@
             deleteHistoryEntry: function(index) {
                 if(confirm("Kas oled kindel, et soovid selle harjutuse ajaloost kustutada?")) {
                     this.history.splice(index, 1);
-                    localStorage.setItem('247app_history_v11', JSON.stringify(this.history));
+                    localStorage.setItem('247app_history_v13', JSON.stringify(this.history));
                     this.renderHistory();
                 }
             },
