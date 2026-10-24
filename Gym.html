@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>24/7 Fitness Logi</title>
     
+    <!-- Neoonroheline kaldus 'F' Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.85em%22 x=%2250%22 text-anchor=%22middle%22 font-size=%2290%22 font-family=%22sans-serif%22 font-weight=%22900%22 font-style=%22italic%22 fill=%22%23ccff00%22>F</text></svg>">
+    
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- HTML2PDF Teek -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
@@ -16,12 +20,12 @@
             --bg-card: rgba(18, 18, 20, 0.95); 
             --bg-input: rgba(28, 28, 30, 0.8);
             --neon: #ccff00; 
-            --cardio-color: #f97316; /* Oranž kardio jaoks */
             --text-main: #ffffff; 
             --text-muted: #a1a1aa;
             --border: #27272a; 
             --red: #ef4444;
             --blue: #3b82f6;
+            --orange: #f97316;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -42,7 +46,7 @@
             -webkit-backdrop-filter: blur(12px);
             min-height: 100vh; 
             position: relative; 
-            padding-bottom: 90px; 
+            padding-bottom: 20px; /* Ei vaja enam nii palju ruumi allservas */
             box-shadow: 0 0 20px rgba(0,0,0,0.8);
             display: flex;
             flex-direction: column;
@@ -51,10 +55,20 @@
         .view { display: none; animation: fadeIn 0.2s ease; flex-grow: 1; }
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
 
-        /* HEADER */
-        .top-header { padding: 20px 20px 10px; position: sticky; top: 0; z-index: 10; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        /* UUS KLEEPUP PÄIS (Header + Nav) */
+        .sticky-top {
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            background: rgba(10, 10, 12, 0.95); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* HEADERID STICKY SEES */
+        .top-header { padding: 15px 20px 5px; display: flex; align-items: center; justify-content: space-between; }
         .logo { font-weight: 900; font-size: 22px; font-style: italic; white-space: nowrap; }
         .logo span { color: var(--neon); }
         
@@ -63,7 +77,7 @@
         .search-input { background: var(--bg-input); border: 1px solid var(--border); color: white; padding: 8px 12px 8px 32px; border-radius: 20px; outline: none; font-size: 13px; width: 110px; transition: all 0.3s ease; }
         .search-input:focus { border-color: var(--neon); width: 140px; background: rgba(0,0,0,0.9); }
 
-        .logger-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
+        .logger-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px 5px; }
         .header-left, .header-right { width: 90px; display: flex; align-items: center; }
         .header-right { justify-content: flex-end; }
         .logger-title { font-weight: 800; font-size: 16px; text-align: center; flex-grow: 1; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
@@ -71,126 +85,134 @@
         .back-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--neon); background: rgba(204, 255, 0, 0.1); padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(204, 255, 0, 0.2); cursor: pointer; transition: 0.2s; }
         .back-btn:active { transform: scale(0.95); }
 
+        /* ÜLEMINE MENÜÜ (Nav) */
+        .top-nav { display: flex; justify-content: space-around; padding: 10px 10px 15px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 11px; font-weight: 600; cursor: pointer; border: none; background: none; flex: 1;}
+        .nav-item i { font-size: 20px; transition: 0.2s; }
+        .nav-item.active { color: var(--neon); }
+        .nav-item[data-tab="cardio"].active { color: var(--orange); }
+
         /* PROFILE & FILTERS */
         .profile-card { margin: 15px 20px 20px; background: var(--bg-card); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border); }
         .avatar { width: 45px; height: 45px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--neon); flex-shrink: 0; }
-        .profile-info { flex-grow: 1; }
+        .profile-info { flex-grow: 1; overflow: hidden; }
         .profile-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
         .profile-info p { color: var(--text-muted); font-size: 12px; }
         .btn-outline { border: 1px solid var(--neon); color: var(--neon); background: transparent; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; }
 
         .section-header { padding: 0 20px; margin-bottom: 12px; font-size: 15px; font-weight: 800; text-transform: uppercase; color: #fff; }
-        .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 0 20px 15px; scrollbar-width: none; align-items: center; }
+        .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 0 20px 15px 20px; scrollbar-width: none; }
         .filter-scroll::-webkit-scrollbar { display: none; }
-        .filter-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; display: flex; gap: 6px; align-items: center;}
+        .filter-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
         .filter-btn.active { border-color: var(--neon); color: black; background: var(--neon); }
 
         /* MASINATE LIST */
         .machine-list { display: flex; flex-direction: column; gap: 12px; padding: 0 20px 20px; }
-        .machine-card { background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .machine-card { background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.1s; }
         .machine-card:active { transform: scale(0.98); }
-        .machine-card h4 { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px;}
         .machine-icon-container { display: flex; align-items: center; gap: 15px; }
-        .machine-icon-container i.list-icon { color: var(--neon); font-size: 22px; width: 30px; text-align: center; }
-        .machine-icon-container.cardio i.list-icon { color: var(--cardio-color); }
+        .machine-icon-container i.list-icon { color: var(--neon); font-size: 22px; min-width: 30px; text-align: center; }
+        .machine-icon-container.cardio-icon i.list-icon { color: var(--orange); }
+        .machine-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #fff; }
+        .machine-card p { font-size: 12px; color: var(--text-muted); font-weight: 500;}
+        .empty-state { text-align: center; color: var(--text-muted); padding: 30px 20px; font-size: 14px; }
 
         /* TREENINGU LOGIMINE */
-        .sets-section { padding: 20px; }
+        .sets-section { padding: 20px; flex-grow: 1; }
         .sets-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .sets-table th { color: var(--text-muted); font-size: 12px; font-weight: 600; padding-bottom: 10px; }
-        .sets-table td { padding: 8px 4px; text-align: center; vertical-align: middle; }
-        .set-input { width: 100%; height: 50px; background: var(--bg-input); border: 1px solid var(--border); color: white; border-radius: 10px; text-align: center; font-size: 18px; font-weight: 700; outline: none; }
+        .sets-table th { color: var(--text-muted); font-size: 12px; font-weight: 600; text-align: center; padding-bottom: 15px; text-transform: uppercase; }
+        .sets-table td { padding: 6px 4px; text-align: center; vertical-align: middle; }
+        .set-input { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: white; padding: 14px; border-radius: 10px; text-align: center; font-size: 16px; font-weight: 700; outline: none; }
         .set-input:focus { border-color: var(--neon); }
         
-        /* WHEEL PICKER */
-        .picker-wrapper { position: relative; height: 120px; background: var(--bg-input); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; width: 100%; }
-        .picker-wrapper::before, .picker-wrapper::after { content: ''; position: absolute; left: 0; right: 0; height: 40px; pointer-events: none; z-index: 2; }
-        .picker-wrapper::before { top: 0; background: linear-gradient(to bottom, #1c1c1e 10%, transparent); }
-        .picker-wrapper::after { bottom: 0; background: linear-gradient(to top, #1c1c1e 10%, transparent); }
-        .picker-highlight { position: absolute; top: 40px; left: 0; right: 0; height: 40px; border-top: 1px solid rgba(204, 255, 0, 0.4); border-bottom: 1px solid rgba(204, 255, 0, 0.4); background: rgba(204, 255, 0, 0.05); pointer-events: none; z-index: 1; }
-        .picker-scroll { height: 100%; overflow-y: auto; scroll-snap-type: y mandatory; padding: 40px 0; scrollbar-width: none; }
-        .picker-scroll::-webkit-scrollbar { display: none; }
-        .picker-item { height: 40px; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; font-size: 20px; font-weight: 700; color: white; }
+        /* WHEEL PICKER (Korduste ratas) */
+        .picker-container { height: 90px; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; background: transparent; position: relative; width: 80px; margin: 0 auto; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+        .picker-container::-webkit-scrollbar { display: none; }
+        .picker-pad { height: 30px; }
+        .picker-item { height: 30px; line-height: 30px; text-align: center; scroll-snap-align: center; font-size: 14px; font-weight: 700; color: var(--text-muted); transition: 0.1s; }
+        .picker-highlight { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 30px; border-top: 2px solid var(--neon); border-bottom: 2px solid var(--neon); background: rgba(204, 255, 0, 0.05); pointer-events: none; border-radius: 4px; }
 
-        .btn-add { background: transparent; border: 1px dashed var(--border); color: var(--text-muted); width: 100%; padding: 14px; border-radius: 10px; font-weight: 600; margin-bottom: 15px; }
-        .btn-primary { width: 100%; background: var(--neon); color: black; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 800; text-transform: uppercase; margin-top: 15px;}
-        .btn-del { color: var(--red); background: rgba(239, 68, 68, 0.1); border: none; border-radius: 8px; font-size: 16px; width: 100%; height: 50px; display: flex; align-items: center; justify-content: center; }
+        .btn-add { background: transparent; border: 1px dashed var(--border); color: var(--text-muted); width: 100%; padding: 14px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 15px; }
+        .btn-primary { width: 100%; background: var(--neon); color: black; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(204, 255, 0, 0.2); text-transform: uppercase; margin-bottom: 20px;}
+        .btn-del { color: var(--red); background: none; border: none; font-size: 18px; cursor: pointer; padding: 10px; }
 
-        /* HINNANG & KOMMENTAAR */
-        .rating-section { margin-top: 20px; background: var(--bg-card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); }
-        .rating-title { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 10px; text-align: center; }
-        .rating-buttons { display: flex; gap: 10px; margin-bottom: 15px; }
-        .rate-btn { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-input); color: white; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
-        .rate-btn.good.active { background: rgba(59, 130, 246, 0.2); border-color: var(--blue); color: var(--blue); }
-        .rate-btn.bad.active { background: rgba(239, 68, 68, 0.2); border-color: var(--red); color: var(--red); }
-        .comment-input { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 10px; font-size: 14px; resize: none; outline: none; }
-        .comment-input:focus { border-color: var(--neon); }
+        /* CARDIO INPUTS */
+        .cardio-input-group { margin-bottom: 15px; }
+        .cardio-input-group label { display: block; font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; text-transform: uppercase; }
+
+        /* TAGASISIDE & KOMMENTAAR (Hinnang) */
+        .feedback-box { background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); margin-bottom: 20px; }
+        #logger-comment { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 8px; resize: none; height: 60px; font-size: 13px; margin-bottom: 12px; outline: none; }
+        #logger-comment:focus { border-color: var(--neon); }
+        .rating-row { display: flex; gap: 10px; }
+        .rating-btn { flex: 1; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 13px; display: flex; justify-content: center; align-items: center; gap: 6px; cursor: pointer; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-muted); transition: 0.2s; }
+        .rating-btn.active.btn-bad { background: rgba(239, 68, 68, 0.15); border-color: var(--red); color: var(--red); }
+        .rating-btn.active.btn-good { background: rgba(59, 130, 246, 0.15); border-color: var(--blue); color: var(--blue); }
 
         /* KALENDER */
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; }
-        .cal-nav-btn { background: var(--bg-card); border: 1px solid var(--border); color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
-        .month-title { font-size: 18px; font-weight: 800; color: var(--neon); text-transform: uppercase; }
-        
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; padding: 0 15px; }
-        .weekday-label { text-align: center; font-size: 11px; color: var(--text-muted); font-weight: 600; padding-bottom: 5px; }
-        .day-cell { aspect-ratio: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 5px; position: relative; cursor: pointer; }
-        .day-cell.empty { background: transparent; border: none; cursor: default; }
-        .day-cell.today { border-color: var(--neon); }
-        .day-number { font-size: 14px; font-weight: 700; }
-        
-        /* Kalendri indikaatorid */
-        .day-indicators { display: flex; gap: 3px; margin-top: auto; padding-bottom: 5px; }
+        .calendar-wrapper { padding: 20px; }
+        .cal-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .cal-controls button { background: var(--bg-input); border: 1px solid var(--border); color: white; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .cal-controls h3 { font-size: 18px; font-weight: 800; text-transform: uppercase; }
+        .cal-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 12px; color: var(--text-muted); font-weight: 700; margin-bottom: 8px; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+        .cal-cell { aspect-ratio: 1; background: var(--bg-card); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; border: 1px solid var(--border); cursor: pointer; }
+        .cal-cell:active { transform: scale(0.95); }
+        .cal-cell.empty { background: transparent; border: none; cursor: default; }
+        .cal-cell.has-data { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); }
+        .cal-day-num { font-size: 14px; font-weight: 700; z-index: 2; margin-bottom: 4px;}
+        .cal-dots { display: flex; gap: 4px; height: 6px; }
         .dot { width: 6px; height: 6px; border-radius: 50%; }
-        .dot.weights { background-color: var(--neon); }
-        .dot.cardio { background-color: var(--cardio-color); }
-        .day-rating-icon { position: absolute; top: 2px; right: 4px; font-size: 10px; }
-        .day-rating-icon.good { color: var(--blue); }
-        .day-rating-icon.bad { color: var(--red); }
-
-        .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 20px; font-size: 11px; color: var(--text-muted); }
-        .legend-item { display: flex; align-items: center; gap: 5px; }
-
-        /* MODAL (PÄEVA DETAILID) */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; display: none; justify-content: center; align-items: flex-end; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { width: 100%; max-width: 480px; background: var(--bg-main); border-top-left-radius: 24px; border-top-right-radius: 24px; border-top: 1px solid var(--border); padding: 25px 20px 40px; animation: slideUp 0.3s ease; max-height: 80vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-date { font-size: 20px; font-weight: 800; color: var(--neon); }
-        .btn-close-modal { background: var(--bg-card); border: 1px solid var(--border); color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; }
+        .dot-gym { background: var(--neon); box-shadow: 0 0 5px var(--neon); }
+        .dot-cardio { background: var(--orange); box-shadow: 0 0 5px var(--orange); }
+        .cal-arrow { position: absolute; top: 4px; right: 4px; font-size: 10px; }
+        .arrow-good { color: var(--blue); }
+        .arrow-bad { color: var(--red); }
         
-        .history-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-        .history-card-header { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; margin-bottom: 10px; }
-        .history-machine { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-        .history-machine i.weights { color: var(--neon); }
-        .history-machine i.cardio { color: var(--cardio-color); }
-        .history-set { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); }
-        .history-comment { margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; font-size: 13px; font-style: italic; color: var(--text-muted); border-left: 2px solid var(--neon); }
-        .history-rating { font-size: 13px; font-weight: 700; margin-top: 10px; display: inline-block; padding: 4px 8px; border-radius: 6px; }
-        .history-rating.good { background: rgba(59, 130, 246, 0.1); color: var(--blue); }
-        .history-rating.bad { background: rgba(239, 68, 68, 0.1); color: var(--red); }
-        .btn-delete-history { color: var(--red); background: none; border: none; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: underline; margin-top: 15px; display: block; text-align: right; width: 100%; }
+        .cal-legend { display: flex; justify-content: center; gap: 15px; margin-top: 20px; font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .cal-legend span { display: flex; align-items: center; gap: 6px; }
 
-        /* ALUMINE MENÜÜ */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: rgba(10, 10, 12, 0.95); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 10px 25px; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 11px; font-weight: 600; cursor: pointer; border: none; background: none; flex: 1; }
-        .nav-item i { font-size: 20px; transition: 0.2s; }
-        .nav-item.active { color: var(--neon); }
-        .nav-item.active-cardio { color: var(--cardio-color); }
+        /* PÄEVA MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease; }
+        .modal-content { background: var(--bg-card); width: 100%; max-width: 400px; border-radius: 16px; border: 1px solid var(--border); padding: 20px; max-height: 80vh; overflow-y: auto; }
+        .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; text-align: center; border-bottom: 1px dashed var(--border); padding-bottom: 10px; }
+        .modal-item { background: var(--bg-input); padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .modal-item-head { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center; }
+        .modal-item-head h4 { font-size: 15px; font-weight: 800; }
+        .modal-item-del { color: var(--red); background: none; border: none; font-size: 12px; cursor: pointer; font-weight: 700; }
+        .modal-comment { font-size: 12px; font-style: italic; color: #ccc; margin-top: 8px; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 6px; }
+        .btn-close { width: 100%; background: #333; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; margin-top: 10px; cursor: pointer; }
+        .btn-pdf { background: #222; border: 1px solid var(--border); color: white; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
     </style>
 </head>
 <body>
 
     <div class="app-container" id="main-app">
         
-        <!-- 1. JÕUSAAL (TREENI) -->
+        <!-- ================= 1. AVALEHT (JÕUSAAL) ================= -->
         <div id="view-home" class="view active">
-            <header class="top-header">
-                <div class="logo">24/7 <span>FITNESS</span></div>
-                <div class="search-container">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" class="search-input" placeholder="Otsi..." onkeyup="app.handleSearch(this.value, 'weights')">
-                </div>
-            </header>
+            <div class="sticky-top">
+                <header class="top-header">
+                    <div class="logo">24/7 <span>FITNESS</span></div>
+                    <div class="search-container">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" class="search-input" placeholder="Otsi..." onkeyup="app.handleSearch(this.value, 'gym')">
+                    </div>
+                </header>
+                <nav class="top-nav">
+                    <button class="nav-item active" data-nav-index="0" onclick="app.navTo('view-home', 0)">
+                        <i class="fa-solid fa-dumbbell"></i><span>Treeni</span>
+                    </button>
+                    <button class="nav-item" data-tab="cardio" data-nav-index="1" onclick="app.navTo('view-cardio', 1)">
+                        <i class="fa-solid fa-heart-pulse"></i><span>Cardio</span>
+                    </button>
+                    <button class="nav-item" data-nav-index="2" onclick="app.navTo('view-history', 2)">
+                        <i class="fa-solid fa-calendar-days"></i><span>Ajalugu</span>
+                    </button>
+                </nav>
+            </div>
+            
             <div class="profile-card">
                 <div class="avatar"><i class="fa-solid fa-user"></i></div>
                 <div class="profile-info">
@@ -199,210 +221,216 @@
                 </div>
                 <button class="btn-outline" onclick="app.editProfile()">Muuda</button>
             </div>
+            
             <div class="section-header">Vali lihasgrupp</div>
-            <div class="filter-wrapper">
-                <div class="filter-scroll" id="filter-container"></div>
-            </div>
+            <div class="filter-scroll" id="filter-container"></div>
             <div class="machine-list" id="exercise-list"></div>
         </div>
 
-        <!-- 2. KARDIO -->
+        <!-- ================= 2. CARDIO AVALEHT ================= -->
         <div id="view-cardio" class="view">
-            <header class="top-header">
-                <div class="logo">24/7 <span style="color: var(--cardio-color);">CARDIO</span></div>
-                <div class="search-container">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" class="search-input" placeholder="Otsi..." onkeyup="app.handleSearch(this.value, 'cardio')">
-                </div>
-            </header>
-            <div class="section-header" style="margin-top: 20px;">Vali kardioseade</div>
+            <div class="sticky-top">
+                <header class="top-header">
+                    <div class="logo" style="color:var(--orange);">24/7 <span style="color:#fff;">CARDIO</span></div>
+                    <div class="search-container">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" class="search-input" placeholder="Otsi..." onkeyup="app.handleSearch(this.value, 'cardio')">
+                    </div>
+                </header>
+                <nav class="top-nav">
+                    <button class="nav-item" data-nav-index="0" onclick="app.navTo('view-home', 0)">
+                        <i class="fa-solid fa-dumbbell"></i><span>Treeni</span>
+                    </button>
+                    <button class="nav-item active" data-tab="cardio" data-nav-index="1" onclick="app.navTo('view-cardio', 1)">
+                        <i class="fa-solid fa-heart-pulse"></i><span>Cardio</span>
+                    </button>
+                    <button class="nav-item" data-nav-index="2" onclick="app.navTo('view-history', 2)">
+                        <i class="fa-solid fa-calendar-days"></i><span>Ajalugu</span>
+                    </button>
+                </nav>
+            </div>
+            
+            <div class="section-header" style="margin-top:20px;">Kardio masinad</div>
             <div class="machine-list" id="cardio-list"></div>
         </div>
 
-        <!-- 3. AJALUGU (KALENDER) -->
-        <div id="view-history" class="view">
-            <header class="logger-header">
-                <div class="header-left"></div>
-                <div class="logger-title"><span>AJALUGU</span></div>
-                <div class="header-right">
-                    <button class="btn-pdf" onclick="app.exportPDF()" style="background: #222; border: 1px solid var(--border); color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px;"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-                </div>
-            </header>
-
-            <div class="calendar-header">
-                <button class="cal-nav-btn" onclick="app.changeMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-                <div class="month-title" id="cal-month-year">Jaanuar 2024</div>
-                <button class="cal-nav-btn" onclick="app.changeMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
-            </div>
-
-            <div class="calendar-grid">
-                <div class="weekday-label">E</div>
-                <div class="weekday-label">T</div>
-                <div class="weekday-label">K</div>
-                <div class="weekday-label">N</div>
-                <div class="weekday-label">R</div>
-                <div class="weekday-label">L</div>
-                <div class="weekday-label">P</div>
-            </div>
-            <div class="calendar-grid" id="calendar-days"></div>
-
-            <div class="legend">
-                <div class="legend-item"><div class="dot weights"></div> Jõutrenn</div>
-                <div class="legend-item"><div class="dot cardio"></div> Kardio</div>
-                <div class="legend-item"><i class="fa-solid fa-arrow-up" style="color: var(--blue);"></i> Hea päev</div>
-                <div class="legend-item"><i class="fa-solid fa-arrow-down" style="color: var(--red);"></i> Kehv päev</div>
-            </div>
-        </div>
-
-        <!-- ================= LOGERID ================= -->
-
-        <!-- JÕUSAALI LOGER -->
+        <!-- ================= 3. ÜHINE LOGIJA ================= -->
         <div id="view-logger" class="view">
-            <header class="logger-header">
-                <button class="back-btn" onclick="app.navTo('view-home', 0)"><i class="fa-solid fa-arrow-left"></i> Tagasi</button>
-                <div class="logger-title" id="logger-machine-name">Harjutus</div>
-                <div style="width:75px"></div>
-            </header>
+            <div class="sticky-top">
+                <header class="logger-header">
+                    <div class="header-left">
+                        <button class="back-btn" onclick="app.goBack()"><i class="fa-solid fa-arrow-left"></i> Tagasi</button>
+                    </div>
+                    <div class="logger-title" id="logger-machine-name">Harjutus</div>
+                    <div class="header-right"></div>
+                </header>
+                <nav class="top-nav">
+                    <button class="nav-item active" data-nav-index="0" onclick="app.navTo('view-home', 0)">
+                        <i class="fa-solid fa-dumbbell"></i><span>Treeni</span>
+                    </button>
+                    <button class="nav-item" data-tab="cardio" data-nav-index="1" onclick="app.navTo('view-cardio', 1)">
+                        <i class="fa-solid fa-heart-pulse"></i><span>Cardio</span>
+                    </button>
+                    <button class="nav-item" data-nav-index="2" onclick="app.navTo('view-history', 2)">
+                        <i class="fa-solid fa-calendar-days"></i><span>Ajalugu</span>
+                    </button>
+                </nav>
+            </div>
 
             <div class="sets-section">
-                <table class="sets-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 10%;">Seeria</th>
-                            <th style="width: 35%;">Raskus (kg)</th>
-                            <th style="width: 40%;">Kordused</th>
-                            <th style="width: 15%;"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="logger-sets-body"></tbody>
-                </table>
-                <button class="btn-add" onclick="app.addSet()">+ Lisa uus seeria</button>
-
-                <!-- UUS: Hinnang ja kommentaar -->
-                <div class="rating-section">
-                    <div class="rating-title">Kuidas trenn tundus?</div>
-                    <div class="rating-buttons">
-                        <button class="rate-btn good" id="rate-good-weights" onclick="app.setRating('good')"><i class="fa-solid fa-arrow-up"></i> Hea päev</button>
-                        <button class="rate-btn bad" id="rate-bad-weights" onclick="app.setRating('bad')"><i class="fa-solid fa-arrow-down"></i> Kehv päev</button>
-                    </div>
-                    <textarea class="comment-input" id="comment-weights" rows="2" placeholder="Lisa kommentaar (nt. uus isiklik rekord!)..."></textarea>
+                <!-- Jõusaali logija -->
+                <div id="gym-logger-ui">
+                    <table class="sets-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 15%;">Nr</th>
+                                <th style="width: 35%;">Raskus (kg)</th>
+                                <th style="width: 35%;">Kordused</th>
+                                <th style="width: 15%;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="logger-sets-body"></tbody>
+                    </table>
+                    <button class="btn-add" onclick="app.addSet()">+ Lisa uus seeria</button>
                 </div>
 
-                <button class="btn-primary" onclick="app.saveWorkout('weights')">Salvesta harjutus</button>
-            </div>
-        </div>
-
-        <!-- KARDIO LOGER -->
-        <div id="view-cardio-logger" class="view">
-            <header class="logger-header">
-                <button class="back-btn" onclick="app.navTo('view-cardio', 1)" style="color: var(--cardio-color); border-color: rgba(249, 115, 22, 0.2); background: rgba(249, 115, 22, 0.1);"><i class="fa-solid fa-arrow-left"></i> Tagasi</button>
-                <div class="logger-title" id="cardio-machine-name">Kardio</div>
-                <div style="width:75px"></div>
-            </header>
-
-            <div class="sets-section">
-                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <div style="flex: 1;">
-                        <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; display: block;">Aeg (min)</label>
+                <!-- Kardio logija -->
+                <div id="cardio-logger-ui" style="display:none;">
+                    <div class="cardio-input-group">
+                        <label>Aeg (minutites)</label>
                         <input type="number" id="cardio-time" class="set-input" placeholder="0">
                     </div>
-                    <div style="flex: 1;">
-                        <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; display: block;">Distants (km)</label>
-                        <input type="number" id="cardio-dist" class="set-input" placeholder="0" step="0.1">
+                    <div class="cardio-input-group">
+                        <label>Distants (km)</label>
+                        <input type="number" id="cardio-dist" class="set-input" placeholder="0.0">
+                    </div>
+                    <div class="cardio-input-group">
+                        <label>Kalorid (kcal)</label>
+                        <input type="number" id="cardio-kcal" class="set-input" placeholder="0">
                     </div>
                 </div>
-                <div style="margin-bottom: 20px;">
-                    <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; display: block;">Kalorid (kcal)</label>
-                    <input type="number" id="cardio-kcal" class="set-input" placeholder="0">
-                </div>
 
-                <div class="rating-section">
-                    <div class="rating-title">Kuidas kardio tundus?</div>
-                    <div class="rating-buttons">
-                        <button class="rate-btn good" id="rate-good-cardio" onclick="app.setRating('good')"><i class="fa-solid fa-arrow-up"></i> Hea päev</button>
-                        <button class="rate-btn bad" id="rate-bad-cardio" onclick="app.setRating('bad')"><i class="fa-solid fa-arrow-down"></i> Kehv päev</button>
+                <!-- Ühine Hinnang -->
+                <div class="feedback-box">
+                    <textarea id="logger-comment" placeholder="Kuidas trenn tundus? Lisa kommentaar..."></textarea>
+                    <div class="rating-row">
+                        <button id="btn-rate-down" class="rating-btn btn-bad" onclick="app.setRating('down')"><i class="fa-solid fa-arrow-down"></i> Kehv</button>
+                        <button id="btn-rate-up" class="rating-btn btn-good" onclick="app.setRating('up')"><i class="fa-solid fa-arrow-up"></i> Hea</button>
                     </div>
-                    <textarea class="comment-input" id="comment-cardio" rows="2" placeholder="Lisa kommentaar..."></textarea>
                 </div>
 
-                <button class="btn-primary" onclick="app.saveWorkout('cardio')" style="background: var(--cardio-color); color: white;">Salvesta Kardio</button>
+                <button class="btn-primary" onclick="app.saveWorkout()">Salvesta harjutus</button>
             </div>
         </div>
 
-        <!-- ================= MODAL PÄEVA DETAILIDEKS ================= -->
-        <div class="modal-overlay" id="day-modal" onclick="if(event.target === this) app.closeModal()">
+        <!-- ================= 4. KALENDER (AJALUGU) ================= -->
+        <div id="view-history" class="view">
+            <div class="sticky-top">
+                <header class="logger-header">
+                    <div class="header-left">
+                        <button class="back-btn" onclick="app.navTo('view-home', 0)"><i class="fa-solid fa-arrow-left"></i></button>
+                    </div>
+                    <div class="logger-title"><span>KALENDER</span></div>
+                    <div class="header-right">
+                        <button class="btn-pdf" onclick="app.exportPDF()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                    </div>
+                </header>
+                <nav class="top-nav">
+                    <button class="nav-item" data-nav-index="0" onclick="app.navTo('view-home', 0)">
+                        <i class="fa-solid fa-dumbbell"></i><span>Treeni</span>
+                    </button>
+                    <button class="nav-item" data-tab="cardio" data-nav-index="1" onclick="app.navTo('view-cardio', 1)">
+                        <i class="fa-solid fa-heart-pulse"></i><span>Cardio</span>
+                    </button>
+                    <button class="nav-item active" data-nav-index="2" onclick="app.navTo('view-history', 2)">
+                        <i class="fa-solid fa-calendar-days"></i><span>Ajalugu</span>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="calendar-wrapper">
+                <div class="cal-controls">
+                    <button onclick="app.changeMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                    <h3 id="cal-month-year"></h3>
+                    <button onclick="app.changeMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                <div class="cal-header">
+                    <div>E</div><div>T</div><div>K</div><div>N</div><div>R</div><div>L</div><div>P</div>
+                </div>
+                <div class="cal-grid" id="cal-grid"></div>
+                
+                <div class="cal-legend">
+                    <span><div class="dot dot-gym"></div> Jõusaal</span>
+                    <span><div class="dot dot-cardio"></div> Kardio</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL PÄEVA INFO JAOKS -->
+        <div class="modal-overlay" id="day-modal">
             <div class="modal-content">
-                <div class="modal-header">
-                    <div class="modal-date" id="modal-date-title">01. Jaanuar</div>
-                    <button class="btn-close-modal" onclick="app.closeModal()"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div id="modal-content-body">
-                    <!-- Treeningud renderdatakse siia -->
-                </div>
+                <div class="modal-title" id="modal-title-date">Kuupäev</div>
+                <div id="modal-workouts-list"></div>
+                <button class="btn-close" onclick="app.closeModal()">Sulge</button>
             </div>
         </div>
-
-        <!-- ================= ALUMINE MENÜÜ ================= -->
-        <nav class="bottom-nav">
-            <button class="nav-item active" onclick="app.navTo('view-home', 0)">
-                <i class="fa-solid fa-dumbbell"></i><span>Treeni</span>
-            </button>
-            <button class="nav-item" onclick="app.navTo('view-cardio', 1)">
-                <i class="fa-solid fa-heart-pulse"></i><span>Cardio</span>
-            </button>
-            <button class="nav-item" onclick="app.navTo('view-history', 2)">
-                <i class="fa-regular fa-calendar-days"></i><span>Ajalugu</span>
-            </button>
-        </nav>
     </div>
 
     <!-- JAVASCRIPT -->
     <script>
-        const getImgUrl = (text, isCardio = false) => `https://placehold.co/400x400/1c1c1e/${isCardio ? 'f97316' : 'ccff00'}?text=${encodeURIComponent(text.replace(' ', '\n'))}&font=montserrat`;
-
         const app = {
-            profile: JSON.parse(localStorage.getItem('247app_profile_v14')) || { name: '', age: '', weight: '' },
-            history: JSON.parse(localStorage.getItem('247app_history_v14')) || [],
+            profile: JSON.parse(localStorage.getItem('247app_profile_v13')) || { name: '', age: '', weight: '' },
+            history: JSON.parse(localStorage.getItem('247app_history_v13')) || [],
             
             activeFilters: [],
-            searchQuery: '',
+            searchQueryGym: '',
+            searchQueryCardio: '',
             currentExercise: null,
             currentSets: [],
-            repOptionsHTML: '',
-            currentRating: null, // 'good' või 'bad'
-            
-            // Kalendri state
+            currentRating: null,
             currentDate: new Date(),
-            monthNames: ["Jaanuar", "Veebruar", "Märts", "Aprill", "Mai", "Juuni", "Juuli", "August", "September", "Oktoober", "November", "Detsember"],
+            lastView: 'view-home',
 
             categories: [
-                { id: 'Rind', icon: 'fa-dumbbell' }, { id: 'Ülaselg', icon: 'fa-child-reaching' }, { id: 'Alaselg', icon: 'fa-weight-hanging' },
-                { id: 'Õlad', icon: 'fa-arrows-up-to-line' }, { id: 'Biitseps', icon: 'fa-hand-fist' }, { id: 'Triitseps', icon: 'fa-bolt' },
-                { id: 'Reied', icon: 'fa-shoe-prints' }, { id: 'Sääred', icon: 'fa-shoe-prints' }, { id: 'Kõht', icon: 'fa-cubes' }
+                { id: 'Rind', icon: 'fa-dumbbell' },
+                { id: 'Ülaselg', icon: 'fa-child-reaching' },
+                { id: 'Alaselg', icon: 'fa-weight-hanging' },
+                { id: 'Õlad', icon: 'fa-arrows-up-to-line' },
+                { id: 'Biitseps', icon: 'fa-hand-fist' },
+                { id: 'Triitseps', icon: 'fa-bolt' },
+                { id: 'Reied', icon: 'fa-shoe-prints' },
+                { id: 'Sääred', icon: 'fa-shoe-prints' },
+                { id: 'Kõht', icon: 'fa-cubes' }
             ],
 
             exercises: [
-                { name: 'Bench Press', target: 'Rind', icon: 'fa-dumbbell' }, { name: 'Incline Dumbbell Press', target: 'Rind', icon: 'fa-dumbbell' }, { name: 'Pec Deck Fly', target: 'Rind', icon: 'fa-arrows-left-right' },
-                { name: 'Lat Pulldown', target: 'Ülaselg', icon: 'fa-arrow-down' }, { name: 'Seated Cable Row', target: 'Ülaselg', icon: 'fa-arrow-right-to-bracket' },
-                { name: 'Deadlift (Jõutõmme)', target: 'Alaselg', icon: 'fa-arrow-up' }, { name: 'Barbell Squat', target: 'Reied', icon: 'fa-arrow-up' },
-                { name: 'Leg Press', target: 'Reied', icon: 'fa-shoe-prints' }, { name: 'Overhead Press (OHP)', target: 'Õlad', icon: 'fa-arrow-up' },
-                { name: 'Barbell Bicep Curl', target: 'Biitseps', icon: 'fa-dumbbell' }, { name: 'Tricep Pushdown', target: 'Triitseps', icon: 'fa-hand-back-fist' },
-                { name: 'Cable Crunch', target: 'Kõht', icon: 'fa-cubes' }
-            ],
-
-            cardioMachines: [
-                { name: 'Jooksulint', icon: 'fa-person-running' },
-                { name: 'Velotrenazöör', icon: 'fa-bicycle' },
-                { name: 'Sõudeergomeeter', icon: 'fa-water' },
-                { name: 'Elliptiline', icon: 'fa-person-walking' },
-                { name: 'Stairmaster', icon: 'fa-stairs' }
+                // JÕUSAAL
+                { name: 'Bench Press', type: 'gym', target: 'Rind', icon: 'fa-dumbbell' },
+                { name: 'Incline Dumbbell Press', type: 'gym', target: 'Rind', icon: 'fa-dumbbell' },
+                { name: 'Pec Deck Fly', type: 'gym', target: 'Rind', icon: 'fa-arrows-left-right' },
+                { name: 'Lat Pulldown', type: 'gym', target: 'Ülaselg', icon: 'fa-arrow-down' },
+                { name: 'Seated Cable Row', type: 'gym', target: 'Ülaselg', icon: 'fa-arrow-right-to-bracket' },
+                { name: 'Deadlift', type: 'gym', target: 'Alaselg', icon: 'fa-arrow-up' },
+                { name: 'Barbell Squat', type: 'gym', target: 'Reied', icon: 'fa-arrow-up' },
+                { name: 'Leg Press', type: 'gym', target: 'Reied', icon: 'fa-shoe-prints' },
+                { name: 'Overhead Press', type: 'gym', target: 'Õlad', icon: 'fa-arrow-up' },
+                { name: 'Barbell Bicep Curl', type: 'gym', target: 'Biitseps', icon: 'fa-dumbbell' },
+                { name: 'Tricep Pushdown', type: 'gym', target: 'Triitseps', icon: 'fa-hand-back-fist' },
+                { name: 'Cable Crunch', type: 'gym', target: 'Kõht', icon: 'fa-cubes' },
+                
+                // KARDIO
+                { name: 'Jooksulint', type: 'cardio', target: 'Kardio', icon: 'fa-person-running' },
+                { name: 'Velotrenazöör', type: 'cardio', target: 'Kardio', icon: 'fa-bicycle' },
+                { name: 'Sõudeergomeeter', type: 'cardio', target: 'Kardio', icon: 'fa-ship' },
+                { name: 'Elliptiline', type: 'cardio', target: 'Kardio', icon: 'fa-shoe-prints' },
+                { name: 'Trepiastuja', type: 'cardio', target: 'Kardio', icon: 'fa-stairs' }
             ],
 
             init: function() {
                 this.updateProfileUI();
                 this.renderFilters();
-                this.renderExerciseList('weights');
-                this.renderExerciseList('cardio');
+                this.renderGymList();
+                this.renderCardioList();
                 this.renderCalendar();
             },
 
@@ -417,7 +445,7 @@
                 const newAge = prompt("Sinu vanus:", this.profile.age); if(newAge === null) return;
                 const newWeight = prompt("Sinu kaal (kg):", this.profile.weight); if(newWeight === null) return;
                 this.profile = { name: newName.trim(), age: newAge.trim(), weight: newWeight.trim() };
-                localStorage.setItem('247app_profile_v14', JSON.stringify(this.profile));
+                localStorage.setItem('247app_profile_v13', JSON.stringify(this.profile));
                 this.updateProfileUI();
             },
 
@@ -426,21 +454,28 @@
                 document.getElementById(viewId).classList.add('active');
                 
                 if(navIndex !== null) {
-                    document.querySelectorAll('.nav-item').forEach((b, i) => {
-                        b.classList.remove('active', 'active-cardio');
-                        if (i === navIndex) {
-                            b.classList.add(navIndex === 1 ? 'active-cardio' : 'active');
-                        }
+                    // Reset all nav items
+                    document.querySelectorAll('.nav-item').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    // Set active to matching nav items across all duplicated menus
+                    document.querySelectorAll(`.nav-item[data-nav-index="${navIndex}"]`).forEach(b => {
+                        b.classList.add('active');
                     });
                 }
                 
+                if(viewId === 'view-home' || viewId === 'view-cardio') this.lastView = viewId;
                 if(viewId === 'view-history') this.renderCalendar();
                 window.scrollTo(0,0);
             },
 
+            goBack: function() {
+                this.navTo(this.lastView, this.lastView === 'view-home' ? 0 : 1);
+            },
+
             handleSearch: function(query, type) {
-                this.searchQuery = query.toLowerCase();
-                this.renderExerciseList(type);
+                if(type === 'gym') { this.searchQueryGym = query.toLowerCase(); this.renderGymList(); }
+                if(type === 'cardio') { this.searchQueryCardio = query.toLowerCase(); this.renderCardioList(); }
             },
 
             renderFilters: function() {
@@ -452,274 +487,255 @@
                 });
             },
 
-            toggleFilter: function(category) {
-                const index = this.activeFilters.indexOf(category);
-                if (index > -1) this.activeFilters.splice(index, 1);
-                else this.activeFilters.push(category);
+            toggleFilter: function(cat) {
+                const idx = this.activeFilters.indexOf(cat);
+                if (idx > -1) this.activeFilters.splice(idx, 1);
+                else this.activeFilters.push(cat);
                 this.renderFilters();
-                this.renderExerciseList('weights');
+                this.renderGymList();
             },
 
-            renderExerciseList: function(type) {
-                const isCardio = type === 'cardio';
-                const list = document.getElementById(isCardio ? 'cardio-list' : 'exercise-list');
-                const sourceData = isCardio ? this.cardioMachines : this.exercises;
-                list.innerHTML = '';
+            renderGymList: function() {
+                const list = document.getElementById('exercise-list');
+                const filtered = this.exercises.filter(ex => ex.type === 'gym' && 
+                    (this.activeFilters.length === 0 || this.activeFilters.includes(ex.target)) &&
+                    (ex.name.toLowerCase().includes(this.searchQueryGym) || ex.target.toLowerCase().includes(this.searchQueryGym))
+                );
                 
-                const filtered = sourceData.filter(ex => {
-                    const matchesCat = isCardio || this.activeFilters.length === 0 || this.activeFilters.includes(ex.target);
-                    const searchStr = isCardio ? ex.name.toLowerCase() : (ex.name + ' ' + ex.target).toLowerCase();
-                    return matchesCat && searchStr.includes(this.searchQuery);
-                });
-
-                if (filtered.length === 0) {
-                    list.innerHTML = '<div class="empty-state">Ei leitud vasteid.</div>';
-                    return;
-                }
-
-                filtered.forEach(ex => {
-                    const targetHTML = isCardio ? '' : `<p>${ex.target}</p>`;
-                    list.innerHTML += `
-                        <div class="machine-card" onclick="app.openLogger('${ex.name}', '${type}')">
-                            <div class="machine-icon-container ${type}">
-                                <i class="fa-solid ${ex.icon} list-icon"></i>
-                                <div><h4>${ex.name}</h4>${targetHTML}</div>
-                            </div>
-                            <i class="fa-solid fa-chevron-right" style="color: var(--${isCardio ? 'cardio-color' : 'neon'});"></i>
-                        </div>`;
-                });
+                if (filtered.length === 0) return list.innerHTML = '<div class="empty-state">Harjutusi ei leitud.</div>';
+                
+                list.innerHTML = filtered.map(ex => `
+                    <div class="machine-card" onclick="app.openLogger('${ex.name}')">
+                        <div class="machine-icon-container">
+                            <i class="fa-solid ${ex.icon} list-icon"></i>
+                            <div><h4>${ex.name}</h4><p>${ex.target}</p></div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right" style="color: var(--neon);"></i>
+                    </div>
+                `).join('');
             },
 
-            openLogger: function(name, type) {
-                this.currentExercise = name;
-                this.setRating(null); // Reset rating
+            renderCardioList: function() {
+                const list = document.getElementById('cardio-list');
+                const filtered = this.exercises.filter(ex => ex.type === 'cardio' && ex.name.toLowerCase().includes(this.searchQueryCardio));
                 
-                if (type === 'weights') {
-                    document.getElementById('logger-machine-name').innerText = name;
-                    document.getElementById('comment-weights').value = '';
-                    this.currentSets = [{ weight: '', reps: 10 }];
+                list.innerHTML = filtered.map(ex => `
+                    <div class="machine-card" onclick="app.openLogger('${ex.name}')">
+                        <div class="machine-icon-container cardio-icon">
+                            <i class="fa-solid ${ex.icon} list-icon"></i>
+                            <div><h4>${ex.name}</h4><p>Kardio</p></div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right" style="color: var(--orange);"></i>
+                    </div>
+                `).join('');
+            },
+
+            openLogger: function(exName) {
+                this.currentExercise = this.exercises.find(e => e.name === exName);
+                document.getElementById('logger-machine-name').innerText = this.currentExercise.name;
+                
+                // Reseti sisendid
+                this.currentRating = null;
+                document.getElementById('btn-rate-up').classList.remove('active');
+                document.getElementById('btn-rate-down').classList.remove('active');
+                document.getElementById('logger-comment').value = '';
+
+                if(this.currentExercise.type === 'gym') {
+                    document.getElementById('gym-logger-ui').style.display = 'block';
+                    document.getElementById('cardio-logger-ui').style.display = 'none';
+                    this.currentSets = [{ weight: '', reps: 10 }]; // Default 10 reps
                     this.renderLoggerSets();
-                    this.navTo('view-logger', null);
                 } else {
-                    document.getElementById('cardio-machine-name').innerText = name;
+                    document.getElementById('gym-logger-ui').style.display = 'none';
+                    document.getElementById('cardio-logger-ui').style.display = 'block';
                     document.getElementById('cardio-time').value = '';
                     document.getElementById('cardio-dist').value = '';
                     document.getElementById('cardio-kcal').value = '';
-                    document.getElementById('comment-cardio').value = '';
-                    this.navTo('view-cardio-logger', null);
                 }
+
+                this.navTo('view-logger', null);
             },
 
-            generateRepOptions: function() {
-                if (!this.repOptionsHTML) {
-                    let html = '';
-                    for(let i=0; i<=100; i++) html += `<div class="picker-item">${i}</div>`;
-                    this.repOptionsHTML = html;
-                }
-                return this.repOptionsHTML;
-            },
-
-            onRepScroll: function(element, setIndex) {
-                clearTimeout(element.scrollTimeout);
-                element.scrollTimeout = setTimeout(() => {
-                    let selectedVal = Math.round(element.scrollTop / 40);
-                    if(selectedVal < 0) selectedVal = 0; if(selectedVal > 100) selectedVal = 100;
-                    this.currentSets[setIndex].reps = selectedVal;
-                }, 100); 
+            setRating: function(type) {
+                this.currentRating = type;
+                document.getElementById('btn-rate-up').classList.toggle('active', type === 'up');
+                document.getElementById('btn-rate-down').classList.toggle('active', type === 'down');
             },
 
             renderLoggerSets: function() {
                 const tbody = document.getElementById('logger-sets-body');
-                tbody.innerHTML = '';
-                
-                this.currentSets.forEach((set, index) => {
-                    tbody.innerHTML += `
-                        <tr style="border-bottom: 1px dashed rgba(255,255,255,0.05);">
-                            <td style="color: var(--neon); font-size: 16px; font-weight: 800;">${index + 1}</td>
-                            <td><input type="number" class="set-input" placeholder="0" value="${set.weight}" onchange="app.updateSet(${index}, 'weight', this.value)"></td>
-                            <td>
-                                <div class="picker-wrapper">
-                                    <div class="picker-highlight"></div>
-                                    <div class="picker-scroll" onscroll="app.onRepScroll(this, ${index})" data-index="${index}">${app.generateRepOptions()}</div>
-                                </div>
-                            </td>
-                            <td><button class="btn-del" onclick="app.removeSet(${index})"><i class="fa-solid fa-trash-can"></i></button></td>
-                        </tr>`;
-                });
+                tbody.innerHTML = this.currentSets.map((set, i) => `
+                    <tr>
+                        <td style="color: var(--neon); font-size: 16px; font-weight: 800;">${i + 1}</td>
+                        <td><input type="number" class="set-input" placeholder="0" value="${set.weight}" onchange="app.updateSetWeight(${i}, this.value)"></td>
+                        <td style="position:relative; width:90px;">
+                            <div class="picker-highlight"></div>
+                            <div class="picker-container" id="picker-${i}" onscroll="app.onPickerScroll(${i}, this)">
+                                <div class="picker-pad"></div>
+                                ${Array.from({length: 101}, (_, num) => `<div class="picker-item">${num}</div>`).join('')}
+                                <div class="picker-pad"></div>
+                            </div>
+                        </td>
+                        <td><button class="btn-del" onclick="app.removeSet(${i})"><i class="fa-solid fa-xmark"></i></button></td>
+                    </tr>
+                `).join('');
 
+                // Skrolli rattad õigele positsioonile peale renderdamist
                 setTimeout(() => {
-                    document.querySelectorAll('.picker-scroll').forEach((el) => {
-                        const idx = el.getAttribute('data-index');
-                        el.scrollTop = (parseInt(this.currentSets[idx].reps) || 0) * 40; 
+                    this.currentSets.forEach((set, i) => {
+                        const el = document.getElementById(`picker-${i}`);
+                        if(el) {
+                            el.scrollTop = set.reps * 30;
+                            this.onPickerScroll(i, el);
+                        }
                     });
-                }, 10);
+                }, 50);
             },
 
-            updateSet: function(index, field, value) { this.currentSets[index][field] = value; },
+            updateSetWeight: function(i, val) { this.currentSets[i].weight = val; },
+            
+            onPickerScroll: function(i, el) {
+                const val = Math.round(el.scrollTop / 30);
+                this.currentSets[i].reps = val;
+                
+                const items = el.querySelectorAll('.picker-item');
+                items.forEach((item, idx) => {
+                    if(idx === val) { item.style.color = '#fff'; item.style.fontSize = '20px'; }
+                    else { item.style.color = 'var(--text-muted)'; item.style.fontSize = '14px'; }
+                });
+            },
+
             addSet: function() {
-                const last = this.currentSets.length > 0 ? this.currentSets[this.currentSets.length - 1] : { weight: '', reps: 10 };
+                const last = this.currentSets[this.currentSets.length - 1] || { weight: '', reps: 10 };
                 this.currentSets.push({ weight: last.weight, reps: last.reps });
                 this.renderLoggerSets();
             },
-            removeSet: function(index) { this.currentSets.splice(index, 1); this.renderLoggerSets(); },
 
-            setRating: function(rating) {
-                this.currentRating = rating;
-                document.querySelectorAll('.rate-btn').forEach(b => b.classList.remove('active'));
-                if (rating) {
-                    const btnId = document.getElementById('view-logger').classList.contains('active') ? `rate-${rating}-weights` : `rate-${rating}-cardio`;
-                    const btn = document.getElementById(btnId);
-                    if(btn) btn.classList.add('active');
-                }
+            removeSet: function(i) {
+                this.currentSets.splice(i, 1);
+                this.renderLoggerSets();
             },
 
-            saveWorkout: function(type) {
-                let workoutEntry = {
-                    id: Date.now(),
-                    dateISO: new Date().toISOString().split('T')[0], // YYYY-MM-DD for accurate calendar matching
-                    time: new Date().toLocaleTimeString('et-EE', {hour: '2-digit', minute:'2-digit'}),
-                    machine: this.currentExercise,
-                    type: type,
-                    rating: this.currentRating
-                };
+            saveWorkout: function() {
+                const isGym = this.currentExercise.type === 'gym';
+                let finalData = {};
 
-                if (type === 'weights') {
-                    const validSets = this.currentSets.filter(s => s.weight !== '' && parseInt(s.reps) > 0);
-                    if(validSets.length === 0) { alert("Sisesta vähemalt üks seeria!"); return; }
-                    workoutEntry.sets = validSets;
-                    workoutEntry.comment = document.getElementById('comment-weights').value.trim();
+                if(isGym) {
+                    const valid = this.currentSets.filter(s => s.weight !== '' && s.reps > 0);
+                    if(valid.length === 0) return alert("Sisesta vähemalt üks seeria!");
+                    finalData.sets = valid;
                 } else {
-                    const time = document.getElementById('cardio-time').value;
-                    const dist = document.getElementById('cardio-dist').value;
-                    if(!time && !dist) { alert("Sisesta vähemalt aeg või distants!"); return; }
-                    workoutEntry.duration = time;
-                    workoutEntry.distance = dist;
-                    workoutEntry.kcal = document.getElementById('cardio-kcal').value;
-                    workoutEntry.comment = document.getElementById('comment-cardio').value.trim();
+                    const t = document.getElementById('cardio-time').value;
+                    const d = document.getElementById('cardio-dist').value;
+                    const k = document.getElementById('cardio-kcal').value;
+                    if(!t && !d && !k) return alert("Sisesta vähemalt üks kardio näitaja!");
+                    finalData.cardio = { time: t, dist: d, kcal: k };
                 }
 
-                this.history.push(workoutEntry);
-                localStorage.setItem('247app_history_v14', JSON.stringify(this.history));
-                
+                // Kuupäeva formaat: YYYY-MM-DD
+                const now = new Date();
+                const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+                this.history.unshift({
+                    id: Date.now(),
+                    date: dateStr,
+                    time: now.toLocaleTimeString('et-EE', {hour: '2-digit', minute:'2-digit'}),
+                    type: this.currentExercise.type,
+                    machine: this.currentExercise.name,
+                    rating: this.currentRating,
+                    comment: document.getElementById('logger-comment').value,
+                    ...finalData
+                });
+
+                localStorage.setItem('247app_history_v13', JSON.stringify(this.history));
                 this.navTo('view-history', 2);
             },
 
             // ================= KALENDER =================
-            changeMonth: function(offset) {
-                this.currentDate.setMonth(this.currentDate.getMonth() + offset);
+            changeMonth: function(dir) {
+                this.currentDate.setMonth(this.currentDate.getMonth() + dir);
                 this.renderCalendar();
             },
 
             renderCalendar: function() {
                 const year = this.currentDate.getFullYear();
                 const month = this.currentDate.getMonth();
-                
-                document.getElementById('cal-month-year').innerText = `${this.monthNames[month]} ${year}`;
-                
-                // Esimene päev ja päevade arv kuus
-                let firstDay = new Date(year, month, 1).getDay();
-                if (firstDay === 0) firstDay = 7; // Pühapäev (0) teeme 7
-                firstDay -= 1; // Nihutame nii, et Esmaspäev = 0
+                const months = ['Jaanuar','Veebruar','Märts','Aprill','Mai','Juuni','Juuli','August','September','Oktoober','November','Detsember'];
+                document.getElementById('cal-month-year').innerText = `${months[month]} ${year}`;
 
+                const firstDay = new Date(year, month, 1).getDay();
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
-                const calendarEl = document.getElementById('calendar-days');
-                calendarEl.innerHTML = '';
+                let startDay = firstDay === 0 ? 6 : firstDay - 1; // Esmaspäev = 0
 
-                // Tühjad lahtrid enne kuu algust
-                for (let i = 0; i < firstDay; i++) {
-                    calendarEl.innerHTML += `<div class="day-cell empty"></div>`;
-                }
+                let html = '';
+                for(let i=0; i<startDay; i++) html += `<div class="cal-cell empty"></div>`;
 
-                const todayISO = new Date().toISOString().split('T')[0];
-
-                // Päevad
-                for (let i = 1; i <= daysInMonth; i++) {
-                    // Formateerime kuupäeva võrdlemiseks: YYYY-MM-DD
-                    const checkDate = new Date(year, month, i);
-                    // Kohaliku aja nihke parandus ISO stringi saamiseks
-                    const offset = checkDate.getTimezoneOffset() * 60000;
-                    const isoDate = (new Date(checkDate - offset)).toISOString().split('T')[0];
-
-                    const dayHistory = this.history.filter(h => h.dateISO === isoDate);
+                for(let d=1; d<=daysInMonth; d++) {
+                    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                    const dayLogs = this.history.filter(w => w.date === dateStr);
                     
-                    let hasWeights = false;
-                    let hasCardio = false;
-                    let ratingHTML = '';
-
-                    dayHistory.forEach(h => {
-                        if (h.type === 'weights') hasWeights = true;
-                        if (h.type === 'cardio') hasCardio = true;
-                        // Kuvame viimase hinnangu ikoonina
-                        if (h.rating === 'good') ratingHTML = `<i class="fa-solid fa-arrow-up day-rating-icon good"></i>`;
-                        if (h.rating === 'bad') ratingHTML = `<i class="fa-solid fa-arrow-down day-rating-icon bad"></i>`;
-                    });
-
-                    const dotsHTML = `
-                        <div class="day-indicators">
-                            ${hasWeights ? '<div class="dot weights"></div>' : ''}
-                            ${hasCardio ? '<div class="dot cardio"></div>' : ''}
-                        </div>
-                    `;
-
-                    const isToday = isoDate === todayISO ? 'today' : '';
-
-                    calendarEl.innerHTML += `
-                        <div class="day-cell ${isToday}" onclick="app.openDayModal('${isoDate}', ${i}, '${this.monthNames[month]}')">
-                            <span class="day-number">${i}</span>
-                            ${ratingHTML}
-                            ${dotsHTML}
-                        </div>
-                    `;
-                }
-            },
-
-            openDayModal: function(isoDate, dayNum, monthName) {
-                const dayHistory = this.history.filter(h => h.dateISO === isoDate);
-                
-                if (dayHistory.length === 0) {
-                    // Kui trenne pole, ei ava midagi või kuvame teate
-                    return; 
-                }
-
-                document.getElementById('modal-date-title').innerText = `${dayNum}. ${monthName}`;
-                const bodyEl = document.getElementById('modal-content-body');
-                bodyEl.innerHTML = '';
-
-                // Sorteerime uuemad ettepanekud id (timestamp) järgi tagurpidi
-                dayHistory.slice().reverse().forEach(session => {
-                    let content = '';
+                    let dots = '';
+                    let arrow = '';
                     
-                    if (session.type === 'weights') {
-                        session.sets.forEach((s, i) => {
-                            content += `<div class="history-set"><span style="color: var(--text-muted);">Seeria ${i+1}</span><span><strong style="color: white;">${s.weight}</strong> kg × <strong style="color: white;">${s.reps}</strong> kordust</span></div>`;
-                        });
-                    } else {
-                        content += `<div class="history-set"><span style="color: var(--text-muted);">Aeg / Distants</span><span><strong style="color: white;">${session.duration||0}</strong> min / <strong style="color: white;">${session.distance||0}</strong> km</span></div>`;
-                        if (session.kcal) content += `<div class="history-set"><span style="color: var(--text-muted);">Kalorid</span><span><strong style="color: white;">${session.kcal}</strong> kcal</span></div>`;
+                    if(dayLogs.length > 0) {
+                        if(dayLogs.some(w => w.type === 'gym')) dots += `<div class="dot dot-gym"></div>`;
+                        if(dayLogs.some(w => w.type === 'cardio')) dots += `<div class="dot dot-cardio"></div>`;
+                        if(dayLogs.some(w => w.rating === 'up')) arrow = `<i class="fa-solid fa-arrow-up cal-arrow arrow-good"></i>`;
+                        else if(dayLogs.some(w => w.rating === 'down')) arrow = `<i class="fa-solid fa-arrow-down cal-arrow arrow-bad"></i>`;
                     }
 
-                    let ratingHTML = '';
-                    if (session.rating === 'good') ratingHTML = `<div class="history-rating good"><i class="fa-solid fa-arrow-up"></i> Hea trenn</div>`;
-                    if (session.rating === 'bad') ratingHTML = `<div class="history-rating bad"><i class="fa-solid fa-arrow-down"></i> Kehv trenn</div>`;
+                    html += `
+                        <div class="cal-cell ${dayLogs.length > 0 ? 'has-data' : ''}" onclick="app.openDayModal('${dateStr}')">
+                            <span class="cal-day-num">${d}</span>
+                            ${arrow}
+                            <div class="cal-dots">${dots}</div>
+                        </div>
+                    `;
+                }
+                document.getElementById('cal-grid').innerHTML = html;
+            },
 
-                    let commentHTML = session.comment ? `<div class="history-comment">"${session.comment}"</div>` : '';
+            openDayModal: function(dateStr) {
+                const dayLogs = this.history.filter(w => w.date === dateStr);
+                if(dayLogs.length === 0) return;
 
-                    bodyEl.innerHTML += `
-                        <div class="history-card">
-                            <div class="history-card-header">
-                                <div class="history-machine">
-                                    <i class="fa-solid ${session.type === 'weights' ? 'fa-dumbbell weights' : 'fa-heart-pulse cardio'}"></i> ${session.machine}
-                                </div>
-                                <span style="font-size: 12px; color: var(--text-muted);">${session.time}</span>
+                const parts = dateStr.split('-');
+                document.getElementById('modal-title-date').innerText = `${parts[2]}.${parts[1]}.${parts[0]}`;
+                
+                let html = '';
+                dayLogs.forEach(log => {
+                    let details = '';
+                    if(log.type === 'gym') {
+                        details = log.sets.map((s,i) => `<div style="display:flex; justify-content:space-between; font-size:13px; padding:4px 0; border-bottom:1px dashed #333;"><span style="color:#aaa;">S${i+1}</span><span><b>${s.weight}</b>kg × <b>${s.reps}</b></span></div>`).join('');
+                    } else {
+                        let c = [];
+                        if(log.cardio.time) c.push(`${log.cardio.time} min`);
+                        if(log.cardio.dist) c.push(`${log.cardio.dist} km`);
+                        if(log.cardio.kcal) c.push(`${log.cardio.kcal} kcal`);
+                        details = `<div style="font-size:14px; font-weight:700; padding:4px 0;">${c.join(' • ')}</div>`;
+                    }
+
+                    let commentHtml = '';
+                    if(log.comment || log.rating) {
+                        let icon = '';
+                        if(log.rating === 'up') icon = '<i class="fa-solid fa-arrow-up" style="color:var(--blue); margin-right:4px;"></i>';
+                        if(log.rating === 'down') icon = '<i class="fa-solid fa-arrow-down" style="color:var(--red); margin-right:4px;"></i>';
+                        commentHtml = `<div class="modal-comment">${icon} ${log.comment || 'Kommentaar puudub'}</div>`;
+                    }
+
+                    html += `
+                        <div class="modal-item">
+                            <div class="modal-item-head">
+                                <h4 style="color:${log.type === 'cardio' ? 'var(--orange)' : 'var(--neon)'};">${log.machine} <span style="color:#666;font-size:12px;">(${log.time})</span></h4>
+                                <button class="modal-item-del" onclick="app.deleteLog(${log.id}, '${dateStr}')">X</button>
                             </div>
-                            ${content}
-                            ${ratingHTML}
-                            ${commentHTML}
-                            <button class="btn-delete-history" onclick="app.deleteHistoryEntry(${session.id})">Kustuta see kirje</button>
+                            ${details}
+                            ${commentHtml}
                         </div>
                     `;
                 });
-
+                
+                document.getElementById('modal-workouts-list').innerHTML = html;
                 document.getElementById('day-modal').classList.add('active');
             },
 
@@ -727,62 +743,104 @@
                 document.getElementById('day-modal').classList.remove('active');
             },
 
-            deleteHistoryEntry: function(id) {
-                if(confirm("Kas kustutada see treening?")) {
-                    this.history = this.history.filter(h => h.id !== id);
-                    localStorage.setItem('247app_history_v14', JSON.stringify(this.history));
-                    this.closeModal();
-                    this.renderCalendar(); // Värskendame kalendrit
+            deleteLog: function(id, dateStr) {
+                if(confirm("Kustuta see harjutus?")) {
+                    this.history = this.history.filter(w => w.id !== id);
+                    localStorage.setItem('247app_history_v13', JSON.stringify(this.history));
+                    this.renderCalendar();
+                    this.openDayModal(dateStr); 
+                    if(this.history.filter(w => w.date === dateStr).length === 0) this.closeModal();
                 }
             },
 
+            /* ANDROID-KINDEL PDF EKSPORT! */
             exportPDF: function() {
-                if(this.history.length === 0) { alert("Ajalugu on tühi!"); return; }
+                if(this.history.length === 0) return alert("Ajalugu on tühi!");
                 window.scrollTo(0, 0);
 
                 let pdfHTML = `
-                    <div style="max-width: 600px; margin: 0 auto; color: #000; font-family: sans-serif;">
-                        <h1 style="text-align: center; margin-bottom: 20px;">24/7 FITNESS - AJALUGU</h1>
-                        <p style="text-align: center;">Kasutaja: ${this.profile.name || 'Nimetu'}</p>
+                    <div style="max-width: 600px; margin: 0 auto; color: #000; font-family: Helvetica, sans-serif;">
+                        <h1 style="text-align: center; color: #000;">24/7 FITNESS LOGI</h1>
+                        <div style="background: #f4f4f5; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                            <strong>Nimi:</strong> ${this.profile.name || 'Nimetu'} | <strong>Kaal:</strong> ${this.profile.weight || '-'} kg
+                        </div>
                 `;
 
-                // Grupeerime kuupäeva järgi PDFis
-                const sortedHistory = this.history.slice().sort((a,b) => b.id - a.id);
-                
-                sortedHistory.forEach(s => {
+                this.history.forEach(log => {
+                    const parts = log.date.split('-');
+                    const niceDate = `${parts[2]}.${parts[1]}.${parts[0]}`;
+                    
                     pdfHTML += `
-                        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-                            <strong>${s.dateISO} kell ${s.time} - ${s.machine} (${s.type})</strong><br>
+                        <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 6px;">
+                            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding-bottom:5px; margin-bottom:5px;">
+                                <strong>${log.machine} ${log.type==='cardio'?'(Kardio)':''}</strong>
+                                <span style="font-size:12px; color:#666;">${niceDate} ${log.time}</span>
+                            </div>
                     `;
-                    if (s.type === 'weights') {
-                        s.sets.forEach((set, i) => pdfHTML += `Seeria ${i+1}: ${set.weight}kg x ${set.reps}<br>`);
+                    
+                    if(log.type === 'gym') {
+                        log.sets.forEach((s,i) => { pdfHTML += `<div style="font-size:13px;">Seeria ${i+1}: <b>${s.weight} kg</b> × ${s.reps}</div>`; });
                     } else {
-                        pdfHTML += `${s.duration||0} min / ${s.distance||0} km / ${s.kcal||0} kcal<br>`;
+                        pdfHTML += `<div style="font-size:13px;">${log.cardio.time?log.cardio.time+'min ':''}${log.cardio.dist?log.cardio.dist+'km ':''}${log.cardio.kcal?log.cardio.kcal+'kcal':''}</div>`;
                     }
-                    if(s.comment) pdfHTML += `<em>Kommentaar: ${s.comment}</em><br>`;
+
+                    if(log.rating || log.comment) {
+                        let rText = '';
+                        if(log.rating==='up') rText = '<b style="color:blue;">[Hea]</b> ';
+                        if(log.rating==='down') rText = '<b style="color:red;">[Kehv]</b> ';
+                        pdfHTML += `<div style="font-size:12px; font-style:italic; margin-top:5px; color:#555;">${rText}${log.comment||''}</div>`;
+                    }
                     pdfHTML += `</div>`;
                 });
-
                 pdfHTML += `</div>`;
 
                 const printContainer = document.createElement('div');
                 printContainer.innerHTML = pdfHTML;
-                printContainer.style.background = '#fff';
+                printContainer.style.padding = '30px';
+                printContainer.style.background = '#ffffff';
+                printContainer.style.minHeight = '100vh';
+                
+                const mainApp = document.getElementById('main-app');
+                mainApp.style.display = 'none';
                 document.body.appendChild(printContainer);
-                document.getElementById('main-app').style.display = 'none';
+                document.body.style.background = '#ffffff';
 
-                const opt = { margin: 0.5, filename: `Treeningud.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+                const opt = {
+                    margin: 0.5,
+                    filename: `Treeningud_${this.profile.name || 'Logi'}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                };
 
-                setTimeout(() => {
-                    html2pdf().set(opt).from(printContainer).save().then(() => {
+                // FIX ANDROIDILE: Kasutame BLOB väljundit ja virtuaalset 'a' elementi!
+                html2pdf().set(opt).from(printContainer).outputPdf('blob').then(function(pdfBlob) {
+                    const blobUrl = URL.createObjectURL(pdfBlob);
+                    const link = document.createElement('a');
+                    link.style.display = 'none';
+                    link.href = blobUrl;
+                    link.download = opt.filename;
+                    document.body.appendChild(link);
+                    link.click();
+
+                    setTimeout(() => {
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(blobUrl);
+                        
                         document.body.removeChild(printContainer);
-                        document.getElementById('main-app').style.display = 'flex';
-                    });
-                }, 100);
+                        mainApp.style.display = 'flex';
+                        document.body.style.background = "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop') no-repeat center center fixed";
+                        document.body.style.backgroundSize = "cover";
+                    }, 500);
+                }).catch(err => {
+                    alert("Viga PDF-i salvestamisel: " + err);
+                    document.body.removeChild(printContainer);
+                    mainApp.style.display = 'flex';
+                });
             }
         };
 
-        window.onload = () => app.init();
+        window.onload = function() { app.init(); };
     </script>
 </body>
 </html>
