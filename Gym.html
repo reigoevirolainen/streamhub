@@ -5,13 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>24/7 Fitness Logi</title>
     
-    <!-- Neoonroheline kaldus 'F' Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.85em%22 x=%2250%22 text-anchor=%22middle%22 font-size=%2290%22 font-family=%22sans-serif%22 font-weight=%22900%22 font-style=%22italic%22 fill=%22%23ccff00%22>F</text></svg>">
-    
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- HTML2PDF Teek -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
@@ -20,10 +16,12 @@
             --bg-card: rgba(18, 18, 20, 0.95); 
             --bg-input: rgba(28, 28, 30, 0.8);
             --neon: #ccff00; 
+            --cardio-color: #f97316; /* Oranž kardio jaoks */
             --text-main: #ffffff; 
             --text-muted: #a1a1aa;
             --border: #27272a; 
             --red: #ef4444;
+            --blue: #3b82f6;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -44,7 +42,7 @@
             -webkit-backdrop-filter: blur(12px);
             min-height: 100vh; 
             position: relative; 
-            padding-bottom: 100px; 
+            padding-bottom: 90px; 
             box-shadow: 0 0 20px rgba(0,0,0,0.8);
             display: flex;
             flex-direction: column;
@@ -53,128 +51,146 @@
         .view { display: none; animation: fadeIn 0.2s ease; flex-grow: 1; }
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
 
-        /* HEADER & OTSINGURIBA AVALEHEL */
+        /* HEADER */
         .top-header { padding: 20px 20px 10px; position: sticky; top: 0; z-index: 10; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .logo { font-weight: 900; font-size: 22px; font-style: italic; white-space: nowrap; }
         .logo span { color: var(--neon); }
         
         .search-container { position: relative; display: flex; align-items: center; }
         .search-container i { position: absolute; left: 12px; color: var(--text-muted); font-size: 13px; pointer-events: none; }
-        .search-input { background: var(--bg-input); border: 1px solid var(--border); color: white; padding: 8px 12px 8px 32px; border-radius: 20px; outline: none; font-size: 13px; width: 110px; transition: all 0.3s ease; font-family: 'Outfit', sans-serif; }
+        .search-input { background: var(--bg-input); border: 1px solid var(--border); color: white; padding: 8px 12px 8px 32px; border-radius: 20px; outline: none; font-size: 13px; width: 110px; transition: all 0.3s ease; }
         .search-input:focus { border-color: var(--neon); width: 140px; background: rgba(0,0,0,0.9); }
-        .search-input::placeholder { color: var(--text-muted); }
 
-        /* PÄISE PAIGUTUSED ALAMLEHTEDEL */
         .logger-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
         .header-left, .header-right { width: 90px; display: flex; align-items: center; }
         .header-right { justify-content: flex-end; }
-        .logger-title { font-weight: 800; font-size: 16px; text-align: center; flex-grow: 1; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; letter-spacing: 0.5px;}
+        .logger-title { font-weight: 800; font-size: 16px; text-align: center; flex-grow: 1; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
         
-        /* SELGE TAGASI NUPP */
         .back-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--neon); background: rgba(204, 255, 0, 0.1); padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(204, 255, 0, 0.2); cursor: pointer; transition: 0.2s; }
-        .back-btn:hover { background: rgba(204, 255, 0, 0.2); }
         .back-btn:active { transform: scale(0.95); }
-        .back-btn i { font-size: 14px; }
 
-        /* PROFILE */
-        .profile-card { margin: 15px 20px 20px; background: var(--bg-card); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        /* PROFILE & FILTERS */
+        .profile-card { margin: 15px 20px 20px; background: var(--bg-card); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border); }
         .avatar { width: 45px; height: 45px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--neon); flex-shrink: 0; }
-        .profile-info { flex-grow: 1; overflow: hidden; }
-        .profile-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .profile-info { flex-grow: 1; }
+        .profile-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
         .profile-info p { color: var(--text-muted); font-size: 12px; }
-        .btn-outline { border: 1px solid var(--neon); color: var(--neon); background: transparent; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; flex-shrink: 0; }
+        .btn-outline { border: 1px solid var(--neon); color: var(--neon); background: transparent; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; }
 
-        /* FILTRID */
-        .section-header { padding: 0 20px; margin-bottom: 12px; font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #fff; }
-        
-        .filter-wrapper { width: 100%; overflow: hidden; }
-        .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 0 20px 15px 20px; scrollbar-width: none; -webkit-overflow-scrolling: touch; align-items: center; }
+        .section-header { padding: 0 20px; margin-bottom: 12px; font-size: 15px; font-weight: 800; text-transform: uppercase; color: #fff; }
+        .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 0 20px 15px; scrollbar-width: none; align-items: center; }
         .filter-scroll::-webkit-scrollbar { display: none; }
-        .filter-scroll::after { content: ''; padding-right: 12px; }
-        
-        .filter-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; flex: 0 0 auto; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
-        .filter-btn i { font-size: 14px; }
+        .filter-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; display: flex; gap: 6px; align-items: center;}
         .filter-btn.active { border-color: var(--neon); color: black; background: var(--neon); }
 
         /* MASINATE LIST */
         .machine-list { display: flex; flex-direction: column; gap: 12px; padding: 0 20px 20px; }
-        .machine-card { background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.1s; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .machine-card { background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .machine-card:active { transform: scale(0.98); }
-        .machine-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #fff; }
-        .machine-card p { font-size: 12px; color: var(--text-muted); line-height: 1.4; font-weight: 500;}
+        .machine-card h4 { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px;}
         .machine-icon-container { display: flex; align-items: center; gap: 15px; }
-        .machine-icon-container i.list-icon { color: var(--neon); font-size: 22px; min-width: 30px; display: inline-block; text-align: center; }
-        .empty-state { text-align: center; color: var(--text-muted); padding: 30px 20px; font-size: 14px; }
+        .machine-icon-container i.list-icon { color: var(--neon); font-size: 22px; width: 30px; text-align: center; }
+        .machine-icon-container.cardio i.list-icon { color: var(--cardio-color); }
 
         /* TREENINGU LOGIMINE */
-        .sets-section { padding: 20px; flex-grow: 1; }
+        .sets-section { padding: 20px; }
         .sets-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .sets-table th { color: var(--text-muted); font-size: 12px; font-weight: 600; text-align: center; padding-bottom: 15px; text-transform: uppercase; }
-        .sets-table td { padding: 10px 4px; text-align: center; vertical-align: middle; }
-        .set-input { width: 100%; height: 50px; background: var(--bg-input); border: 1px solid var(--border); color: white; padding: 0 10px; border-radius: 10px; text-align: center; font-size: 18px; font-weight: 700; outline: none; }
+        .sets-table th { color: var(--text-muted); font-size: 12px; font-weight: 600; padding-bottom: 10px; }
+        .sets-table td { padding: 8px 4px; text-align: center; vertical-align: middle; }
+        .set-input { width: 100%; height: 50px; background: var(--bg-input); border: 1px solid var(--border); color: white; border-radius: 10px; text-align: center; font-size: 18px; font-weight: 700; outline: none; }
         .set-input:focus { border-color: var(--neon); }
         
-        /* UUS: iOS-STIILIS WHEEL PICKER (KORDUSTE JAOKS) */
+        /* WHEEL PICKER */
         .picker-wrapper { position: relative; height: 120px; background: var(--bg-input); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; width: 100%; }
-        /* Varjud mis tekitavad rulliku efekti */
         .picker-wrapper::before, .picker-wrapper::after { content: ''; position: absolute; left: 0; right: 0; height: 40px; pointer-events: none; z-index: 2; }
         .picker-wrapper::before { top: 0; background: linear-gradient(to bottom, #1c1c1e 10%, transparent); }
         .picker-wrapper::after { bottom: 0; background: linear-gradient(to top, #1c1c1e 10%, transparent); }
-        /* Keskmine valitud ala (fookus) */
         .picker-highlight { position: absolute; top: 40px; left: 0; right: 0; height: 40px; border-top: 1px solid rgba(204, 255, 0, 0.4); border-bottom: 1px solid rgba(204, 255, 0, 0.4); background: rgba(204, 255, 0, 0.05); pointer-events: none; z-index: 1; }
-        /* Scrollitav ala */
-        .picker-scroll { height: 100%; overflow-y: auto; scroll-snap-type: y mandatory; padding: 40px 0; scrollbar-width: none; -ms-overflow-style: none; }
+        .picker-scroll { height: 100%; overflow-y: auto; scroll-snap-type: y mandatory; padding: 40px 0; scrollbar-width: none; }
         .picker-scroll::-webkit-scrollbar { display: none; }
-        /* Üksikud numbrid rullikus */
         .picker-item { height: 40px; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; font-size: 20px; font-weight: 700; color: white; }
 
-        .btn-add { background: transparent; border: 1px dashed var(--border); color: var(--text-muted); width: 100%; padding: 14px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 15px; transition: 0.2s; }
-        .btn-primary { width: 100%; background: var(--neon); color: black; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(204, 255, 0, 0.2); text-transform: uppercase;}
-        .btn-del { color: var(--red); background: rgba(239, 68, 68, 0.1); border: none; border-radius: 8px; font-size: 16px; cursor: pointer; padding: 10px; height: 50px; width: 100%; display: flex; align-items: center; justify-content: center; }
+        .btn-add { background: transparent; border: 1px dashed var(--border); color: var(--text-muted); width: 100%; padding: 14px; border-radius: 10px; font-weight: 600; margin-bottom: 15px; }
+        .btn-primary { width: 100%; background: var(--neon); color: black; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 800; text-transform: uppercase; margin-top: 15px;}
+        .btn-del { color: var(--red); background: rgba(239, 68, 68, 0.1); border: none; border-radius: 8px; font-size: 16px; width: 100%; height: 50px; display: flex; align-items: center; justify-content: center; }
 
-        /* MASINA INFO */
-        .machine-info-box { margin: 20px; padding: 15px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); display: flex; gap: 15px; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .machine-img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; background: #111; border: 1px solid #333; flex-shrink: 0; }
-        .machine-details { flex-grow: 1; }
-        .machine-details h5 { color: var(--neon); font-size: 12px; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
-        .machine-details p { font-size: 14px; color: white; font-weight: 700; margin-bottom: 6px; line-height: 1.2;}
-        .machine-details .alt { font-size: 12px; color: var(--text-muted); font-weight: 500; }
-        .machine-details .alt span { color: #fff; }
+        /* HINNANG & KOMMENTAAR */
+        .rating-section { margin-top: 20px; background: var(--bg-card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); }
+        .rating-title { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 10px; text-align: center; }
+        .rating-buttons { display: flex; gap: 10px; margin-bottom: 15px; }
+        .rate-btn { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-input); color: white; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+        .rate-btn.good.active { background: rgba(59, 130, 246, 0.2); border-color: var(--blue); color: var(--blue); }
+        .rate-btn.bad.active { background: rgba(239, 68, 68, 0.2); border-color: var(--red); color: var(--red); }
+        .comment-input { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 10px; font-size: 14px; resize: none; outline: none; }
+        .comment-input:focus { border-color: var(--neon); }
 
-        /* AJALUGU */
-        .history-list { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .history-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .history-card-header { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px; }
-        .history-date { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 500;}
-        .history-machine { font-size: 15px; font-weight: 800; color: var(--text-main); }
-        .history-set { display: flex; justify-content: space-between; font-size: 14px; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); }
-        .history-set:last-child { border-bottom: none; }
-        .history-del-btn { color: var(--red); background: rgba(239, 68, 68, 0.1); border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; font-weight: 700; height: fit-content;}
-
-        .btn-pdf { background: #222; border: 1px solid var(--border); color: white; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+        /* KALENDER */
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; }
+        .cal-nav-btn { background: var(--bg-card); border: 1px solid var(--border); color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+        .month-title { font-size: 18px; font-weight: 800; color: var(--neon); text-transform: uppercase; }
         
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; padding: 0 15px; }
+        .weekday-label { text-align: center; font-size: 11px; color: var(--text-muted); font-weight: 600; padding-bottom: 5px; }
+        .day-cell { aspect-ratio: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 5px; position: relative; cursor: pointer; }
+        .day-cell.empty { background: transparent; border: none; cursor: default; }
+        .day-cell.today { border-color: var(--neon); }
+        .day-number { font-size: 14px; font-weight: 700; }
+        
+        /* Kalendri indikaatorid */
+        .day-indicators { display: flex; gap: 3px; margin-top: auto; padding-bottom: 5px; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; }
+        .dot.weights { background-color: var(--neon); }
+        .dot.cardio { background-color: var(--cardio-color); }
+        .day-rating-icon { position: absolute; top: 2px; right: 4px; font-size: 10px; }
+        .day-rating-icon.good { color: var(--blue); }
+        .day-rating-icon.bad { color: var(--red); }
+
+        .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 20px; font-size: 11px; color: var(--text-muted); }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+
+        /* MODAL (PÄEVA DETAILID) */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; display: none; justify-content: center; align-items: flex-end; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { width: 100%; max-width: 480px; background: var(--bg-main); border-top-left-radius: 24px; border-top-right-radius: 24px; border-top: 1px solid var(--border); padding: 25px 20px 40px; animation: slideUp 0.3s ease; max-height: 80vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-date { font-size: 20px; font-weight: 800; color: var(--neon); }
+        .btn-close-modal { background: var(--bg-card); border: 1px solid var(--border); color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; }
+        
+        .history-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+        .history-card-header { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; margin-bottom: 10px; }
+        .history-machine { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .history-machine i.weights { color: var(--neon); }
+        .history-machine i.cardio { color: var(--cardio-color); }
+        .history-set { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); }
+        .history-comment { margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; font-size: 13px; font-style: italic; color: var(--text-muted); border-left: 2px solid var(--neon); }
+        .history-rating { font-size: 13px; font-weight: 700; margin-top: 10px; display: inline-block; padding: 4px 8px; border-radius: 6px; }
+        .history-rating.good { background: rgba(59, 130, 246, 0.1); color: var(--blue); }
+        .history-rating.bad { background: rgba(239, 68, 68, 0.1); color: var(--red); }
+        .btn-delete-history { color: var(--red); background: none; border: none; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: underline; margin-top: 15px; display: block; text-align: right; width: 100%; }
+
         /* ALUMINE MENÜÜ */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: rgba(10, 10, 12, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 10px 25px; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 11px; font-weight: 600; cursor: pointer; border: none; background: none; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: rgba(10, 10, 12, 0.95); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 10px 25px; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 11px; font-weight: 600; cursor: pointer; border: none; background: none; flex: 1; }
         .nav-item i { font-size: 20px; transition: 0.2s; }
         .nav-item.active { color: var(--neon); }
+        .nav-item.active-cardio { color: var(--cardio-color); }
     </style>
 </head>
 <body>
 
     <div class="app-container" id="main-app">
         
-        <!-- ================= 1. AVALEHT ================= -->
+        <!-- 1. JÕUSAAL (TREENI) -->
         <div id="view-home" class="view active">
             <header class="top-header">
                 <div class="logo">24/7 <span>FITNESS</span></div>
                 <div class="search-container">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" class="search-input" placeholder="Otsi..." onkeyup="app.handleSearch(this.value)">
+                    <input type="text" class="search-input" placeholder="Otsi..." onkeyup="app.handleSearch(this.value, 'weights')">
                 </div>
             </header>
-
             <div class="profile-card">
                 <div class="avatar"><i class="fa-solid fa-user"></i></div>
                 <div class="profile-info">
@@ -183,28 +199,69 @@
                 </div>
                 <button class="btn-outline" onclick="app.editProfile()">Muuda</button>
             </div>
-
             <div class="section-header">Vali lihasgrupp</div>
-            
             <div class="filter-wrapper">
-                <div class="filter-scroll" id="filter-container">
-                    <!-- Genereeritakse JS abil -->
-                </div>
+                <div class="filter-scroll" id="filter-container"></div>
             </div>
-            
-            <div class="machine-list" id="exercise-list">
-                <!-- Masinad genereeritakse JS abil -->
+            <div class="machine-list" id="exercise-list"></div>
+        </div>
+
+        <!-- 2. KARDIO -->
+        <div id="view-cardio" class="view">
+            <header class="top-header">
+                <div class="logo">24/7 <span style="color: var(--cardio-color);">CARDIO</span></div>
+                <div class="search-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" class="search-input" placeholder="Otsi..." onkeyup="app.handleSearch(this.value, 'cardio')">
+                </div>
+            </header>
+            <div class="section-header" style="margin-top: 20px;">Vali kardioseade</div>
+            <div class="machine-list" id="cardio-list"></div>
+        </div>
+
+        <!-- 3. AJALUGU (KALENDER) -->
+        <div id="view-history" class="view">
+            <header class="logger-header">
+                <div class="header-left"></div>
+                <div class="logger-title"><span>AJALUGU</span></div>
+                <div class="header-right">
+                    <button class="btn-pdf" onclick="app.exportPDF()" style="background: #222; border: 1px solid var(--border); color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px;"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                </div>
+            </header>
+
+            <div class="calendar-header">
+                <button class="cal-nav-btn" onclick="app.changeMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="month-title" id="cal-month-year">Jaanuar 2024</div>
+                <button class="cal-nav-btn" onclick="app.changeMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+
+            <div class="calendar-grid">
+                <div class="weekday-label">E</div>
+                <div class="weekday-label">T</div>
+                <div class="weekday-label">K</div>
+                <div class="weekday-label">N</div>
+                <div class="weekday-label">R</div>
+                <div class="weekday-label">L</div>
+                <div class="weekday-label">P</div>
+            </div>
+            <div class="calendar-grid" id="calendar-days"></div>
+
+            <div class="legend">
+                <div class="legend-item"><div class="dot weights"></div> Jõutrenn</div>
+                <div class="legend-item"><div class="dot cardio"></div> Kardio</div>
+                <div class="legend-item"><i class="fa-solid fa-arrow-up" style="color: var(--blue);"></i> Hea päev</div>
+                <div class="legend-item"><i class="fa-solid fa-arrow-down" style="color: var(--red);"></i> Kehv päev</div>
             </div>
         </div>
 
-        <!-- ================= 2. LOGI TREENINGUT ================= -->
+        <!-- ================= LOGERID ================= -->
+
+        <!-- JÕUSAALI LOGER -->
         <div id="view-logger" class="view">
             <header class="logger-header">
-                <div class="header-left">
-                    <button class="back-btn" onclick="app.navTo('view-home', 0)"><i class="fa-solid fa-arrow-left"></i> Tagasi</button>
-                </div>
+                <button class="back-btn" onclick="app.navTo('view-home', 0)"><i class="fa-solid fa-arrow-left"></i> Tagasi</button>
                 <div class="logger-title" id="logger-machine-name">Harjutus</div>
-                <div class="header-right"></div>
+                <div style="width:75px"></div>
             </header>
 
             <div class="sets-section">
@@ -217,40 +274,71 @@
                             <th style="width: 15%;"></th>
                         </tr>
                     </thead>
-                    <tbody id="logger-sets-body">
-                        <!-- Sisestusväljad (sh scrollitav ratas) genereeritakse siia -->
-                    </tbody>
+                    <tbody id="logger-sets-body"></tbody>
                 </table>
-
                 <button class="btn-add" onclick="app.addSet()">+ Lisa uus seeria</button>
-                <button class="btn-primary" onclick="app.saveWorkout()">Salvesta harjutus</button>
-            </div>
 
-            <!-- MASINA INFO JA PILT ALLOSAS -->
-            <div class="machine-info-box" id="machine-info-box">
-                <img src="" alt="Machine" class="machine-img" id="machine-img">
-                <div class="machine-details">
-                    <h5>Soovituslik Pink</h5>
-                    <p id="machine-desc">Gymleco Pink</p>
-                    <div class="alt">Alternatiiv: <span id="machine-alt">-</span></div>
+                <!-- UUS: Hinnang ja kommentaar -->
+                <div class="rating-section">
+                    <div class="rating-title">Kuidas trenn tundus?</div>
+                    <div class="rating-buttons">
+                        <button class="rate-btn good" id="rate-good-weights" onclick="app.setRating('good')"><i class="fa-solid fa-arrow-up"></i> Hea päev</button>
+                        <button class="rate-btn bad" id="rate-bad-weights" onclick="app.setRating('bad')"><i class="fa-solid fa-arrow-down"></i> Kehv päev</button>
+                    </div>
+                    <textarea class="comment-input" id="comment-weights" rows="2" placeholder="Lisa kommentaar (nt. uus isiklik rekord!)..."></textarea>
                 </div>
+
+                <button class="btn-primary" onclick="app.saveWorkout('weights')">Salvesta harjutus</button>
             </div>
         </div>
 
-        <!-- ================= 3. TREENINGUTE AJALUGU ================= -->
-        <div id="view-history" class="view">
+        <!-- KARDIO LOGER -->
+        <div id="view-cardio-logger" class="view">
             <header class="logger-header">
-                <div class="header-left">
-                    <button class="back-btn" onclick="app.navTo('view-home', 0)"><i class="fa-solid fa-arrow-left"></i> Tagasi</button>
-                </div>
-                <div class="logger-title"><span>AJALUGU</span></div>
-                <div class="header-right">
-                    <button class="btn-pdf" onclick="app.exportPDF()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-                </div>
+                <button class="back-btn" onclick="app.navTo('view-cardio', 1)" style="color: var(--cardio-color); border-color: rgba(249, 115, 22, 0.2); background: rgba(249, 115, 22, 0.1);"><i class="fa-solid fa-arrow-left"></i> Tagasi</button>
+                <div class="logger-title" id="cardio-machine-name">Kardio</div>
+                <div style="width:75px"></div>
             </header>
 
-            <div class="history-list" id="history-container">
-                <!-- Ajalugu genereeritakse siia -->
+            <div class="sets-section">
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <div style="flex: 1;">
+                        <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; display: block;">Aeg (min)</label>
+                        <input type="number" id="cardio-time" class="set-input" placeholder="0">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; display: block;">Distants (km)</label>
+                        <input type="number" id="cardio-dist" class="set-input" placeholder="0" step="0.1">
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; display: block;">Kalorid (kcal)</label>
+                    <input type="number" id="cardio-kcal" class="set-input" placeholder="0">
+                </div>
+
+                <div class="rating-section">
+                    <div class="rating-title">Kuidas kardio tundus?</div>
+                    <div class="rating-buttons">
+                        <button class="rate-btn good" id="rate-good-cardio" onclick="app.setRating('good')"><i class="fa-solid fa-arrow-up"></i> Hea päev</button>
+                        <button class="rate-btn bad" id="rate-bad-cardio" onclick="app.setRating('bad')"><i class="fa-solid fa-arrow-down"></i> Kehv päev</button>
+                    </div>
+                    <textarea class="comment-input" id="comment-cardio" rows="2" placeholder="Lisa kommentaar..."></textarea>
+                </div>
+
+                <button class="btn-primary" onclick="app.saveWorkout('cardio')" style="background: var(--cardio-color); color: white;">Salvesta Kardio</button>
+            </div>
+        </div>
+
+        <!-- ================= MODAL PÄEVA DETAILIDEKS ================= -->
+        <div class="modal-overlay" id="day-modal" onclick="if(event.target === this) app.closeModal()">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-date" id="modal-date-title">01. Jaanuar</div>
+                    <button class="btn-close-modal" onclick="app.closeModal()"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div id="modal-content-body">
+                    <!-- Treeningud renderdatakse siia -->
+                </div>
             </div>
         </div>
 
@@ -259,93 +347,63 @@
             <button class="nav-item active" onclick="app.navTo('view-home', 0)">
                 <i class="fa-solid fa-dumbbell"></i><span>Treeni</span>
             </button>
-            <button class="nav-item" onclick="app.navTo('view-history', 1)">
-                <i class="fa-regular fa-calendar-check"></i><span>Ajalugu</span>
+            <button class="nav-item" onclick="app.navTo('view-cardio', 1)">
+                <i class="fa-solid fa-heart-pulse"></i><span>Cardio</span>
+            </button>
+            <button class="nav-item" onclick="app.navTo('view-history', 2)">
+                <i class="fa-regular fa-calendar-days"></i><span>Ajalugu</span>
             </button>
         </nav>
-
     </div>
 
     <!-- JAVASCRIPT -->
     <script>
-        const getImgUrl = (text) => `https://placehold.co/400x400/1c1c1e/ccff00?text=${encodeURIComponent(text.replace(' ', '\n'))}&font=montserrat`;
+        const getImgUrl = (text, isCardio = false) => `https://placehold.co/400x400/1c1c1e/${isCardio ? 'f97316' : 'ccff00'}?text=${encodeURIComponent(text.replace(' ', '\n'))}&font=montserrat`;
 
         const app = {
-            profile: JSON.parse(localStorage.getItem('247app_profile_v13')) || { name: '', age: '', weight: '' },
-            history: JSON.parse(localStorage.getItem('247app_history_v13')) || [],
+            profile: JSON.parse(localStorage.getItem('247app_profile_v14')) || { name: '', age: '', weight: '' },
+            history: JSON.parse(localStorage.getItem('247app_history_v14')) || [],
             
             activeFilters: [],
             searchQuery: '',
             currentExercise: null,
             currentSets: [],
-            repOptionsHTML: '', // Salvestab generitud rattavalikud
+            repOptionsHTML: '',
+            currentRating: null, // 'good' või 'bad'
+            
+            // Kalendri state
+            currentDate: new Date(),
+            monthNames: ["Jaanuar", "Veebruar", "Märts", "Aprill", "Mai", "Juuni", "Juuli", "August", "September", "Oktoober", "November", "Detsember"],
 
             categories: [
-                { id: 'Rind', icon: 'fa-dumbbell' },
-                { id: 'Ülaselg', icon: 'fa-child-reaching' },
-                { id: 'Alaselg', icon: 'fa-weight-hanging' },
-                { id: 'Õlad', icon: 'fa-arrows-up-to-line' },
-                { id: 'Biitseps', icon: 'fa-hand-fist' },
-                { id: 'Triitseps', icon: 'fa-bolt' },
-                { id: 'Reied', icon: 'fa-shoe-prints' },
-                { id: 'Sääred', icon: 'fa-shoe-prints' },
-                { id: 'Kõht', icon: 'fa-cubes' }
+                { id: 'Rind', icon: 'fa-dumbbell' }, { id: 'Ülaselg', icon: 'fa-child-reaching' }, { id: 'Alaselg', icon: 'fa-weight-hanging' },
+                { id: 'Õlad', icon: 'fa-arrows-up-to-line' }, { id: 'Biitseps', icon: 'fa-hand-fist' }, { id: 'Triitseps', icon: 'fa-bolt' },
+                { id: 'Reied', icon: 'fa-shoe-prints' }, { id: 'Sääred', icon: 'fa-shoe-prints' }, { id: 'Kõht', icon: 'fa-cubes' }
             ],
 
             exercises: [
-                // RIND
-                { name: 'Bench Press', target: 'Rind', desc: 'Gymleco Olympic Flat Bench', alt: 'Smith masin / Hantlid lamades', icon: 'fa-dumbbell', img: getImgUrl('Bench Press') },
-                { name: 'Incline Dumbbell Press', target: 'Rind', desc: 'Gymleco Adjustable Bench + Hantlid', alt: 'Kaldpink kangiga / Smith', icon: 'fa-dumbbell', img: getImgUrl('Incline Press') },
-                { name: 'Pec Deck Fly', target: 'Rind', desc: 'Gymleco Pec Deck plokkmasin', alt: 'Hantlitega lendamine', icon: 'fa-arrows-left-right', img: getImgUrl('Pec Deck') },
-                { name: 'Cable Crossover', target: 'Rind', desc: 'Gymleco ristveo masin', alt: 'Pec Deck / Lendamine hantlitega', icon: 'fa-bolt', img: getImgUrl('Cable Cross') },
-                { name: 'Dips', target: 'Rind', desc: 'Gymleco Dip Station', alt: 'Assisted Dip masin', icon: 'fa-arrow-down', img: getImgUrl('Dips') },
-                
-                // ÜLASELG
-                { name: 'Lat Pulldown', target: 'Ülaselg', desc: 'Gymleco Lat Pulldown masin', alt: 'Lõuatõmbed / Assisted Pull-up', icon: 'fa-arrow-down', img: getImgUrl('Lat Pulldown') },
-                { name: 'Seated Cable Row', target: 'Ülaselg', desc: 'Gymleco Seated Row masin', alt: 'T-Bar Row / Hantliga tõmbed', icon: 'fa-arrow-right-to-bracket', img: getImgUrl('Seated Row') },
-                { name: 'T-Bar Row', target: 'Ülaselg', desc: 'Gymleco T-Bar masin / Kangi ots', alt: 'Seated Cable Row / Kangi tõmbed', icon: 'fa-dumbbell', img: getImgUrl('T-Bar Row') },
-                { name: 'Pull-Ups', target: 'Ülaselg', desc: 'Gymleco Lõuatõmbe kang', alt: 'Lat Pulldown masin', icon: 'fa-arrow-up', img: getImgUrl('Pull-Ups') },
-                { name: 'Face Pulls', target: 'Ülaselg', desc: 'Gymleco ristveo masin + köis', alt: 'Rear Delt Fly masin', icon: 'fa-bullseye', img: getImgUrl('Face Pulls') },
-                
-                // ALASELG
-                { name: 'Deadlift (Jõutõmme)', target: 'Alaselg', desc: 'Vabaraskus kang tõsteplatvormil', alt: 'Smith masinal / Hantlitega', icon: 'fa-arrow-up', img: getImgUrl('Deadlift') },
-                { name: 'Back Extension', target: 'Alaselg', desc: 'Gymleco Roman Chair (Seljapink)', alt: 'Romanian deadlift kangiga', icon: 'fa-person', img: getImgUrl('Back Extension') },
-                { name: 'Romanian deadlift', target: 'Alaselg', desc: 'Kükipuur + Kang vabalanguses', alt: 'Back Extension pink', icon: 'fa-child-reaching', img: getImgUrl('Romanian deadlift') },
-                
-                // REIED
-                { name: 'Barbell Squat', target: 'Reied', desc: 'Gymleco Kükipuur (Half Rack)', alt: 'Smith masina kükk / Hack Squat', icon: 'fa-arrow-up', img: getImgUrl('Squat') },
-                { name: 'Leg Press', target: 'Reied', desc: 'Gymleco 45° Leg Press masin', alt: 'Kükk kangiga / Hack Squat', icon: 'fa-shoe-prints', img: getImgUrl('Leg Press') },
-                { name: 'Leg Extension', target: 'Reied', desc: 'Gymleco Leg Extension masin', alt: 'Väljaasted / Bulgaaria kükk', icon: 'fa-person-walking', img: getImgUrl('Leg Extension') },
-                { name: 'Leg Curl', target: 'Reied', desc: 'Gymleco Istuv/Lamav Leg Curl', alt: 'RDL / Romanian deadlift', icon: 'fa-person-running', img: getImgUrl('Leg Curl') },
-                
-                // SÄÄRED
-                { name: 'Standing Calf Raise', target: 'Sääred', desc: 'Gymleco Standing Calf masin', alt: 'Smith masin / Hantliga ühel jalal', icon: 'fa-shoe-prints', img: getImgUrl('Standing Calf') },
-                { name: 'Seated Calf Raise', target: 'Sääred', desc: 'Gymleco Seated Calf masin', alt: 'Kang põlvedel istudes', icon: 'fa-chair', img: getImgUrl('Seated Calf') },
+                { name: 'Bench Press', target: 'Rind', icon: 'fa-dumbbell' }, { name: 'Incline Dumbbell Press', target: 'Rind', icon: 'fa-dumbbell' }, { name: 'Pec Deck Fly', target: 'Rind', icon: 'fa-arrows-left-right' },
+                { name: 'Lat Pulldown', target: 'Ülaselg', icon: 'fa-arrow-down' }, { name: 'Seated Cable Row', target: 'Ülaselg', icon: 'fa-arrow-right-to-bracket' },
+                { name: 'Deadlift (Jõutõmme)', target: 'Alaselg', icon: 'fa-arrow-up' }, { name: 'Barbell Squat', target: 'Reied', icon: 'fa-arrow-up' },
+                { name: 'Leg Press', target: 'Reied', icon: 'fa-shoe-prints' }, { name: 'Overhead Press (OHP)', target: 'Õlad', icon: 'fa-arrow-up' },
+                { name: 'Barbell Bicep Curl', target: 'Biitseps', icon: 'fa-dumbbell' }, { name: 'Tricep Pushdown', target: 'Triitseps', icon: 'fa-hand-back-fist' },
+                { name: 'Cable Crunch', target: 'Kõht', icon: 'fa-cubes' }
+            ],
 
-                // ÕLAD
-                { name: 'Overhead Press (OHP)', target: 'Õlad', desc: 'Kangi surumine seistes (Half Rack)', alt: 'Hantlitega surumine istudes', icon: 'fa-arrow-up', img: getImgUrl('Overhead Press') },
-                { name: 'Lateral Raise', target: 'Õlad', desc: 'Hantlid vabaraskuste alal', alt: 'Kaablitega lendamine küljele', icon: 'fa-arrows-up-to-line', img: getImgUrl('Lateral Raise') },
-                { name: 'Reverse Pec Deck', target: 'Õlad', desc: 'Gymleco Pec Deck (tagurpidi)', alt: 'Face Pulls / Kummardades lendamine', icon: 'fa-arrows-left-right', img: getImgUrl('Reverse Deck') },
-                
-                // BIITSEPS
-                { name: 'Barbell Bicep Curl', target: 'Biitseps', desc: 'Sirge või EZ kang vabaraskustest', alt: 'Hantlitega Curls', icon: 'fa-dumbbell', img: getImgUrl('Barbell Curl') },
-                { name: 'Hammer Curls', target: 'Biitseps', desc: 'Hantlid vabaraskuste alal', alt: 'Kaabliga Hammer Curl', icon: 'fa-gavel', img: getImgUrl('Hammer Curls') },
-                { name: 'Preacher Curl', target: 'Biitseps', desc: 'Gymleco Scott pink + EZ kang', alt: 'Masinal Preacher Curl', icon: 'fa-hand-holding', img: getImgUrl('Preacher Curl') },
-                
-                // TRIITSEPS
-                { name: 'Tricep Pushdown', target: 'Triitseps', desc: 'Gymleco ristveo masin + köis/sirge', alt: 'Tricep Kickbacks hantliga', icon: 'fa-hand-back-fist', img: getImgUrl('Pushdown') },
-                { name: 'Skullcrushers', target: 'Triitseps', desc: 'Lamades Gymleco pink + EZ kang', alt: 'Overhead Tricep Ext.', icon: 'fa-bolt', img: getImgUrl('Skullcrusher') },
-                
-                // KÕHT
-                { name: 'Cable Crunch', target: 'Kõht', desc: 'Gymleco ristveo masin + köis', alt: 'Kõhulihaste masin', icon: 'fa-cubes', img: getImgUrl('Cable Crunch') },
-                { name: 'Hanging Leg Raise', target: 'Kõht', desc: 'Lõuatõmbe kangil rippudes', alt: 'Istesse tõusud pingil', icon: 'fa-person', img: getImgUrl('Leg Raise') }
+            cardioMachines: [
+                { name: 'Jooksulint', icon: 'fa-person-running' },
+                { name: 'Velotrenazöör', icon: 'fa-bicycle' },
+                { name: 'Sõudeergomeeter', icon: 'fa-water' },
+                { name: 'Elliptiline', icon: 'fa-person-walking' },
+                { name: 'Stairmaster', icon: 'fa-stairs' }
             ],
 
             init: function() {
                 this.updateProfileUI();
                 this.renderFilters();
-                this.renderExerciseList();
-                this.renderHistory();
+                this.renderExerciseList('weights');
+                this.renderExerciseList('cardio');
+                this.renderCalendar();
             },
 
             updateProfileUI: function() {
@@ -355,15 +413,11 @@
             },
 
             editProfile: function() {
-                const newName = prompt("Sinu nimi:", this.profile.name);
-                if(newName === null) return;
-                const newAge = prompt("Sinu vanus:", this.profile.age);
-                if(newAge === null) return;
-                const newWeight = prompt("Sinu kaal (kg):", this.profile.weight);
-                if(newWeight === null) return;
-                
+                const newName = prompt("Sinu nimi:", this.profile.name); if(newName === null) return;
+                const newAge = prompt("Sinu vanus:", this.profile.age); if(newAge === null) return;
+                const newWeight = prompt("Sinu kaal (kg):", this.profile.weight); if(newWeight === null) return;
                 this.profile = { name: newName.trim(), age: newAge.trim(), weight: newWeight.trim() };
-                localStorage.setItem('247app_profile_v13', JSON.stringify(this.profile));
+                localStorage.setItem('247app_profile_v14', JSON.stringify(this.profile));
                 this.updateProfileUI();
             },
 
@@ -372,114 +426,104 @@
                 document.getElementById(viewId).classList.add('active');
                 
                 if(navIndex !== null) {
-                    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-                    document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+                    document.querySelectorAll('.nav-item').forEach((b, i) => {
+                        b.classList.remove('active', 'active-cardio');
+                        if (i === navIndex) {
+                            b.classList.add(navIndex === 1 ? 'active-cardio' : 'active');
+                        }
+                    });
                 }
                 
-                if(viewId === 'view-history') this.renderHistory();
+                if(viewId === 'view-history') this.renderCalendar();
                 window.scrollTo(0,0);
             },
 
-            handleSearch: function(query) {
+            handleSearch: function(query, type) {
                 this.searchQuery = query.toLowerCase();
-                this.renderExerciseList();
+                this.renderExerciseList(type);
             },
 
             renderFilters: function() {
                 const container = document.getElementById('filter-container');
                 container.innerHTML = '';
-                
                 this.categories.forEach(cat => {
                     const isActive = this.activeFilters.includes(cat.id);
-                    container.innerHTML += `
-                        <button class="filter-btn ${isActive ? 'active' : ''}" onclick="app.toggleFilter('${cat.id}')">
-                            <i class="fa-solid ${cat.icon}"></i> ${cat.id}
-                        </button>
-                    `;
+                    container.innerHTML += `<button class="filter-btn ${isActive ? 'active' : ''}" onclick="app.toggleFilter('${cat.id}')"><i class="fa-solid ${cat.icon}"></i> ${cat.id}</button>`;
                 });
             },
 
             toggleFilter: function(category) {
                 const index = this.activeFilters.indexOf(category);
-                if (index > -1) {
-                    this.activeFilters.splice(index, 1);
-                } else {
-                    this.activeFilters.push(category);
-                }
+                if (index > -1) this.activeFilters.splice(index, 1);
+                else this.activeFilters.push(category);
                 this.renderFilters();
-                this.renderExerciseList();
+                this.renderExerciseList('weights');
             },
 
-            renderExerciseList: function() {
-                const list = document.getElementById('exercise-list');
+            renderExerciseList: function(type) {
+                const isCardio = type === 'cardio';
+                const list = document.getElementById(isCardio ? 'cardio-list' : 'exercise-list');
+                const sourceData = isCardio ? this.cardioMachines : this.exercises;
                 list.innerHTML = '';
                 
-                const filteredExercises = this.exercises.filter(ex => {
-                    const matchesCategory = this.activeFilters.length === 0 || this.activeFilters.includes(ex.target);
-                    const matchesSearch = ex.name.toLowerCase().includes(this.searchQuery) || 
-                                          ex.target.toLowerCase().includes(this.searchQuery);
-                    return matchesCategory && matchesSearch;
+                const filtered = sourceData.filter(ex => {
+                    const matchesCat = isCardio || this.activeFilters.length === 0 || this.activeFilters.includes(ex.target);
+                    const searchStr = isCardio ? ex.name.toLowerCase() : (ex.name + ' ' + ex.target).toLowerCase();
+                    return matchesCat && searchStr.includes(this.searchQuery);
                 });
 
-                if (filteredExercises.length === 0) {
-                    list.innerHTML = '<div class="empty-state">Sellele valikule vastavaid harjutusi ei leitud.</div>';
+                if (filtered.length === 0) {
+                    list.innerHTML = '<div class="empty-state">Ei leitud vasteid.</div>';
                     return;
                 }
 
-                filteredExercises.forEach(ex => {
+                filtered.forEach(ex => {
+                    const targetHTML = isCardio ? '' : `<p>${ex.target}</p>`;
                     list.innerHTML += `
-                        <div class="machine-card" onclick="app.openLogger('${ex.name}')">
-                            <div class="machine-icon-container">
+                        <div class="machine-card" onclick="app.openLogger('${ex.name}', '${type}')">
+                            <div class="machine-icon-container ${type}">
                                 <i class="fa-solid ${ex.icon} list-icon"></i>
-                                <div>
-                                    <h4>${ex.name}</h4>
-                                    <p>${ex.target}</p>
-                                </div>
+                                <div><h4>${ex.name}</h4>${targetHTML}</div>
                             </div>
-                            <i class="fa-solid fa-chevron-right" style="color: var(--neon); font-size: 18px;"></i>
-                        </div>
-                    `;
+                            <i class="fa-solid fa-chevron-right" style="color: var(--${isCardio ? 'cardio-color' : 'neon'});"></i>
+                        </div>`;
                 });
             },
 
-            openLogger: function(exerciseName) {
-                this.currentExercise = this.exercises.find(e => e.name === exerciseName);
-                if(!this.currentExercise) return;
-
-                document.getElementById('logger-machine-name').innerText = this.currentExercise.name;
-                document.getElementById('machine-img').src = this.currentExercise.img;
-                document.getElementById('machine-desc').innerText = this.currentExercise.desc;
-                document.getElementById('machine-alt').innerText = this.currentExercise.alt;
-
-                // Uus harjutus avades anname korduste arvuks by default 10, see teeb kerimise mugavamaks!
-                this.currentSets = [{ weight: '', reps: 10 }];
-                this.renderLoggerSets();
-                this.navTo('view-logger', null);
+            openLogger: function(name, type) {
+                this.currentExercise = name;
+                this.setRating(null); // Reset rating
+                
+                if (type === 'weights') {
+                    document.getElementById('logger-machine-name').innerText = name;
+                    document.getElementById('comment-weights').value = '';
+                    this.currentSets = [{ weight: '', reps: 10 }];
+                    this.renderLoggerSets();
+                    this.navTo('view-logger', null);
+                } else {
+                    document.getElementById('cardio-machine-name').innerText = name;
+                    document.getElementById('cardio-time').value = '';
+                    document.getElementById('cardio-dist').value = '';
+                    document.getElementById('cardio-kcal').value = '';
+                    document.getElementById('comment-cardio').value = '';
+                    this.navTo('view-cardio-logger', null);
+                }
             },
 
-            // Genereerib HTML sisu rulliku jaoks (0 kuni 100 kordust)
             generateRepOptions: function() {
                 if (!this.repOptionsHTML) {
                     let html = '';
-                    for(let i=0; i<=100; i++) {
-                        html += `<div class="picker-item">${i}</div>`;
-                    }
+                    for(let i=0; i<=100; i++) html += `<div class="picker-item">${i}</div>`;
                     this.repOptionsHTML = html;
                 }
                 return this.repOptionsHTML;
             },
 
-            // Kutsutakse välja kui kasutaja rullikut kerib
             onRepScroll: function(element, setIndex) {
                 clearTimeout(element.scrollTimeout);
-                // Ootame natuke peale kerimise peatumist, et andmed värskendada
                 element.scrollTimeout = setTimeout(() => {
-                    const itemHeight = 40; // Sama mis .picker-item CSS height
-                    let selectedVal = Math.round(element.scrollTop / itemHeight);
-                    if(selectedVal < 0) selectedVal = 0;
-                    if(selectedVal > 100) selectedVal = 100;
-                    
-                    // Uuendame vaikselt mudelis korduste arvu, ilma tervet tabelit uuesti laadimata
+                    let selectedVal = Math.round(element.scrollTop / 40);
+                    if(selectedVal < 0) selectedVal = 0; if(selectedVal > 100) selectedVal = 100;
                     this.currentSets[setIndex].reps = selectedVal;
                 }, 100); 
             },
@@ -492,196 +536,253 @@
                     tbody.innerHTML += `
                         <tr style="border-bottom: 1px dashed rgba(255,255,255,0.05);">
                             <td style="color: var(--neon); font-size: 16px; font-weight: 800;">${index + 1}</td>
+                            <td><input type="number" class="set-input" placeholder="0" value="${set.weight}" onchange="app.updateSet(${index}, 'weight', this.value)"></td>
                             <td>
-                                <input type="number" class="set-input" placeholder="0" value="${set.weight}" onchange="app.updateSet(${index}, 'weight', this.value)">
-                            </td>
-                            <td>
-                                <!-- iOS stiilis scrollitav valikurull -->
                                 <div class="picker-wrapper">
                                     <div class="picker-highlight"></div>
-                                    <div class="picker-scroll" onscroll="app.onRepScroll(this, ${index})" data-index="${index}">
-                                        ${app.generateRepOptions()}
-                                    </div>
+                                    <div class="picker-scroll" onscroll="app.onRepScroll(this, ${index})" data-index="${index}">${app.generateRepOptions()}</div>
                                 </div>
                             </td>
                             <td><button class="btn-del" onclick="app.removeSet(${index})"><i class="fa-solid fa-trash-can"></i></button></td>
-                        </tr>
-                    `;
+                        </tr>`;
                 });
 
-                // Taastame scrolli positsioonid rullikutes pärast HTMLi sisse panemist!
                 setTimeout(() => {
                     document.querySelectorAll('.picker-scroll').forEach((el) => {
                         const idx = el.getAttribute('data-index');
-                        const reps = parseInt(this.currentSets[idx].reps) || 0;
-                        el.scrollTop = reps * 40; 
+                        el.scrollTop = (parseInt(this.currentSets[idx].reps) || 0) * 40; 
                     });
                 }, 10);
             },
 
-            updateSet: function(index, field, value) {
-                this.currentSets[index][field] = value;
-            },
-
+            updateSet: function(index, field, value) { this.currentSets[index][field] = value; },
             addSet: function() {
-                // Kopeerime eelmise seeria andmed uue aluseks (kaasaarvatud eelmise keritud kordused)
-                const lastSet = this.currentSets.length > 0 ? this.currentSets[this.currentSets.length - 1] : { weight: '', reps: 10 };
-                this.currentSets.push({ weight: lastSet.weight, reps: lastSet.reps });
+                const last = this.currentSets.length > 0 ? this.currentSets[this.currentSets.length - 1] : { weight: '', reps: 10 };
+                this.currentSets.push({ weight: last.weight, reps: last.reps });
                 this.renderLoggerSets();
             },
+            removeSet: function(index) { this.currentSets.splice(index, 1); this.renderLoggerSets(); },
 
-            removeSet: function(index) {
-                this.currentSets.splice(index, 1);
-                this.renderLoggerSets();
-            },
-
-            saveWorkout: function() {
-                // Kontrollime, et kordused oleks suurem kui 0!
-                const validSets = this.currentSets.filter(s => s.weight !== '' && parseInt(s.reps) > 0);
-                
-                if(validSets.length === 0) {
-                    alert("Palun sisesta vähemalt üks kehtiv seeria (raskus, ja kordused üle 0)!");
-                    return;
+            setRating: function(rating) {
+                this.currentRating = rating;
+                document.querySelectorAll('.rate-btn').forEach(b => b.classList.remove('active'));
+                if (rating) {
+                    const btnId = document.getElementById('view-logger').classList.contains('active') ? `rate-${rating}-weights` : `rate-${rating}-cardio`;
+                    const btn = document.getElementById(btnId);
+                    if(btn) btn.classList.add('active');
                 }
+            },
 
-                const workoutEntry = {
+            saveWorkout: function(type) {
+                let workoutEntry = {
                     id: Date.now(),
-                    date: new Date().toLocaleDateString('et-EE'),
+                    dateISO: new Date().toISOString().split('T')[0], // YYYY-MM-DD for accurate calendar matching
                     time: new Date().toLocaleTimeString('et-EE', {hour: '2-digit', minute:'2-digit'}),
-                    machine: this.currentExercise.name,
-                    sets: validSets
+                    machine: this.currentExercise,
+                    type: type,
+                    rating: this.currentRating
                 };
 
-                this.history.unshift(workoutEntry);
-                localStorage.setItem('247app_history_v13', JSON.stringify(this.history));
-                
-                this.navTo('view-history', 1);
-            },
-
-            renderHistory: function() {
-                const container = document.getElementById('history-container');
-                container.innerHTML = '';
-                
-                if(this.history.length === 0) {
-                    container.innerHTML = '<div class="empty-state" style="margin-top: 40px;"><i class="fa-solid fa-clipboard-list" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i><br>Ajalugu puudub.<br>Alusta treenimist ja logi oma esimene harjutus!</div>';
-                    return;
+                if (type === 'weights') {
+                    const validSets = this.currentSets.filter(s => s.weight !== '' && parseInt(s.reps) > 0);
+                    if(validSets.length === 0) { alert("Sisesta vähemalt üks seeria!"); return; }
+                    workoutEntry.sets = validSets;
+                    workoutEntry.comment = document.getElementById('comment-weights').value.trim();
+                } else {
+                    const time = document.getElementById('cardio-time').value;
+                    const dist = document.getElementById('cardio-dist').value;
+                    if(!time && !dist) { alert("Sisesta vähemalt aeg või distants!"); return; }
+                    workoutEntry.duration = time;
+                    workoutEntry.distance = dist;
+                    workoutEntry.kcal = document.getElementById('cardio-kcal').value;
+                    workoutEntry.comment = document.getElementById('comment-cardio').value.trim();
                 }
 
-                this.history.forEach((session, sessionIndex) => {
-                    let setsHTML = '';
-                    session.sets.forEach((s, i) => {
-                        setsHTML += `
-                            <div class="history-set">
-                                <span style="color: var(--text-muted);">Seeria ${i + 1}</span>
-                                <span><strong style="color: white;">${s.weight}</strong> kg × <strong style="color: white;">${s.reps}</strong> kordust</span>
-                            </div>
-                        `;
+                this.history.push(workoutEntry);
+                localStorage.setItem('247app_history_v14', JSON.stringify(this.history));
+                
+                this.navTo('view-history', 2);
+            },
+
+            // ================= KALENDER =================
+            changeMonth: function(offset) {
+                this.currentDate.setMonth(this.currentDate.getMonth() + offset);
+                this.renderCalendar();
+            },
+
+            renderCalendar: function() {
+                const year = this.currentDate.getFullYear();
+                const month = this.currentDate.getMonth();
+                
+                document.getElementById('cal-month-year').innerText = `${this.monthNames[month]} ${year}`;
+                
+                // Esimene päev ja päevade arv kuus
+                let firstDay = new Date(year, month, 1).getDay();
+                if (firstDay === 0) firstDay = 7; // Pühapäev (0) teeme 7
+                firstDay -= 1; // Nihutame nii, et Esmaspäev = 0
+
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const calendarEl = document.getElementById('calendar-days');
+                calendarEl.innerHTML = '';
+
+                // Tühjad lahtrid enne kuu algust
+                for (let i = 0; i < firstDay; i++) {
+                    calendarEl.innerHTML += `<div class="day-cell empty"></div>`;
+                }
+
+                const todayISO = new Date().toISOString().split('T')[0];
+
+                // Päevad
+                for (let i = 1; i <= daysInMonth; i++) {
+                    // Formateerime kuupäeva võrdlemiseks: YYYY-MM-DD
+                    const checkDate = new Date(year, month, i);
+                    // Kohaliku aja nihke parandus ISO stringi saamiseks
+                    const offset = checkDate.getTimezoneOffset() * 60000;
+                    const isoDate = (new Date(checkDate - offset)).toISOString().split('T')[0];
+
+                    const dayHistory = this.history.filter(h => h.dateISO === isoDate);
+                    
+                    let hasWeights = false;
+                    let hasCardio = false;
+                    let ratingHTML = '';
+
+                    dayHistory.forEach(h => {
+                        if (h.type === 'weights') hasWeights = true;
+                        if (h.type === 'cardio') hasCardio = true;
+                        // Kuvame viimase hinnangu ikoonina
+                        if (h.rating === 'good') ratingHTML = `<i class="fa-solid fa-arrow-up day-rating-icon good"></i>`;
+                        if (h.rating === 'bad') ratingHTML = `<i class="fa-solid fa-arrow-down day-rating-icon bad"></i>`;
                     });
 
-                    container.innerHTML += `
+                    const dotsHTML = `
+                        <div class="day-indicators">
+                            ${hasWeights ? '<div class="dot weights"></div>' : ''}
+                            ${hasCardio ? '<div class="dot cardio"></div>' : ''}
+                        </div>
+                    `;
+
+                    const isToday = isoDate === todayISO ? 'today' : '';
+
+                    calendarEl.innerHTML += `
+                        <div class="day-cell ${isToday}" onclick="app.openDayModal('${isoDate}', ${i}, '${this.monthNames[month]}')">
+                            <span class="day-number">${i}</span>
+                            ${ratingHTML}
+                            ${dotsHTML}
+                        </div>
+                    `;
+                }
+            },
+
+            openDayModal: function(isoDate, dayNum, monthName) {
+                const dayHistory = this.history.filter(h => h.dateISO === isoDate);
+                
+                if (dayHistory.length === 0) {
+                    // Kui trenne pole, ei ava midagi või kuvame teate
+                    return; 
+                }
+
+                document.getElementById('modal-date-title').innerText = `${dayNum}. ${monthName}`;
+                const bodyEl = document.getElementById('modal-content-body');
+                bodyEl.innerHTML = '';
+
+                // Sorteerime uuemad ettepanekud id (timestamp) järgi tagurpidi
+                dayHistory.slice().reverse().forEach(session => {
+                    let content = '';
+                    
+                    if (session.type === 'weights') {
+                        session.sets.forEach((s, i) => {
+                            content += `<div class="history-set"><span style="color: var(--text-muted);">Seeria ${i+1}</span><span><strong style="color: white;">${s.weight}</strong> kg × <strong style="color: white;">${s.reps}</strong> kordust</span></div>`;
+                        });
+                    } else {
+                        content += `<div class="history-set"><span style="color: var(--text-muted);">Aeg / Distants</span><span><strong style="color: white;">${session.duration||0}</strong> min / <strong style="color: white;">${session.distance||0}</strong> km</span></div>`;
+                        if (session.kcal) content += `<div class="history-set"><span style="color: var(--text-muted);">Kalorid</span><span><strong style="color: white;">${session.kcal}</strong> kcal</span></div>`;
+                    }
+
+                    let ratingHTML = '';
+                    if (session.rating === 'good') ratingHTML = `<div class="history-rating good"><i class="fa-solid fa-arrow-up"></i> Hea trenn</div>`;
+                    if (session.rating === 'bad') ratingHTML = `<div class="history-rating bad"><i class="fa-solid fa-arrow-down"></i> Kehv trenn</div>`;
+
+                    let commentHTML = session.comment ? `<div class="history-comment">"${session.comment}"</div>` : '';
+
+                    bodyEl.innerHTML += `
                         <div class="history-card">
                             <div class="history-card-header">
-                                <div>
-                                    <div class="history-machine">${session.machine}</div>
-                                    <div class="history-date"><i class="fa-regular fa-calendar" style="margin-right: 4px;"></i>${session.date} kell ${session.time}</div>
+                                <div class="history-machine">
+                                    <i class="fa-solid ${session.type === 'weights' ? 'fa-dumbbell weights' : 'fa-heart-pulse cardio'}"></i> ${session.machine}
                                 </div>
-                                <button class="history-del-btn" onclick="app.deleteHistoryEntry(${sessionIndex})">Kustuta</button>
+                                <span style="font-size: 12px; color: var(--text-muted);">${session.time}</span>
                             </div>
-                            <div style="padding-top: 4px;">
-                                ${setsHTML}
-                            </div>
+                            ${content}
+                            ${ratingHTML}
+                            ${commentHTML}
+                            <button class="btn-delete-history" onclick="app.deleteHistoryEntry(${session.id})">Kustuta see kirje</button>
                         </div>
                     `;
                 });
+
+                document.getElementById('day-modal').classList.add('active');
             },
 
-            deleteHistoryEntry: function(index) {
-                if(confirm("Kas oled kindel, et soovid selle harjutuse ajaloost kustutada?")) {
-                    this.history.splice(index, 1);
-                    localStorage.setItem('247app_history_v13', JSON.stringify(this.history));
-                    this.renderHistory();
+            closeModal: function() {
+                document.getElementById('day-modal').classList.remove('active');
+            },
+
+            deleteHistoryEntry: function(id) {
+                if(confirm("Kas kustutada see treening?")) {
+                    this.history = this.history.filter(h => h.id !== id);
+                    localStorage.setItem('247app_history_v14', JSON.stringify(this.history));
+                    this.closeModal();
+                    this.renderCalendar(); // Värskendame kalendrit
                 }
             },
 
             exportPDF: function() {
-                if(this.history.length === 0) {
-                    alert("Ajalugu on tühi, pole midagi salvestada!");
-                    return;
-                }
-
+                if(this.history.length === 0) { alert("Ajalugu on tühi!"); return; }
                 window.scrollTo(0, 0);
 
-                let pdfContentHTML = `
-                    <div style="max-width: 600px; margin: 0 auto; color: #000; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
-                        <h1 style="text-align: center; margin-bottom: 5px; color: #000; font-weight: 900; font-size: 24px;">24/7 FITNESS LOGI</h1>
-                        <p style="text-align: center; margin-bottom: 20px; color: #555; font-size: 13px;">Treeningute raport</p>
-                        
-                        <div style="background: #f4f4f5; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; border: 1px solid #e4e4e7;">
-                            <strong>Kasutaja:</strong> ${this.profile.name || 'Nimetu'}<br>
-                            <strong>Vanus:</strong> ${this.profile.age || '-'} a &nbsp;|&nbsp; <strong>Kaal:</strong> ${this.profile.weight || '-'} kg
-                        </div>
+                let pdfHTML = `
+                    <div style="max-width: 600px; margin: 0 auto; color: #000; font-family: sans-serif;">
+                        <h1 style="text-align: center; margin-bottom: 20px;">24/7 FITNESS - AJALUGU</h1>
+                        <p style="text-align: center;">Kasutaja: ${this.profile.name || 'Nimetu'}</p>
                 `;
 
-                this.history.forEach((session) => {
-                    pdfContentHTML += `
-                        <div style="border: 1px solid #e4e4e7; border-radius: 8px; padding: 14px; margin-bottom: 12px; background: #fafafa;">
-                            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e4e4e7; padding-bottom: 8px; margin-bottom: 8px;">
-                                <strong style="font-size: 16px; color: #000;">${session.machine}</strong>
-                                <span style="font-size: 12px; color: #666;">${session.date} kell ${session.time}</span>
-                            </div>
-                            <div style="font-size: 13px;">
+                // Grupeerime kuupäeva järgi PDFis
+                const sortedHistory = this.history.slice().sort((a,b) => b.id - a.id);
+                
+                sortedHistory.forEach(s => {
+                    pdfHTML += `
+                        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+                            <strong>${s.dateISO} kell ${s.time} - ${s.machine} (${s.type})</strong><br>
                     `;
-                    session.sets.forEach((s, i) => {
-                        pdfContentHTML += `
-                            <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #eee;">
-                                <span style="color: #666;">Seeria ${i + 1}</span>
-                                <span style="color: #000; font-weight: 700;">${s.weight} kg × ${s.reps} kordust</span>
-                            </div>
-                        `;
-                    });
-                    pdfContentHTML += `</div></div>`;
+                    if (s.type === 'weights') {
+                        s.sets.forEach((set, i) => pdfHTML += `Seeria ${i+1}: ${set.weight}kg x ${set.reps}<br>`);
+                    } else {
+                        pdfHTML += `${s.duration||0} min / ${s.distance||0} km / ${s.kcal||0} kcal<br>`;
+                    }
+                    if(s.comment) pdfHTML += `<em>Kommentaar: ${s.comment}</em><br>`;
+                    pdfHTML += `</div>`;
                 });
 
-                pdfContentHTML += `</div>`;
+                pdfHTML += `</div>`;
 
                 const printContainer = document.createElement('div');
-                printContainer.innerHTML = pdfContentHTML;
-                printContainer.style.padding = '30px';
-                printContainer.style.background = '#ffffff';
-                printContainer.style.minHeight = '100vh';
-                
-                const mainApp = document.getElementById('main-app');
-                
-                mainApp.style.display = 'none';
+                printContainer.innerHTML = pdfHTML;
+                printContainer.style.background = '#fff';
                 document.body.appendChild(printContainer);
-                document.body.style.background = '#ffffff';
+                document.getElementById('main-app').style.display = 'none';
 
-                const opt = {
-                    margin:       0.5,
-                    filename:     `Treeningud_${this.profile.name || 'Logi'}.pdf`,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
-                    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-                };
+                const opt = { margin: 0.5, filename: `Treeningud.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
 
                 setTimeout(() => {
                     html2pdf().set(opt).from(printContainer).save().then(() => {
                         document.body.removeChild(printContainer);
-                        mainApp.style.display = 'flex';
-                        document.body.style.background = "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop') no-repeat center center fixed";
-                        document.body.style.backgroundSize = "cover";
-                    }).catch(err => {
-                        alert("Viga PDF-i salvestamisel: " + err);
-                        document.body.removeChild(printContainer);
-                        mainApp.style.display = 'flex';
+                        document.getElementById('main-app').style.display = 'flex';
                     });
                 }, 100);
             }
         };
 
-        window.onload = function() {
-            app.init();
-        };
+        window.onload = () => app.init();
     </script>
 </body>
 </html>
